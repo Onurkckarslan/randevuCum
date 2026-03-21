@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Gelir Takibi — {{ biz.name }}{% endblock %}
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; }
+.rev-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.rev-title { font-size: 1.2rem; font-weight: 800; color: #f1f0f5; }
+.rev-back { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); color: #c4b5fd; border-radius: 10px; padding: 7px 16px; font-size: .82rem; font-weight: 600; text-decoration: none; }
+.rev-back:hover { background: rgba(255,255,255,.13); color: #e9d5ff; }
+
+/* Month Nav */
+.month-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 10px 16px; margin-bottom: 20px; }
+.month-btn { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); color: #c4b5fd; border-radius: 8px; padding: 6px 14px; font-size: .82rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background .15s; font-family: inherit; }
+.month-btn:hover { background: rgba(124,58,237,.2); color: #e9d5ff; }
+.month-btn.active { background: linear-gradient(135deg,#7c3aed,#ec4899); color: white; border-color: transparent; }
+.month-label { font-size: 1rem; font-weight: 800; color: #f1f0f5; }
+
+/* Summary Cards */
+.rev-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+.rev-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 20px; text-align: center; }
+.rev-card-val { font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
+.rev-card-val.gradient { background: linear-gradient(135deg, #a78bfa, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.rev-card-label { font-size: .75rem; font-weight: 700; color: rgba(196,181,253,.5); }
+.rev-card-change { font-size: .72rem; font-weight: 700; margin-top: 6px; }
+.rev-up { color: #34d399; }
+.rev-down { color: #fca5a5; }
+
+/* Staff Table */
+.rev-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.rev-table th { padding: 10px 14px; font-size: .7rem; font-weight: 800; letter-spacing: .08em; color: rgba(196,181,253,.5); text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.1); text-align: left; }
+.rev-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.05); color: #f1f0f5; font-size: .88rem; }
+.rev-table tr:hover td { background: rgba(124,58,237,.06); }
+.staff-name-cell { font-weight: 700; }
+.staff-count { font-weight: 800; color: #a78bfa; }
+.staff-revenue { font-weight: 900; background: linear-gradient(135deg, #a78bfa, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* Detail Table */
+.detail-wrap { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; overflow: hidden; }
+.detail-table { width: 100%; border-collapse: collapse; }
+.detail-table th { padding: 10px 14px; font-size: .7rem; font-weight: 800; letter-spacing: .08em; color: rgba(196,181,253,.5); text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.1); text-align: left; background: rgba(0,0,0,.2); position: sticky; top: 0; }
+.detail-table td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.04); color: #e9e3f5; font-size: .85rem; }
+.detail-table tr:hover td { background: rgba(124,58,237,.05); }
+.price-cell { font-weight: 800; color: #a78bfa; }
+
+/* Section */
+.rev-section { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 20px; margin-bottom: 20px; }
+.rev-section-title { font-size: .95rem; font-weight: 800; color: #f1f0f5; margin-bottom: 16px; }
+
+@media(max-width: 768px) {
+  .rev-cards { grid-template-columns: 1fr; }
+  .rev-card-val { font-size: 1.5rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rev-header">
+  <h5 class="rev-title mb-0">💰 Gelir Takibi</h5>
+  <a href="/panel" class="rev-back">← Panel</a>
+</div>
+
+<!-- Ay Navigasyonu -->
+<div class="month-nav">
+  {% set prev_m = sel_month - 1 if sel_month > 1 else 12 %}
+  {% set prev_y = sel_year if sel_month > 1 else sel_year - 1 %}
+  {% set next_m = sel_month + 1 if sel_month < 12 else 1 %}
+  {% set next_y = sel_year if sel_month < 12 else sel_year + 1 %}
+  <a href="/panel/gelir-takibi?ay={{ '%04d-%02d'|format(prev_y, prev_m) }}" class="month-btn">← Önceki</a>
+  <span class="month-label">📅 {{ ay_isim }} {{ sel_year }}</span>
+  <a href="/panel/gelir-takibi?ay={{ '%04d-%02d'|format(next_y, next_m) }}" class="month-btn">Sonraki →</a>
+  <a href="/panel/gelir-takibi" class="month-btn active">Bu Ay</a>
+</div>
+
+<!-- Özet Kartlar -->
+<div class="rev-cards">
+  <div class="rev-card">
+    <div class="rev-card-val gradient">{{ "{:,.0f}".format(total_revenue).replace(",", ".") }}₺</div>
+    <div class="rev-card-label">Toplam Gelir</div>
+    {% if prev_revenue > 0 %}
+      {% set change = ((total_revenue - prev_revenue) / prev_revenue * 100)|round(1) %}
+      <div class="rev-card-change {% if change >= 0 %}rev-up{% else %}rev-down{% endif %}">
+        {{ "▲" if change >= 0 else "▼" }} {{ change }}% önceki aya göre
+      </div>
+    {% endif %}
+  </div>
+  <div class="rev-card">
+    <div class="rev-card-val" style="color:#a78bfa;">{{ total_count }}</div>
+    <div class="rev-card-label">Toplam Randevu</div>
+    {% if prev_count > 0 %}
+      {% set c_change = ((total_count - prev_count) / prev_count * 100)|round(1) %}
+      <div class="rev-card-change {% if c_change >= 0 %}rev-up{% else %}rev-down{% endif %}">
+        {{ "▲" if c_change >= 0 else "▼" }} {{ c_change }}%
+      </div>
+    {% endif %}
+  </div>
+  <div class="rev-card">
+    <div class="rev-card-val" style="color:#06b6d4;">{{ "{:,.0f}".format(total_revenue / total_count if total_count else 0).replace(",", ".") }}₺</div>
+    <div class="rev-card-label">Ortalama Randevu Ücreti</div>
+  </div>
+</div>
+
+<!-- Personel Bazlı Gelir -->
+{% if staff_revenue %}
+<div class="rev-section">
+  <div class="rev-section-title">👥 Personel Bazlı Gelir</div>
+  <div style="overflow-x:auto;">
+    <table class="rev-table">
+      <thead><tr><th>Personel</th><th>Randevu</th><th>Gelir</th><th>Ort. Ücret</th></tr></thead>
+      <tbody>
+        {% for name, data in staff_revenue.items()|sort(attribute='1.revenue', reverse=true) %}
+        <tr>
+          <td class="staff-name-cell">{{ name }}</td>
+          <td class="staff-count">{{ data.count }}</td>
+          <td class="staff-revenue">{{ "{:,.0f}".format(data.revenue).replace(",", ".") }}₺</td>
+          <td style="color:rgba(196,181,253,.6);">{{ "{:,.0f}".format(data.revenue / data.count if data.count else 0).replace(",", ".") }}₺</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Detaylı Randevu Listesi -->
+<div class="rev-section">
+  <div class="rev-section-title">📋 Randevu Detayları — {{ ay_isim }} {{ sel_year }}</div>
+  {% if appointments %}
+  <div class="detail-wrap" style="max-height:500px;overflow:auto;">
+    <table class="detail-table">
+      <thead><tr><th>Tarih</th><th>Saat</th><th>Müşteri</th><th>Hizmet</th><th>Personel</th><th>Ücret</th></tr></thead>
+      <tbody>
+        {% for a in appointments %}
+        <tr>
+          <td>{{ a.date }}</td>
+          <td style="color:#a78bfa;font-weight:700;">{{ a.time }}</td>
+          <td>{{ a.customer_name }}</td>
+          <td>{{ a.service.name if a.service else "—" }}</td>
+          <td>{{ a.staff.name if a.staff else "—" }}</td>
+          <td class="price-cell">{{ a.service.price if a.service and a.service.price else 0 }}₺</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:40px;color:rgba(196,181,253,.35);">
+    <div style="font-size:2.5rem;margin-bottom:8px;">📊</div>
+    <div style="font-weight:700;">Bu ay henüz randevu yok.</div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

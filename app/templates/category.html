@@ -1,0 +1,726 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ kat.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── CATEGORY PAGE DARK THEME ── */
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+/* Breadcrumb */
+.crumb-link { color: #a78bfa; text-decoration: none; font-size: .8rem; font-weight: 600; }
+.crumb-link:hover { color: #c4b5fd; }
+.crumb-sep { color: rgba(196,181,253,.3); margin: 0 8px; font-size: .8rem; }
+.crumb-cur { color: rgba(196,181,253,.55); font-size: .8rem; }
+
+/* ── Category Hero — Background Image ── */
+.cat-hero {
+  position: relative; border-radius: 24px; overflow: hidden;
+  min-height: 240px; display: flex; flex-direction: column;
+  justify-content: flex-end; margin-bottom: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.cat-hero-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transform: scale(1.03);
+  transition: transform 9s ease;
+}
+.cat-hero:hover .cat-hero-bg { transform: scale(1.07); }
+.cat-hero-overlay {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to right, rgba(0,0,0,.88) 0%, rgba(0,0,0,.45) 55%, rgba(0,0,0,.15) 100%),
+    linear-gradient(to top, rgba(8,4,20,.95) 0%, transparent 50%);
+}
+/* Shimmer border */
+.cat-hero::after {
+  content: ''; position: absolute; inset: 0; border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.1); pointer-events: none; z-index: 3;
+}
+.cat-hero-content {
+  position: relative; z-index: 2; padding: 36px 40px;
+}
+.cat-hero-emoji-wrap {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 16px;
+  background: rgba(255,255,255,.12); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.18);
+  font-size: 1.7rem; margin-bottom: 14px;
+}
+.cat-title {
+  font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 900;
+  letter-spacing: -1px; color: #fff; margin-bottom: 8px;
+  text-shadow: 0 2px 24px rgba(0,0,0,.6);
+}
+.cat-desc {
+  font-size: .92rem; color: rgba(255,255,255,.72);
+  max-width: 500px; line-height: 1.65;
+  text-shadow: 0 1px 10px rgba(0,0,0,.5);
+}
+/* Count badge */
+.cat-count-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(124,58,237,.35); backdrop-filter: blur(8px);
+  border: 1px solid rgba(124,58,237,.4); color: #c4b5fd;
+  border-radius: 20px; padding: 4px 14px; font-size: .78rem; font-weight: 700;
+  margin-top: 14px;
+}
+/* Fallback gradient (no image) */
+.cat-hero-fallback {
+  background: linear-gradient(135deg, #1e0b4b 0%, #3b0764 50%, #1e1040 100%);
+}
+
+/* Search bar */
+.cat-search {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px; padding: 12px 14px; margin-bottom: 20px;
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  /* overflow MUST be visible for dropdowns */
+  overflow: visible !important;
+}
+/* Field wrapper — dropdown anchor */
+.cat-field {
+  position: relative; flex: 1; min-width: 180px;
+  display: flex; align-items: center;
+}
+.cat-ico {
+  position: absolute; left: 12px; font-size: .88rem;
+  pointer-events: none; z-index: 1;
+}
+.cat-search-input {
+  background: rgba(0,0,0,.35) !important; border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 12px !important; color: #f1f0f5 !important;
+  font-size: .87rem !important; padding: 10px 14px 10px 36px !important;
+  width: 100%;
+  transition: border-color .15s, box-shadow .15s;
+}
+.cat-search-input::placeholder { color: rgba(196,181,253,.3) !important; }
+.cat-search-input:focus {
+  box-shadow: 0 0 0 3px rgba(124,58,237,.18), 0 0 20px rgba(124,58,237,.12) !important;
+  border-color: rgba(124,58,237,.5) !important; outline: none !important;
+}
+.cat-search-btn {
+  background: linear-gradient(135deg, #7c3aed, #ec4899); border: none;
+  color: white; border-radius: 12px; padding: 10px 22px;
+  font-size: .87rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+  font-family: 'Inter', sans-serif; transition: opacity .15s, transform .15s;
+  flex-shrink: 0;
+}
+.cat-search-btn:hover { opacity: .88; transform: translateY(-1px); }
+/* Autocomplete Dropdown */
+.cat-drop {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background: rgba(6,6,14,.98);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px; padding: 6px;
+  z-index: 999;
+  display: none;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(124,58,237,.08);
+  max-height: 240px; overflow-y: auto;
+}
+.cat-drop.show { display: block; }
+.cat-drop-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 9px;
+  cursor: pointer; transition: background .12s;
+  color: #e9d5ff; font-size: .85rem; font-weight: 500;
+}
+.cat-drop-item:hover { background: rgba(124,58,237,.18); color: #f3eeff; }
+.cat-drop-icon { font-size: .9rem; flex-shrink: 0; width: 20px; text-align: center; }
+
+/* Category filter chips — yatay kaydırmalı */
+.cat-chips-wrap {
+  position: relative; margin-bottom: 24px;
+}
+.cat-chips-wrap::before,
+.cat-chips-wrap::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 40px; z-index: 2; pointer-events: none;
+}
+.cat-chips-wrap::before { left: 0; background: linear-gradient(to right, #0d0d16, transparent); }
+.cat-chips-wrap::after  { right: 0; background: linear-gradient(to left, #0d0d16, transparent); }
+.cat-chips {
+  display: flex; gap: 8px; flex-wrap: nowrap;
+  overflow-x: auto; scroll-behavior: smooth;
+  padding: 4px 2px 8px; margin-bottom: 0;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.cat-chips::-webkit-scrollbar { display: none; }
+.cat-chip {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(196,181,253,.7); border-radius: 20px; padding: 6px 14px;
+  font-size: .78rem; font-weight: 600; text-decoration: none; transition: all .15s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.cat-chip:hover { background: rgba(124,58,237,.15); border-color: rgba(124,58,237,.3); color: #c4b5fd; }
+.cat-chip.active { background: linear-gradient(135deg,rgba(124,58,237,.3),rgba(236,72,153,.2)); border-color: rgba(124,58,237,.5); color: #e9d5ff; }
+
+/* CTA banner */
+.cat-cta {
+  background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(6,182,212,.1));
+  border: 1px solid rgba(16,185,129,.25); border-radius: 14px;
+  padding: 14px 20px; text-align: center; font-size: .88rem; font-weight: 700;
+  color: #6ee7b7; text-decoration: none; display: block; margin-bottom: 24px;
+  transition: background .15s;
+}
+.cat-cta:hover { background: linear-gradient(135deg, rgba(16,185,129,.2), rgba(6,182,212,.16)); color: #a7f3d0; }
+
+/* ── SALON CARDS ── */
+.salon-card {
+  background: rgba(18,12,30,.9);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 16px; overflow: hidden;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch;
+  transition: all .2s;
+  text-decoration: none; color: #f1f0f5;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  min-height: 160px;
+}
+.salon-card:hover {
+  border-color: rgba(124,58,237,.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(124,58,237,.2);
+  color: #f1f0f5;
+}
+/* Sol — Fotoğraf */
+.sc-img {
+  width: 200px !important;
+  min-width: 200px !important;
+  flex-shrink: 0 !important;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.5rem; position: relative; overflow: hidden;
+  background: linear-gradient(135deg,#1e0b4b,#3b0764);
+}
+.sc-img-inner {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+.sc-badge {
+  position: absolute; top: 14px; left: -20px;
+  background: linear-gradient(135deg,#7c3aed,#ec4899);
+  color: white; padding: 4px 30px;
+  font-size: .62rem; font-weight: 800; letter-spacing: .06em;
+  transform: rotate(-35deg);
+  box-shadow: 0 2px 10px rgba(124,58,237,.5);
+  z-index: 2;
+}
+/* Orta — Bilgi */
+.sc-body {
+  flex: 1 1 auto !important;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; justify-content: center;
+  min-width: 0;
+}
+.sc-name { font-size: 1rem; font-weight: 900; color: #e9d5ff; margin-bottom: 5px; }
+.sc-stars { color: #fbbf24; font-size: .82rem; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
+.sc-loc { font-size: .76rem; color: rgba(196,181,253,.55); margin-bottom: 8px; }
+.sc-loc a { color: #a78bfa; text-decoration: none; }
+.sc-loc a:hover { color: #c4b5fd; }
+.sc-desc { font-size: .8rem; color: rgba(241,240,245,.5); line-height: 1.6; }
+/* Sağ — Fiyat + Buton */
+.sc-price-col {
+  width: 150px !important;
+  min-width: 150px !important;
+  flex-shrink: 0 !important;
+  padding: 18px 16px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-left: 1px solid rgba(255,255,255,.07);
+  gap: 10px;
+}
+.sc-price-big {
+  font-size: 1.8rem; font-weight: 900; line-height: 1;
+  background: linear-gradient(135deg,#a78bfa,#ec4899);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.sc-price-sub { font-size: .68rem; color: rgba(196,181,253,.4); text-align: center; margin-top: 2px; }
+.sc-book-btn {
+  background: linear-gradient(135deg,#7c3aed,#ec4899);
+  border: none; color: white; border-radius: 10px;
+  padding: 9px 0; font-size: .8rem; font-weight: 800;
+  width: 100%; text-align: center; text-decoration: none;
+  display: block; transition: opacity .15s;
+  box-shadow: 0 3px 12px rgba(124,58,237,.3);
+}
+.sc-book-btn:hover { opacity: .88; color: white; }
+
+/* Empty state */
+.cat-empty { text-align: center; padding: 60px 20px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 20px; }
+
+/* Info / FAQ section */
+.info-card {
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 18px; padding: 24px;
+}
+.info-card h2 { font-size: 1.15rem; font-weight: 800; color: #e9d5ff; margin-bottom: 16px; }
+.info-card p { font-size: .88rem; color: rgba(241,240,245,.6); line-height: 1.8; margin-bottom: 12px; }
+.faq-item { border-bottom: 1px solid rgba(255,255,255,.06); padding: 12px 0; }
+.faq-q { font-size: .88rem; font-weight: 700; color: #c4b5fd; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.faq-a { font-size: .84rem; color: rgba(241,240,245,.55); line-height: 1.6; margin-top: 8px; display: none; }
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-icon { transform: rotate(180deg); }
+.faq-icon { transition: transform .2s; font-style: normal; }
+
+/* Hizmet grid */
+.svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.svc-link {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 14px 10px; text-align: center; text-decoration: none;
+  color: #c4b5fd; transition: all .15s;
+}
+.svc-link:hover { background: rgba(124,58,237,.12); border-color: rgba(124,58,237,.3); color: #e9d5ff; transform: translateY(-2px); }
+.svc-link-icon { font-size: 1.6rem; margin-bottom: 6px; display: block; }
+.svc-link-name { font-size: .78rem; font-weight: 700; display: block; }
+.svc-link-cta { font-size: .68rem; color: rgba(196,181,253,.45); margin-top: 3px; display: block; }
+
+/* Responsive */
+@media(max-width:700px){
+  .sc-img { width: 100% !important; min-width: unset !important; height: 160px; }
+  .sc-price-col {
+    width: 100% !important; min-width: unset !important;
+    border-left: none; border-top: 1px solid rgba(255,255,255,.06);
+    flex-direction: row; padding: 14px 16px; gap: 12px;
+  }
+  .sc-book-btn { width: auto; padding: 9px 20px; }
+  .salon-desktop { display:none !important; }
+  .salon-mobile  { display:block !important; }
+}
+@media(min-width:701px){
+  .salon-desktop { display:table !important; }
+  .salon-mobile  { display:none !important; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="mb-4">
+  <a href="/" class="crumb-link">Ana Sayfa</a>
+  <span class="crumb-sep">›</span>
+  <span class="crumb-cur">{{ kat.isim }}</span>
+</nav>
+
+<!-- Hero Strip — Contextual Background Image -->
+{% set hero_imgs = {
+  'kuaforler':      'https://source.unsplash.com/1200x400/?hair+salon+hairdresser+interior',
+  'berberler':      'https://source.unsplash.com/1200x400/?barbershop+barber+haircut+men',
+  'guzellik':       'https://source.unsplash.com/1200x400/?beauty+salon+cosmetics+skincare',
+  'spa':            'https://source.unsplash.com/1200x400/?spa+massage+wellness+relax',
+  'tirnak':         'https://source.unsplash.com/1200x400/?nail+art+manicure+nails',
+  'dovme':          'https://source.unsplash.com/1200x400/?tattoo+studio+ink+artist',
+  'saglikli-yasam': 'https://source.unsplash.com/1200x400/?yoga+pilates+fitness+gym',
+  'tesettur':       'https://source.unsplash.com/1200x400/?hair+salon+women+styling',
+  'solaryum':       'https://source.unsplash.com/1200x400/?tanning+solarium+sunbed+bronze',
+} %}
+{% set hero_img = hero_imgs.get(kat.slug, '') %}
+
+<div class="cat-hero mb-4 {{ '' if hero_img else 'cat-hero-fallback' }}">
+  {% if hero_img %}
+  <div class="cat-hero-bg" style="background-image:url('{{ hero_img }}');"></div>
+  {% endif %}
+  <div class="cat-hero-overlay"></div>
+  <div class="cat-hero-content">
+    <div class="cat-hero-emoji-wrap">{{ kat.emoji }}</div>
+    <h1 class="cat-title">{{ kat.isim }}</h1>
+    <p class="cat-desc">{{ kat.aciklama }}</p>
+    <div class="cat-count-badge">
+      ✦ {{ businesses|length }} kayıtlı işletme
+    </div>
+  </div>
+</div>
+
+<!-- Arama + Autocomplete Dropdown -->
+<div class="cat-search">
+
+  <!-- Hizmet / Salon input -->
+  <div class="cat-field" id="catSvcField">
+    <span class="cat-ico">🔍</span>
+    <input id="catSvc" class="cat-search-input" type="text"
+           placeholder="Salon veya hizmet ara..."
+           autocomplete="off"
+           oninput="updateCatSvcDrop()"
+           onfocus="updateCatSvcDrop()"
+           onkeydown="if(event.key==='Enter') { filterCards(); closeCatDrops(); }">
+    <div class="cat-drop" id="catSvcDrop"></div>
+  </div>
+
+  <!-- Şehir input -->
+  <div class="cat-field" id="catCityField">
+    <span class="cat-ico">📍</span>
+    <input id="catCity" class="cat-search-input" type="text"
+           placeholder="Şehir ara (İstanbul, Ankara...)"
+           autocomplete="off"
+           oninput="updateCatCityDrop()"
+           onfocus="updateCatCityDrop()"
+           onkeydown="if(event.key==='Enter') { filterCards(); closeCatDrops(); }">
+    <div class="cat-drop" id="catCityDrop"></div>
+  </div>
+
+  <button class="cat-search-btn" onclick="filterCards(); closeCatDrops();">🔍 Ara</button>
+</div>
+
+<!-- Kategori Filtre Chip'leri — yatay kaydırmalı -->
+<div class="cat-chips-wrap mb-4">
+  <div class="cat-chips" id="catChips">
+    {% for k_slug, k in tum_kategoriler.items() %}
+    <a href="/kategori/{{ k_slug }}"
+       class="cat-chip {{ 'active' if k_slug == kat.slug else '' }}">
+      {{ k.emoji }} {{ k.isim }}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- CTA Banner -->
+<a href="/kayit" class="cat-cta mb-4">
+  ✦ &nbsp;Salonunuzu ekleyin — Tamamen ücretsiz! &nbsp;→
+</a>
+
+<!-- Salon Listesi -->
+<div id="salonListesi" style="display:flex;flex-direction:column;gap:14px;margin-bottom:40px;">
+{% if businesses %}
+  {% for biz in businesses %}
+  {% set min_price = namespace(val=0) %}
+  {% for s in biz.services %}{% if s.price and (min_price.val == 0 or s.price < min_price.val) %}{% set min_price.val = s.price %}{% endif %}{% endfor %}
+  {% set cover = biz.photos|selectattr("is_cover")|list %}
+
+  <div class="salon-item" data-name="{{ biz.name|lower }}" data-loc="{{ (biz.district or biz.city or '')|lower }}"
+       style="border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.09);
+              box-shadow:0 4px 20px rgba(0,0,0,.3);background:rgba(18,12,30,.95);">
+
+    <!-- MASAÜSTÜ LAYOUT -->
+    <table class="salon-desktop" style="width:100%;border-collapse:collapse;table-layout:fixed;">
+      <tr>
+        <td style="width:260px;height:220px;overflow:hidden;position:relative;
+                   background:linear-gradient(135deg,#1e0b4b,#3b0764);text-align:center;font-size:3rem;vertical-align:middle;">
+          {% if cover %}
+          <img src="/static/uploads/{{ cover[0].filename }}" alt="{{ biz.name }}"
+               style="width:100%;height:220px;object-fit:cover;display:block;">
+          {% else %}{{ kat.emoji }}{% endif %}
+          <div style="position:absolute;top:16px;left:-20px;background:linear-gradient(135deg,#7c3aed,#ec4899);
+                      color:white;padding:4px 30px;font-size:.6rem;font-weight:800;
+                      transform:rotate(-35deg);z-index:3;">Öne Çıkan</div>
+        </td>
+        <td style="vertical-align:middle;padding:18px 22px;">
+          <div style="font-size:1.1rem;font-weight:900;color:#e9d5ff;margin-bottom:5px;letter-spacing:-.3px;">{{ biz.name }}</div>
+          <div style="margin-bottom:6px;">
+            <span style="color:#fbbf24;">★★★★★</span>
+            <span style="color:#fbbf24;font-weight:800;"> 5.0</span>
+            <span style="color:rgba(196,181,253,.4);font-size:.72rem;"> (Yeni)</span>
+          </div>
+          <div style="font-size:.76rem;color:rgba(196,181,253,.55);margin-bottom:9px;">
+            📍 {{ biz.district or biz.city or kat.isim }}
+          </div>
+          <div style="font-size:.78rem;color:rgba(241,240,245,.5);line-height:1.6;
+                      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+                      border-radius:8px;padding:8px 12px;">
+            {% if biz.description %}{{ biz.description[:110] }}{% if biz.description|length > 110 %}...{% endif %}
+            {% else %}{{ biz.city or '' }} {{ kat.isim }} - online randevu al, kuyruga girme.{% endif %}
+          </div>
+        </td>
+        <td style="width:150px;vertical-align:middle;text-align:center;padding:16px;
+                   border-left:1px solid rgba(255,255,255,.07);">
+          <a href="/{{ biz.slug }}"
+             style="background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;border-radius:10px;
+                    padding:9px 0;font-size:.82rem;font-weight:800;width:100%;text-align:center;
+                    display:block;text-decoration:none;box-shadow:0 3px 12px rgba(124,58,237,.3);">
+            Randevu Al →
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <!-- MOBİL LAYOUT -->
+    <div class="salon-mobile" style="display:none;border-radius:16px;overflow:hidden;background:rgba(18,12,30,.95);">
+
+      <!-- Fotoğraf — tam genişlik -->
+      <div style="position:relative;width:100%;height:200px;overflow:hidden;background:linear-gradient(135deg,#1e0b4b,#3b0764);display:flex;align-items:center;justify-content:center;font-size:4rem;">
+        {% if cover %}
+        <img src="/static/uploads/{{ cover[0].filename }}" alt="{{ biz.name }}" style="width:100%;height:200px;object-fit:cover;display:block;position:absolute;inset:0;">
+        {% else %}<span style="position:relative;z-index:1;">{{ kat.emoji }}</span>{% endif %}
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(18,12,30,.8) 0%,transparent 50%);z-index:2;"></div>
+        <!-- Öne Çıkan badge -->
+        <div style="position:absolute;top:12px;left:12px;background:linear-gradient(135deg,#10b981,#06b6d4);color:white;padding:4px 12px;font-size:.65rem;font-weight:800;border-radius:20px;z-index:3;letter-spacing:.04em;">✦ Öne Çıkan</div>
+      </div>
+
+      <!-- İçerik -->
+      <div style="padding:16px 18px;">
+
+        <!-- İsim -->
+        <div style="font-size:1.1rem;font-weight:900;color:#e9d5ff;margin-bottom:5px;">{{ biz.name }}</div>
+
+        <!-- Yıldızlar + Konum -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div>
+            <span style="color:#fbbf24;">★★★★★</span>
+            <span style="color:#fbbf24;font-weight:800;font-size:.85rem;"> 5.0</span>
+            <span style="color:rgba(196,181,253,.4);font-size:.72rem;"> (Yeni)</span>
+          </div>
+          <div style="font-size:.75rem;color:#a78bfa;">
+            📍 {{ biz.district or biz.city or 'Merkez' }}
+          </div>
+        </div>
+
+        <!-- Açıklama -->
+        {% if biz.description %}
+        <div style="font-size:.78rem;color:rgba(241,240,245,.5);line-height:1.55;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:9px 12px;margin-bottom:14px;">
+          {{ biz.description[:100] }}{% if biz.description|length > 100 %}...{% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Telefon butonu -->
+        {% if biz.phone %}
+        <a href="tel:{{ biz.phone }}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#34d399;border-radius:12px;padding:11px;font-size:.88rem;font-weight:700;text-decoration:none;margin-bottom:10px;">
+          📞 {{ biz.phone }}
+        </a>
+        {% endif %}
+
+        <!-- Randevu butonu -->
+        <a href="/{{ biz.slug }}" style="background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;border-radius:12px;padding:13px 0;font-size:.9rem;font-weight:800;text-align:center;text-decoration:none;box-shadow:0 4px 16px rgba(124,58,237,.4);display:block;width:100%;">
+          Randevu Al →
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div class="cat-empty">
+    <div style="font-size:3rem;margin-bottom:12px;">{{ kat.emoji }}</div>
+    <div style="font-weight:800;color:#c4b5fd;margin-bottom:8px;">Henüz kayıtlı {{ kat.isim }} yok</div>
+    <div style="font-size:.85rem;color:rgba(196,181,253,.5);margin-bottom:20px;">Bu kategoride ilk işletme sen ol!</div>
+    <a href="/kayit" class="sc-book-btn" style="display:inline-block;width:auto;padding:10px 28px;">Salonumu Ekle ✦</a>
+  </div>
+{% endif %}
+</div>
+
+<!-- Bilgi + SSS -->
+<div class="row g-4 mb-5">
+  <div class="col-md-7">
+    <div class="info-card">
+      <h2>{{ kat.icerik.h2 }}</h2>
+      {% for p in kat.icerik.paragraflar %}
+      <p>{{ p }}</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% if kat.icerik.sss %}
+  <div class="col-md-5">
+    <div class="info-card">
+      <h2>Sık Sorulan Sorular</h2>
+      {% for soru in kat.icerik.sss %}
+      <div class="faq-item" onclick="this.classList.toggle(&quot;open&quot;)">
+        <div class="faq-q">
+          <span>{{ soru.s }}</span>
+          <em class="faq-icon">&#9660;</em>
+        </div>
+        <div class="faq-a">{{ soru.c }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Hizmetler Grid -->
+{% if kat.hizmetler %}
+<div class="mb-5">
+  <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.5);margin-bottom:14px;">
+    📋 {{ kat.isim|upper }} HİZMETLERİ
+  </div>
+  <div class="svc-grid">
+    {% for h_slug in kat.hizmetler %}
+    {% if hizmet_map.get(h_slug) %}{% set h = hizmet_map[h_slug] %}
+    <a href="/hizmet/{{ h_slug }}" class="svc-link">
+      <span class="svc-link-icon">{{ h.emoji }}</span>
+      <span class="svc-link-name">{{ h.isim }}</span>
+      <span class="svc-link-cta">Fiyatları gör →</span>
+    </a>
+    {% endif %}{% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── DATA ─────────────────────────────────────
+const catCityList = [
+  {label:"İstanbul",  icon:"🌉"},{label:"Ankara",    icon:"🏛️"},
+  {label:"İzmir",     icon:"🌊"},{label:"Bursa",     icon:"🏔️"},
+  {label:"Antalya",   icon:"🌴"},{label:"Adana",     icon:"🌿"},
+  {label:"Konya",     icon:"🌾"},{label:"Gaziantep", icon:"🏺"},
+  {label:"Kayseri",   icon:"⛰️"},{label:"Eskişehir", icon:"🚂"},
+  {label:"Trabzon",   icon:"⛵"},{label:"Mersin",    icon:"🌊"},
+  {label:"Uşak",      icon:"📍"},{label:"Denizli",   icon:"🐓"},
+];
+
+// Kategori hizmetleri + genel liste
+const catSvcList = [
+  {% for h_slug in kat.hizmetler %}
+  {% if hizmet_map.get(h_slug) %}
+  {label:"{{ hizmet_map[h_slug].isim }}", icon:"{{ hizmet_map[h_slug].emoji }}"},
+  {% endif %}
+  {% endfor %}
+  {label:"{{ kat.isim }}", icon:"{{ kat.emoji }}"},
+  {label:"Saç Kesimi", icon:"✂️"},{label:"Fön", icon:"💨"},
+  {label:"Makyaj", icon:"💄"},{label:"Cilt Bakımı", icon:"🌿"},
+  {label:"Masaj", icon:"🤲"},{label:"SPA", icon:"🧖"},
+];
+// Tekrar kaldır
+const seen = new Set();
+const uniqueSvcList = catSvcList.filter(s => {
+  if(seen.has(s.label)) return false;
+  seen.add(s.label); return true;
+});
+
+// ── HELPERS ──────────────────────────────────
+function buildCatDropItem(icon, label, onClick) {
+  const d = document.createElement('div');
+  d.className = 'cat-drop-item';
+  d.innerHTML = '<span class="cat-drop-icon">' + icon + '</span><span>' + label + '</span>';
+  d.addEventListener('mousedown', e => { e.preventDefault(); onClick(); });
+  return d;
+}
+function closeCatDrops() {
+  document.getElementById('catSvcDrop').classList.remove('show');
+  document.getElementById('catCityDrop').classList.remove('show');
+}
+
+// ── SERVICE DROPDOWN ──────────────────────────
+const catSvcEl   = document.getElementById('catSvc');
+const catSvcDrop = document.getElementById('catSvcDrop');
+function updateCatSvcDrop() {
+  const v = catSvcEl.value.toLowerCase();
+  catSvcDrop.innerHTML = '';
+  const hits = uniqueSvcList.filter(s => s.label.toLowerCase().includes(v) || v === '');
+  if(!hits.length) { catSvcDrop.classList.remove('show'); return; }
+  hits.slice(0, 8).forEach(s =>
+    catSvcDrop.appendChild(buildCatDropItem(s.icon, s.label, () => {
+      catSvcEl.value = s.label;
+      catSvcDrop.classList.remove('show');
+      filterCards();
+    }))
+  );
+  catSvcDrop.classList.add('show');
+}
+catSvcEl.addEventListener('input', updateCatSvcDrop);
+catSvcEl.addEventListener('focus', updateCatSvcDrop);
+
+// ── CITY DROPDOWN ────────────────────────────
+const catCityEl   = document.getElementById('catCity');
+const catCityDrop = document.getElementById('catCityDrop');
+function updateCatCityDrop() {
+  const v = catCityEl.value.toLowerCase();
+  catCityDrop.innerHTML = '';
+  const hits = catCityList.filter(d => d.label.toLowerCase().includes(v) || v === '');
+  if(!hits.length) { catCityDrop.classList.remove('show'); return; }
+  hits.forEach(d =>
+    catCityDrop.appendChild(buildCatDropItem(d.icon, d.label, () => {
+      catCityEl.value = d.label;
+      catCityDrop.classList.remove('show');
+      filterCards();
+    }))
+  );
+  catCityDrop.classList.add('show');
+}
+catCityEl.addEventListener('input', updateCatCityDrop);
+catCityEl.addEventListener('focus', updateCatCityDrop);
+
+// ── OTOMATİK KAYDIRMA (sağa gider, sona gelince başa döner) ──
+const chipsEl2 = document.getElementById('catChips');
+let autoScroll = null;
+let paused = false;
+
+function startAutoScroll() {
+  autoScroll = setInterval(() => {
+    if (paused) return;
+    // Sona geldiyse başa atla
+    if (chipsEl2.scrollLeft + chipsEl2.clientWidth >= chipsEl2.scrollWidth - 2) {
+      chipsEl2.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      chipsEl2.scrollLeft += 1.5;
+    }
+  }, 20);
+}
+startAutoScroll();
+
+// Mouse üstündeyken dur, çekilince devam et
+chipsEl2.addEventListener('mouseenter', () => { paused = true; });
+chipsEl2.addEventListener('mouseleave', () => { paused = false; });
+chipsEl2.addEventListener('touchstart', () => { paused = true; }, { passive: true });
+chipsEl2.addEventListener('touchend',   () => { setTimeout(() => paused = false, 2000); }, { passive: true });
+
+// ── AKTİF CHİP'E SCROLL ──────────────────────
+const activeChip = document.querySelector('.cat-chip.active');
+if (activeChip) {
+  setTimeout(() => {
+    activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, 100);
+}
+
+// ── SÜRÜKLEYEREK KAYDIRMA (mouse + touch) ────
+const chipsEl = document.getElementById('catChips');
+let isDragging = false, startX = 0, scrollLeft = 0;
+
+chipsEl.addEventListener('mousedown', e => {
+  isDragging = true;
+  startX = e.pageX - chipsEl.offsetLeft;
+  scrollLeft = chipsEl.scrollLeft;
+  chipsEl.style.cursor = 'grabbing';
+  chipsEl.style.userSelect = 'none';
+});
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+  chipsEl.style.cursor = '';
+  chipsEl.style.userSelect = '';
+});
+chipsEl.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  e.preventDefault();
+  const x = e.pageX - chipsEl.offsetLeft;
+  const walk = (x - startX) * 1.5;
+  chipsEl.scrollLeft = scrollLeft - walk;
+});
+chipsEl.addEventListener('mouseleave', () => {
+  isDragging = false;
+  chipsEl.style.cursor = '';
+});
+
+// Touch (mobil)
+chipsEl.addEventListener('touchstart', e => {
+  startX = e.touches[0].pageX;
+  scrollLeft = chipsEl.scrollLeft;
+}, { passive: true });
+chipsEl.addEventListener('touchmove', e => {
+  const x = e.touches[0].pageX;
+  chipsEl.scrollLeft = scrollLeft - (x - startX);
+}, { passive: true });
+
+// ── CLICK OUTSIDE ────────────────────────────
+document.addEventListener('click', e => {
+  if(!e.target.closest('#catSvcField'))  catSvcDrop.classList.remove('show');
+  if(!e.target.closest('#catCityField')) catCityDrop.classList.remove('show');
+});
+
+// ── FILTER CARDS ─────────────────────────────
+function filterCards() {
+  const city = catCityEl.value.toLowerCase();
+  const name = catSvcEl.value.toLowerCase();
+  let visible = 0;
+  document.querySelectorAll('.salon-item').forEach(c => {
+    const show = (!city || c.dataset.loc.includes(city))
+              && (!name || c.dataset.name.includes(name));
+    c.style.display = show ? '' : 'none';
+    if(show) visible++;
+  });
+}
+</script>
+{% endblock %}

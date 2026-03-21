@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}İşletmeler İçin — RandevuCum{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<div class="text-center py-5 mb-5" style="background:linear-gradient(135deg,#1f2937,#374151);border-radius:24px;color:white;padding:70px 24px !important;">
+    <p style="font-size:1.1rem;letter-spacing:.12em;font-weight:700;margin-bottom:16px;background:linear-gradient(90deg,#7c3aed,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 4px rgba(124,58,237,.3));">İLK 30 GÜN ÜCRETSIZ</p>
+    <h1 class="fw-bold mb-3" style="font-size:2.5rem;letter-spacing:-.5px;">Salonunuzu<br>Dijitale Taşıyın</h1>
+    <p style="opacity:.85;max-width:500px;margin:0 auto 32px;font-size:1.05rem;">
+        Telefon trafiğini azaltın. Müşterileriniz 7/24 online randevu alsın. Siz işinize odaklanın.
+    </p>
+    <a href="/kayit" class="btn btn-primary px-5 py-3 fw-bold" style="font-size:1.05rem;">
+        Ücretsiz Başla — Hemen Dene
+    </a>
+    <p class="mt-3" style="opacity:.6;font-size:.85rem;">Kredi kartı gerekmez · Kurulum yok · 2 dakikada hazır</p>
+</div>
+
+<!-- ÖZELLİKLER -->
+<h4 class="fw-bold text-center mb-4">Her Şey Tek Yerden</h4>
+<div class="row g-3 mb-5">
+    <div class="col-md-4">
+        <div class="card p-4 h-100">
+            <div style="font-size:2rem;margin-bottom:12px;">📅</div>
+            <h6 class="fw-bold">Online Randevu Sayfası</h6>
+            <p class="text-muted small mb-0">Size özel link (randevucum.com/salon-adiniz). Müşteriler 7/24 randevu alabilir.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100">
+            <div style="font-size:2rem;margin-bottom:12px;">📲</div>
+            <h6 class="fw-bold">Otomatik SMS Hatırlatma</h6>
+            <p class="text-muted small mb-0">Randevudan 1 gün önce ve 2 saat önce müşteriye otomatik SMS gider. Gelmeme oranı düşer.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100">
+            <div style="font-size:2rem;margin-bottom:12px;">👥</div>
+            <h6 class="fw-bold">Personel Yönetimi</h6>
+            <p class="text-muted small mb-0">Birden fazla personel ekleyin. Müşteriler çalışan seçebilir, takvimleri ayrı tutulur.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100">
+            <div style="font-size:2rem;margin-bottom:12px;">🕐</div>
+            <h6 class="fw-bold">Çalışma Saati Kontrolü</h6>
+            <p class="text-muted small mb-0">Günlük açılış/kapanış saatlerini ayarlayın. Kapalı günlerde randevu alınamaz.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100">
+            <div style="font-size:2rem;margin-bottom:12px;">✂️</div>
+            <h6 class="fw-bold">Hizmet & Fiyat Listesi</h6>
+            <p class="text-muted small mb-0">Tüm hizmetlerinizi süre ve fiyatla listeleyin. Müşteriler randevu alırken görür.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 h-100">
+            <div style="font-size:2rem;margin-bottom:12px;">📊</div>
+            <h6 class="fw-bold">Randevu Takibi</h6>
+            <p class="text-muted small mb-0">Bugünün ve gelecekteki randevuları tek panelde görün. Dilediğiniz randevuyu iptal edin.</p>
+        </div>
+    </div>
+</div>
+
+<!-- MÜŞTERİ YORUMLARI (placeholder) -->
+<div class="mb-5">
+    <h4 class="fw-bold text-center mb-4">İşletmeler Ne Diyor?</h4>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <div class="d-flex gap-1 mb-3" style="color:#f59e0b;">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="small mb-3 text-muted">"Artık telefona bakarak randevu almıyorum. Müşteriler kendileri alıyor, ben sadece geliyor."</p>
+                <div class="fw-semibold small">Kuaför Ayşe</div>
+                <small class="text-muted">Uşak Merkez</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <div class="d-flex gap-1 mb-3" style="color:#f59e0b;">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                <p class="small mb-3 text-muted">"SMS hatırlatma sayesinde gelmeyenler azaldı. Çok işe yarıyor."</p>
+                <div class="fw-semibold small">Berber Mehmet</div>
+                <small class="text-muted">Uşak Merkez</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <div class="d-flex gap-1 mb-3" style="color:#f59e0b;">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                </div>
+                <p class="small mb-3 text-muted">"Kurulumu çok kolaydı. 10 dakikada her şey hazırdı. Kesinlikle tavsiye ederim."</p>
+                <div class="fw-semibold small">Kuaför Fatma</div>
+                <small class="text-muted">Uşak Merkez</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FİYATLANDIRMA -->
+<div class="mb-5">
+    <h4 class="fw-bold text-center mb-1">Şeffaf Fiyatlandırma</h4>
+    <p class="text-center text-muted mb-4">Sürpriz ücret yok.</p>
+    <div class="row g-3 justify-content-center">
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <h5 class="fw-bold mb-1">Başlangıç</h5>
+                <div class="mb-3"><span style="font-size:2rem;font-weight:800;">Ücretsiz</span></div>
+                <ul class="list-unstyled mb-4 small">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Online randevu sayfası</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Hizmet & personel yönetimi</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Randevu takvimi</li>
+                    <li class="mb-2 text-muted"><i class="bi bi-x-circle me-2"></i>SMS hatırlatma</li>
+                </ul>
+                <a href="/kayit" class="btn btn-outline-primary w-100">Başla</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 h-100" style="border:2px solid #7c3aed !important;position:relative;">
+                <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#7c3aed;color:white;font-size:.75rem;font-weight:700;padding:4px 14px;border-radius:20px;">⭐ POPÜLER</div>
+                <h5 class="fw-bold mb-1">Pro</h5>
+                <div class="mb-1"><span style="font-size:2rem;font-weight:800;color:#7c3aed;">299</span><span class="text-muted"> TL/ay</span></div>
+                <small class="text-muted d-block mb-3">KDV dahil</small>
+                <ul class="list-unstyled mb-4 small">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Başlangıç'taki her şey</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>SMS onay & hatırlatma</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Sınırsız randevu</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Öncelikli destek</li>
+                </ul>
+                <a href="/kayit" class="btn btn-primary w-100">Başla</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SON CTA -->
+<div class="text-center py-5 card mb-2" style="background:var(--primary-light);border-radius:24px;">
+    <h3 class="fw-bold mb-2" style="color:#5b21b6;">Hâlâ bekliyor musunuz?</h3>
+    <p class="text-muted mb-4">Ücretsiz kaydolun, 2 dakikada salon sayfanız hazır.</p>
+    <a href="/kayit" class="btn btn-primary px-5 py-3 fw-bold mx-auto" style="max-width:280px;font-size:1.05rem;">
+        Şimdi Başla →
+    </a>
+</div>
+{% endblock %}

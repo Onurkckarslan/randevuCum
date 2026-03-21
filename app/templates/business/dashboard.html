@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Panel — {{ biz.name }}{% endblock %}
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat-box { background: rgba(255,255,255,.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px 16px; position: relative; overflow: hidden; transition: all .2s; }
+.stat-box:hover { border-color: rgba(124,58,237,.3); transform: translateY(-2px); }
+.stat-box[href] { display: flex !important; flex-direction: column; justify-content: space-between; }
+.stat-box::before { content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: .08; }
+.stat-box.violet::before { background: #7c3aed; }
+.stat-box.green::before { background: #10b981; }
+.stat-box.pink::before { background: #ec4899; }
+.stat-box.cyan::before { background: #06b6d4; }
+.stat-emoji { font-size: 1.5rem; margin-bottom: 6px; }
+.stat-value { font-size: 1.8rem; font-weight: 900; color: #f1f0f5; letter-spacing: -1px; line-height: 1; }
+.stat-label { font-size: .72rem; font-weight: 700; color: rgba(196,181,253,.5); margin-top: 4px; }
+.stat-badge { display: inline-flex; align-items: center; gap: 3px; margin-top: 6px; font-size: .68rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+.stat-badge.up { background: rgba(16,185,129,.15); color: #34d399; }
+.stat-badge.warn { background: rgba(251,191,36,.15); color: #fbbf24; }
+.panel-menu-card { border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 20px; text-decoration: none; color: #c4b5fd; display: block; transition: all 0.15s; background: rgba(255,255,255,.04); backdrop-filter: blur(10px); }
+.panel-menu-card:hover { border-color: rgba(124,58,237,.45); color: #e9d5ff; transform: translateY(-2px); box-shadow: 0 4px 20px rgba(124,58,237,.18); background: rgba(124,58,237,.1); }
+.link-qr-card { background: linear-gradient(135deg, #1e0b4b 0%, #2d0a5c 60%, #1a0839 100%); border: 1px solid rgba(167,139,250,.25); border-radius: 24px; padding: 28px 24px; box-shadow: 0 8px 40px rgba(124,58,237,.25); }
+.lqc-url { font-size: .9rem; font-weight: 700; color: #c4b5fd; word-break: break-all; text-decoration: none; }
+.lqc-copy-btn { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #e9d5ff; border-radius: 10px; padding: 7px 16px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; font-family: inherit; }
+.lqc-copy-btn.copied { background: #10b981; border-color: #10b981; color: white; }
+.lqc-dl-btn { background: linear-gradient(135deg, #7c3aed, #ec4899); border: none; color: white; border-radius: 10px; padding: 8px 18px; font-size: .82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+.share-btns { display: flex; gap: 10px; }
+.share-btn { width: 42px; height: 42px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s; }
+.share-btn:hover { transform: translateY(-3px) scale(1.08); }
+.today-box { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 20px; }
+@media(max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .stat-value { font-size: 1.4rem; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div><h4 style="font-weight:800;color:#f1f0f5;margin:0;">Merhaba, {{ biz.name }}!</h4><small style="color:rgba(196,181,253,.5);">{{ today }}</small></div>
+  <a href="/cikis" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#c4b5fd;border-radius:10px;padding:7px 16px;font-size:.82rem;font-weight:600;text-decoration:none;">Çıkış</a>
+</div>
+<div class="stats-grid">
+  <div class="stat-box violet">
+    <div class="stat-emoji">📅</div>
+    <div class="stat-value">{{ today_count }}</div>
+    <div class="stat-label">Bugünkü Randevu</div>
+    {% if pending_count > 0 %}<div class="stat-badge warn">⏳ {{ pending_count }} bekliyor</div>{% endif %}
+  </div>
+  <div class="stat-box green">
+    <div class="stat-emoji">📊</div>
+    <div class="stat-value">{{ month_count }}</div>
+    <div class="stat-label">Bu Ay Toplam</div>
+    <div class="stat-badge up">📈 {{ total_appointments }} toplam</div>
+  </div>
+  <a href="/panel/gelir-takibi" class="stat-box pink" style="cursor:pointer;text-decoration:none;color:inherit;">
+    <div class="stat-emoji">💰</div>
+    <div class="stat-value">{{ "{:,.0f}".format(month_revenue).replace(",", ".") }}₺</div>
+    <div class="stat-label">Bu Ay Gelir</div>
+    <div class="stat-badge" style="color:#ec4899;border:none;background:none;">Detay →</div>
+  </a>
+  <div class="stat-box cyan">
+    <div class="stat-emoji">👥</div>
+    <div class="stat-value">{{ staff_count }}</div>
+    <div class="stat-label">Personel</div>
+    <div class="stat-badge up">✂️ {{ service_count }} hizmet</div>
+  </div>
+</div>
+<div class="link-qr-card mb-4">
+  <div class="d-flex align-items-center gap-4 flex-wrap">
+    <div style="background:#fff;border-radius:16px;padding:10px;display:inline-flex;"><div id="qrCodeContainer" style="width:110px;height:110px;display:flex;align-items:center;justify-content:center;"><div id="qrPlaceholder" style="font-size:.65rem;color:#9ca3af;">Yükleniyor</div></div></div>
+    <div style="flex:1;min-width:200px;">
+      <div style="font-size:.68rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.6);margin-bottom:6px;">MÜŞTERİ RANDEVU LİNKİ</div>
+      <div class="d-flex align-items-center gap-2 flex-wrap mb-3"><a href="/{{ biz.slug }}" target="_blank" class="lqc-url">randevucum.com/{{ biz.slug }}</a><button class="lqc-copy-btn" id="copyBtn" onclick="copyLink(this, 'https://randevucum.com/{{ biz.slug }}')"><i class="bi bi-copy me-1"></i>Kopyala</button></div>
+      <div class="d-flex gap-2 flex-wrap"><button class="lqc-dl-btn" onclick="downloadQR()"><i class="bi bi-download me-1"></i>QR İndir</button></div>
+    </div>
+  </div>
+  <div style="height:1px;background:rgba(255,255,255,.1);margin:18px 0;"></div>
+  <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.6);margin-bottom:12px;">HIZLI PAYLAŞ</div>
+  <div class="share-btns">
+    <button class="share-btn" style="background:#25d366;" onclick="shareWhatsApp()"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.407A9.945 9.945 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.946 7.946 0 01-4.054-1.108l-.29-.173-2.956.835.798-2.878-.19-.303A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg></button>
+    <button class="share-btn" style="background:linear-gradient(135deg,#7c3aed,#ec4899);" onclick="shareNative()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+  </div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><a href="/panel/randevular" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">📅</div><div class="fw-bold">Randevular</div></a></div>
+  <div class="col-6 col-md-3"><a href="/panel/hizmetler" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">✂️</div><div class="fw-bold">Hizmetler</div></a></div>
+  <div class="col-6 col-md-3"><a href="/panel/personel" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">👤</div><div class="fw-bold">Personel</div></a></div>
+  <div class="col-6 col-md-3"><a href="/panel/calisma-saatleri" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">🕐</div><div class="fw-bold">Saatler</div></a></div>
+  <div class="col-6 col-md-3"><a href="/panel/fotolar" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">📷</div><div class="fw-bold">Fotoğraflar</div></a></div>
+  <div class="col-6 col-md-3"><a href="/panel/randevu-defteri" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">📋</div><div class="fw-bold">Randevu Defteri</div></a></div>
+  <div class="col-6 col-md-3"><a href="/panel/gelir-takibi" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">💰</div><div class="fw-bold">Gelir Takibi</div></a></div>
+  <div class="col-6 col-md-3"><a href="/panel/profil" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">⚙️</div><div class="fw-bold">Profil</div></a></div>
+</div>
+<div class="today-box">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <span style="font-weight:800;color:#f1f0f5;font-size:.95rem;">📅 Bugünün Randevuları</span>
+    <a href="/panel/randevular" style="font-size:.8rem;color:#a78bfa;text-decoration:none;font-weight:600;">Tümünü Gör →</a>
+  </div>
+  {% if today_appointments %}
+  <div style="overflow-x:auto;">
+    <div style="display:grid;grid-template-columns:64px 1fr 1fr 100px;padding:0 8px 8px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:4px;min-width:420px;">
+      <span style="font-size:.65rem;font-weight:800;color:rgba(196,181,253,.4);">SAAT</span>
+      <span style="font-size:.65rem;font-weight:800;color:rgba(196,181,253,.4);">MÜŞTERİ</span>
+      <span style="font-size:.65rem;font-weight:800;color:rgba(196,181,253,.4);">HİZMET</span>
+      <span style="font-size:.65rem;font-weight:800;color:rgba(196,181,253,.4);">DURUM</span>
+    </div>
+    {% for a in today_appointments %}
+    <div style="display:grid;grid-template-columns:64px 1fr 1fr 100px;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.05);min-width:420px;">
+      <span style="color:#a78bfa;font-weight:800;font-size:.88rem;">{{ a.time }}</span>
+      <div><div style="color:#f1f0f5;font-weight:700;font-size:.85rem;">{{ a.customer_name }}</div><div style="color:rgba(196,181,253,.45);font-size:.72rem;">{{ a.customer_phone }}</div></div>
+      <span style="color:rgba(196,181,253,.65);font-size:.83rem;align-self:center;">{{ a.service.name if a.service else "-" }}</span>
+      <div style="align-self:center;">
+        {% if a.status == "bekliyor" %}<span style="background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.25);border-radius:20px;padding:2px 10px;font-size:.68rem;font-weight:800;">bekliyor</span>
+        {% elif a.status == "onaylandi" %}<span style="background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25);border-radius:20px;padding:2px 10px;font-size:.68rem;font-weight:800;">onaylandı</span>
+        {% elif a.status == "tamamlandi" %}<span style="background:rgba(6,182,212,.15);color:#22d3ee;border:1px solid rgba(6,182,212,.25);border-radius:20px;padding:2px 10px;font-size:.68rem;font-weight:800;">tamamlandı</span>
+        {% else %}<span style="background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:2px 10px;font-size:.68rem;font-weight:800;">{{ a.status }}</span>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:28px 0;color:rgba(196,181,253,.35);"><i class="bi bi-calendar2" style="font-size:1.8rem;display:block;margin-bottom:8px;"></i><span style="font-size:.83rem;">Bugün için randevu yok.</span></div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+<script>
+(function(){const slug="{{ biz.slug }}",bizUrl="https://randevucum.com/"+slug,c=document.getElementById("qrCodeContainer"),p=document.getElementById("qrPlaceholder");function b(){if(p)p.remove();c.innerHTML="";new QRCode(c,{text:bizUrl,width:110,height:110,colorDark:"#000",colorLight:"#fff",correctLevel:QRCode.CorrectLevel.M})}if(typeof QRCode!=="undefined")b();else{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js";s.onload=b;document.head.appendChild(s)}function ct(t){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t);const a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;left:-9999px";document.body.appendChild(a);a.focus();a.select();document.execCommand("copy");document.body.removeChild(a);return Promise.resolve()}window.downloadQR=function(){const v=c.querySelector("canvas");if(v){const o=document.createElement("canvas");o.width=o.height=512;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,512,512);x.drawImage(v,0,0,512,512);const a=document.createElement("a");a.href=o.toDataURL("image/png");a.download=slug+"-qr.png";a.click()}};window.copyLink=function(btn,url){ct(url).then(()=>{btn.innerHTML='<i class="bi bi-check2 me-1"></i>Kopyalandı!';btn.classList.add("copied");setTimeout(()=>{btn.innerHTML='<i class="bi bi-copy me-1"></i>Kopyala';btn.classList.remove("copied")},2500)})};window.shareWhatsApp=function(){window.location.href="https://wa.me/?text="+encodeURIComponent("Randevu linkim: "+bizUrl)};window.shareNative=function(){if(navigator.share)navigator.share({title:"Randevu",text:"Online randevu: "+bizUrl,url:bizUrl}).catch(()=>ct(bizUrl));else ct(bizUrl)}})();
+</script>
+{% endblock %}

@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+{% block title %}{{ hizmet.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── SERVICE PAGE DARK THEME ── */
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+.crumb-link { color: #a78bfa; text-decoration: none; font-size: .8rem; font-weight: 600; }
+.crumb-link:hover { color: #c4b5fd; }
+.crumb-sep { color: rgba(196,181,253,.3); margin: 0 8px; }
+.crumb-cur { color: rgba(196,181,253,.55); font-size: .8rem; }
+
+.svc-hero {
+  position: relative; border-radius: 24px; overflow: hidden;
+  min-height: 220px; display: flex; flex-direction: column;
+  justify-content: flex-end; margin-bottom: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.svc-hero-bg {
+  position: absolute; inset: 0; background-size: cover; background-position: center;
+  transform: scale(1.03); transition: transform 9s ease;
+}
+.svc-hero:hover .svc-hero-bg { transform: scale(1.07); }
+.svc-hero-overlay {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to right, rgba(0,0,0,.88) 0%, rgba(0,0,0,.4) 55%, rgba(0,0,0,.1) 100%),
+    linear-gradient(to top, rgba(8,4,20,.95) 0%, transparent 50%);
+}
+.svc-hero::after {
+  content: ''; position: absolute; inset: 0; border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.1); pointer-events: none; z-index: 3;
+}
+.svc-hero-content { position: relative; z-index: 2; padding: 32px 38px; }
+.svc-hero-emoji-wrap {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 16px;
+  background: rgba(236,72,153,.2); backdrop-filter: blur(8px);
+  border: 1px solid rgba(236,72,153,.3); font-size: 1.7rem; margin-bottom: 12px;
+}
+.svc-title {
+  font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 900;
+  letter-spacing: -1px; color: #fff; margin-bottom: 8px;
+  text-shadow: 0 2px 20px rgba(0,0,0,.6);
+}
+.svc-desc {
+  font-size: .92rem; color: rgba(255,255,255,.72); max-width: 480px;
+  line-height: 1.65; text-shadow: 0 1px 8px rgba(0,0,0,.5);
+}
+.svc-count-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(236,72,153,.3); backdrop-filter: blur(8px);
+  border: 1px solid rgba(236,72,153,.4); color: #f9a8d4;
+  border-radius: 20px; padding: 4px 14px; font-size: .78rem; font-weight: 700;
+  margin-top: 14px;
+}
+.svc-hero-fallback {
+  background: linear-gradient(135deg, #3b0764 0%, #831843 50%, #1e1040 100%);
+}
+
+.cat-search {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px; padding: 12px 14px; margin-bottom: 20px;
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  overflow: visible !important;
+}
+.cat-field { position: relative; flex: 1; min-width: 180px; display: flex; align-items: center; }
+.cat-ico { position: absolute; left: 12px; font-size: .88rem; pointer-events: none; z-index: 1; }
+.cat-search-input {
+  background: rgba(0,0,0,.35) !important; border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 12px !important; color: #f1f0f5 !important;
+  font-size: .87rem !important; padding: 10px 14px 10px 36px !important; width: 100%;
+  transition: border-color .15s, box-shadow .15s;
+}
+.cat-search-input::placeholder { color: rgba(196,181,253,.3) !important; }
+.cat-search-input:focus {
+  box-shadow: 0 0 0 3px rgba(236,72,153,.18), 0 0 20px rgba(236,72,153,.1) !important;
+  border-color: rgba(236,72,153,.45) !important; outline: none !important;
+}
+.cat-search-btn {
+  background: linear-gradient(135deg, #ec4899, #7c3aed); border: none;
+  color: white; border-radius: 12px; padding: 10px 22px;
+  font-size: .87rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+  font-family: 'Inter', sans-serif; transition: opacity .15s; flex-shrink: 0;
+}
+.cat-search-btn:hover { opacity: .88; }
+.cat-drop {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background: rgba(6,6,14,.98); backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 6px;
+  z-index: 999; display: none;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(236,72,153,.06);
+  max-height: 240px; overflow-y: auto;
+}
+.cat-drop.show { display: block; }
+.cat-drop-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+  border-radius: 9px; cursor: pointer; transition: background .12s;
+  color: #fce7f3; font-size: .85rem; font-weight: 500;
+}
+.cat-drop-item:hover { background: rgba(236,72,153,.15); }
+
+.cat-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.cat-chip {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(196,181,253,.7); border-radius: 20px; padding: 6px 14px;
+  font-size: .78rem; font-weight: 600; text-decoration: none; transition: all .15s;
+}
+.cat-chip:hover, .cat-chip.active { background: rgba(236,72,153,.15); border-color: rgba(236,72,153,.3); color: #f9a8d4; }
+
+.cat-cta {
+  background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(6,182,212,.1));
+  border: 1px solid rgba(16,185,129,.25); border-radius: 14px;
+  padding: 14px 20px; text-align: center; font-size: .88rem; font-weight: 700;
+  color: #6ee7b7; text-decoration: none; display: block; margin-bottom: 24px; transition: background .15s;
+}
+.cat-cta:hover { background: linear-gradient(135deg, rgba(16,185,129,.2), rgba(6,182,212,.16)); color: #a7f3d0; }
+
+.salon-card {
+  background: rgba(18,12,30,.8); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 20px; overflow: hidden;
+  display: flex; transition: border-color .2s, transform .2s, box-shadow .2s;
+  text-decoration: none; color: #f1f0f5;
+}
+.salon-card:hover {
+  border-color: rgba(236,72,153,.45); transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(236,72,153,.18); color: #f1f0f5;
+}
+.sc-img {
+  width: 180px; min-height: 150px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.2rem; position: relative; overflow: hidden;
+}
+.sc-img-inner { width: 100%; height: 100%; object-fit: cover; }
+.sc-badge {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(236,72,153,.65); backdrop-filter: blur(8px);
+  color: #fce7f3; border-radius: 10px; padding: 3px 9px;
+  font-size: .68rem; font-weight: 700;
+}
+.sc-body { padding: 18px 20px; flex: 1; }
+.sc-name { font-size: 1rem; font-weight: 800; color: #f9a8d4; margin-bottom: 5px; }
+.sc-stars { color: #fbbf24; font-size: .82rem; margin-bottom: 5px; }
+.sc-loc { font-size: .78rem; color: rgba(196,181,253,.6); margin-bottom: 8px; }
+.sc-svc-tag {
+  display: inline-block; background: rgba(236,72,153,.1); border: 1px solid rgba(236,72,153,.2);
+  color: #f9a8d4; border-radius: 6px; padding: 2px 8px; font-size: .7rem; font-weight: 600;
+  margin: 2px 3px 2px 0;
+}
+.sc-price-col {
+  padding: 18px 20px; display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: center;
+  border-left: 1px solid rgba(255,255,255,.06); min-width: 140px;
+}
+.sc-price-big { font-size: 1.6rem; font-weight: 900; line-height: 1; background: linear-gradient(135deg,#ec4899,#06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sc-price-sub { font-size: .72rem; color: rgba(196,181,253,.45); margin-top: 3px; }
+.sc-book-btn {
+  background: linear-gradient(135deg, #ec4899, #7c3aed); border: none;
+  color: white; border-radius: 10px; padding: 9px 16px; font-size: .82rem;
+  font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif;
+  width: 100%; margin-top: 12px; text-align: center; text-decoration: none;
+  display: block; box-shadow: 0 3px 12px rgba(236,72,153,.3); transition: opacity .15s;
+}
+.sc-book-btn:hover { opacity: .88; color: white; }
+
+.cat-empty { text-align: center; padding: 60px 20px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 20px; }
+
+.info-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 18px; padding: 24px; }
+.info-card h2 { font-size: 1.15rem; font-weight: 800; color: #f9a8d4; margin-bottom: 16px; }
+.info-card p { font-size: .88rem; color: rgba(241,240,245,.6); line-height: 1.8; margin-bottom: 12px; }
+.faq-item { border-bottom: 1px solid rgba(255,255,255,.06); padding: 12px 0; }
+.faq-q { font-size: .88rem; font-weight: 700; color: #f9a8d4; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.faq-a { font-size: .84rem; color: rgba(241,240,245,.55); line-height: 1.6; margin-top: 8px; display: none; }
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-icon { transform: rotate(180deg); }
+.faq-icon { transition: transform .2s; font-style: normal; }
+
+.ilgili-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.ilgili-link { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 14px 10px; text-align: center; text-decoration: none; color: #c4b5fd; transition: all .15s; }
+.ilgili-link:hover { background: rgba(236,72,153,.1); border-color: rgba(236,72,153,.25); color: #f9a8d4; transform: translateY(-2px); }
+
+@media(max-width:640px) {
+  .salon-card { flex-direction: column; }
+  .sc-img { width: 100%; height: 130px; }
+  .sc-price-col { border-left: none; border-top: 1px solid rgba(255,255,255,.06); flex-direction: row; align-items: center; gap: 16px; padding: 14px 18px; }
+  .sc-book-btn { margin-top: 0; width: auto; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="mb-4">
+  <a href="/" class="crumb-link">Ana Sayfa</a>
+  <span class="crumb-sep">›</span>
+  <span class="crumb-cur">{{ hizmet.isim }}</span>
+</nav>
+
+<!-- Hero — Background Image -->
+{% set svc_imgs = {
+  'sac-kesimi':    'https://source.unsplash.com/1200x400/?haircut+scissors+hairstyle',
+  'fon':           'https://source.unsplash.com/1200x400/?blowdry+hair+blowout+styling',
+  'sac-boyama':    'https://source.unsplash.com/1200x400/?hair+color+dyeing+highlights',
+  'gelin-basi':    'https://source.unsplash.com/1200x400/?bridal+hair+wedding+updo',
+  'rofle':         'https://source.unsplash.com/1200x400/?hair+highlights+balayage+salon',
+  'brezilya-fonu': 'https://source.unsplash.com/1200x400/?keratin+treatment+smooth+hair',
+  'makyaj':        'https://source.unsplash.com/1200x400/?makeup+artist+cosmetics+beauty',
+  'masaj':         'https://source.unsplash.com/1200x400/?massage+spa+therapy+hands',
+  'sauna':         'https://source.unsplash.com/1200x400/?sauna+steam+wellness+relax',
+  'hamam':         'https://source.unsplash.com/1200x400/?turkish+bath+hammam+spa',
+  'jel-tirnak':    'https://source.unsplash.com/1200x400/?gel+nails+manicure+nailart',
+  'protez-tirnak': 'https://source.unsplash.com/1200x400/?acrylic+nails+nail+extension',
+  'agda':          'https://source.unsplash.com/1200x400/?waxing+hair+removal+beauty',
+  'kas-alma':      'https://source.unsplash.com/1200x400/?eyebrow+threading+shaping',
+  'ipek-kirpik':   'https://source.unsplash.com/1200x400/?eyelash+extensions+lashes',
+  'dovme':         'https://source.unsplash.com/1200x400/?tattoo+artist+ink+design',
+  'piercing':      'https://source.unsplash.com/1200x400/?piercing+body+jewelry',
+  'pilates':       'https://source.unsplash.com/1200x400/?pilates+mat+exercise+studio',
+  'yoga':          'https://source.unsplash.com/1200x400/?yoga+meditation+pose+studio',
+  'cilt-bakimi':   'https://source.unsplash.com/1200x400/?facial+skincare+treatment+spa',
+  'solaryum':      'https://source.unsplash.com/1200x400/?tanning+solarium+bronze+skin',
+  'sakal-tirazi':  'https://source.unsplash.com/1200x400/?beard+shave+barber+grooming',
+} %}
+{% set svc_img = svc_imgs.get(hizmet_slug, '') %}
+
+<div class="svc-hero mb-4 {{ '' if svc_img else 'svc-hero-fallback' }}">
+  {% if svc_img %}
+  <div class="svc-hero-bg" style="background-image:url('{{ svc_img }}');"></div>
+  {% endif %}
+  <div class="svc-hero-overlay"></div>
+  <div class="svc-hero-content">
+    <div class="svc-hero-emoji-wrap">{{ hizmet.emoji }}</div>
+    <h1 class="svc-title">{{ hizmet.isim }}</h1>
+    <p class="svc-desc">{{ hizmet.aciklama }}</p>
+    <div class="svc-count-badge">✦ {{ businesses|length }} işletme hizmet veriyor</div>
+  </div>
+</div>
+
+<!-- Arama + Autocomplete Dropdown -->
+<div class="cat-search">
+  <div class="cat-field" id="catSvcField">
+    <span class="cat-ico">🔍</span>
+    <input id="catSvc" class="cat-search-input" type="text"
+           placeholder="Salon veya hizmet ara..."
+           autocomplete="off"
+           oninput="updateCatSvcDrop()" onfocus="updateCatSvcDrop()"
+           onkeydown="if(event.key==='Enter'){ filterCards(); closeCatDrops(); }">
+    <div class="cat-drop" id="catSvcDrop"></div>
+  </div>
+  <div class="cat-field" id="catCityField">
+    <span class="cat-ico">📍</span>
+    <input id="catCity" class="cat-search-input" type="text"
+           placeholder="Şehir ara (İstanbul, Ankara...)"
+           autocomplete="off"
+           oninput="updateCatCityDrop()" onfocus="updateCatCityDrop()"
+           onkeydown="if(event.key==='Enter'){ filterCards(); closeCatDrops(); }">
+    <div class="cat-drop" id="catCityDrop"></div>
+  </div>
+  <button class="cat-search-btn" onclick="filterCards(); closeCatDrops();">🔍 Ara</button>
+</div>
+
+<!-- İlgili Hizmet Chip'leri -->
+{% if hizmet.ilgili_hizmetler %}
+<div class="cat-chips mb-4">
+  <span style="font-size:.72rem;font-weight:700;letter-spacing:.06em;color:rgba(196,181,253,.5);align-self:center;">İLGİLİ:</span>
+  {% for h_slug in hizmet.ilgili_hizmetler %}
+  {% if hizmet_map.get(h_slug) %}
+  <a href="/hizmet/{{ h_slug }}" class="cat-chip">
+    {{ hizmet_map[h_slug].emoji }} {{ hizmet_map[h_slug].isim }}
+  </a>
+  {% endif %}{% endfor %}
+</div>
+{% endif %}
+
+<a href="/kayit" class="cat-cta mb-4">✦ &nbsp;{{ hizmet.isim }} hizmetinizi ekleyin — Tamamen ücretsiz! &nbsp;→</a>
+
+<!-- Salon Listesi -->
+<div id="salonListesi" class="d-flex flex-column gap-3 mb-5">
+{% if businesses %}
+  {% for biz in businesses %}
+  {% set min_price = namespace(val=0) %}
+  {% for s in biz.services %}{% if s.price and (min_price.val == 0 or s.price < min_price.val) %}{% set min_price.val = s.price %}{% endif %}{% endfor %}
+  {% set cover = biz.photos|selectattr("is_cover")|list %}
+
+  <a href="/{{ biz.slug }}" class="salon-card salon-item"
+     data-name="{{ biz.name|lower }}"
+     data-loc="{{ (biz.district or biz.city or '')|lower }}">
+
+    <div class="sc-img" style="background:linear-gradient(135deg,#3b0764,#831843);">
+      {% if cover %}
+      <img src="/static/uploads/{{ cover[0].filename }}" class="sc-img-inner" alt="{{ biz.name }}">
+      {% else %}
+      {{ hizmet.emoji }}
+      {% endif %}
+      <span class="sc-badge">{{ hizmet.isim }}</span>
+    </div>
+
+    <div class="sc-body">
+      <div class="sc-name">{{ biz.name }}</div>
+      <div class="sc-stars">★★★★★ <span style="color:#fbbf24;font-weight:800;">5.0</span></div>
+      <div class="sc-loc">📍 {{ biz.district or biz.city or 'Türkiye' }}</div>
+      {% for s in biz.services[:4] %}
+      <span class="sc-svc-tag">{{ s.name }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="sc-price-col">
+      {% if min_price.val > 0 %}
+      <div>
+        <div class="sc-price-big">{{ min_price.val }}₺</div>
+      </div>
+      {% else %}
+      <div style="font-size:.78rem;color:rgba(196,181,253,.4);text-align:center;margin-bottom:8px;">Fiyat için<br>iletişime geçin</div>
+      {% endif %}
+      <span class="sc-book-btn">Randevu Al →</span>
+    </div>
+  </a>
+  {% endfor %}
+
+{% else %}
+  <div class="cat-empty">
+    <div style="font-size:3rem;margin-bottom:12px;">{{ hizmet.emoji }}</div>
+    <div style="font-weight:800;color:#f9a8d4;margin-bottom:8px;">{{ hizmet.isim }} için henüz kayıtlı salon yok</div>
+    <div style="font-size:.85rem;color:rgba(196,181,253,.5);margin-bottom:20px;">Bu hizmet için ilk salonun sen ol!</div>
+    <a href="/kayit" class="sc-book-btn" style="display:inline-block;width:auto;padding:10px 28px;">Salonumu Ekle ✦</a>
+  </div>
+{% endif %}
+</div>
+
+<!-- Bilgi + SSS -->
+<div class="row g-4 mb-5">
+  <div class="col-md-7">
+    <div class="info-card">
+      <h2>{{ hizmet.icerik.h2 }}</h2>
+      {% for p in hizmet.icerik.paragraflar %}
+      <p>{{ p }}</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% if hizmet.icerik.sss %}
+  <div class="col-md-5">
+    <div class="info-card">
+      <h2>Sık Sorulan Sorular</h2>
+      {% for soru in hizmet.icerik.sss %}
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">
+          <span>{{ soru.s }}</span>
+          <em class="faq-icon">▾</em>
+        </div>
+        <div class="faq-a">{{ soru.c }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- İlgili Hizmetler -->
+{% if hizmet.ilgili_hizmetler %}
+<div class="mb-5">
+  <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.5);margin-bottom:14px;">
+    🔗 İLGİLİ HİZMETLER
+  </div>
+  <div class="ilgili-grid">
+    {% for h_slug in hizmet.ilgili_hizmetler %}
+    {% if hizmet_map.get(h_slug) %}{% set h = hizmet_map[h_slug] %}
+    <a href="/hizmet/{{ h_slug }}" class="ilgili-link">
+      <span style="font-size:1.6rem;display:block;margin-bottom:6px;">{{ h.emoji }}</span>
+      <span style="font-size:.78rem;font-weight:700;display:block;">{{ h.isim }}</span>
+      <span style="font-size:.68rem;color:rgba(249,168,212,.4);display:block;margin-top:3px;">Randevu Al →</span>
+    </a>
+    {% endif %}{% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const catCityList = [
+  {label:"İstanbul",icon:"🌉"},{label:"Ankara",icon:"🏛️"},{label:"İzmir",icon:"🌊"},
+  {label:"Bursa",icon:"🏔️"},{label:"Antalya",icon:"🌴"},{label:"Adana",icon:"🌿"},
+  {label:"Konya",icon:"🌾"},{label:"Gaziantep",icon:"🏺"},{label:"Kayseri",icon:"⛰️"},
+  {label:"Eskişehir",icon:"🚂"},{label:"Trabzon",icon:"⛵"},{label:"Mersin",icon:"🌊"},
+  {label:"Uşak",icon:"📍"},{label:"Denizli",icon:"🐓"},
+];
+const catSvcList = [
+  {label:"{{ hizmet.isim }}",icon:"{{ hizmet.emoji }}"},
+  {% for h_slug in hizmet.ilgili_hizmetler %}{% if hizmet_map.get(h_slug) %}
+  {label:"{{ hizmet_map[h_slug].isim }}",icon:"{{ hizmet_map[h_slug].emoji }}"},
+  {% endif %}{% endfor %}
+  {label:"Saç Kesimi",icon:"✂️"},{label:"Fön",icon:"💨"},{label:"Makyaj",icon:"💄"},
+];
+const seenSvc = new Set();
+const uniqueSvcList = catSvcList.filter(s => { if(seenSvc.has(s.label)) return false; seenSvc.add(s.label); return true; });
+
+function buildCatDropItem(icon, label, onClick) {
+  const d = document.createElement('div');
+  d.className = 'cat-drop-item';
+  d.innerHTML = `<span style="width:20px;text-align:center;">${icon}</span><span>${label}</span>`;
+  d.addEventListener('mousedown', e => { e.preventDefault(); onClick(); });
+  return d;
+}
+function closeCatDrops() {
+  document.getElementById('catSvcDrop').classList.remove('show');
+  document.getElementById('catCityDrop').classList.remove('show');
+}
+
+const catSvcEl = document.getElementById('catSvc');
+const catSvcDrop = document.getElementById('catSvcDrop');
+function updateCatSvcDrop() {
+  const v = catSvcEl.value.toLowerCase();
+  catSvcDrop.innerHTML = '';
+  const hits = uniqueSvcList.filter(s => s.label.toLowerCase().includes(v) || v === '');
+  if(!hits.length) { catSvcDrop.classList.remove('show'); return; }
+  hits.slice(0,8).forEach(s => catSvcDrop.appendChild(buildCatDropItem(s.icon, s.label, () => {
+    catSvcEl.value = s.label; catSvcDrop.classList.remove('show'); filterCards();
+  })));
+  catSvcDrop.classList.add('show');
+}
+catSvcEl.addEventListener('input', updateCatSvcDrop);
+catSvcEl.addEventListener('focus', updateCatSvcDrop);
+
+const catCityEl = document.getElementById('catCity');
+const catCityDrop = document.getElementById('catCityDrop');
+function updateCatCityDrop() {
+  const v = catCityEl.value.toLowerCase();
+  catCityDrop.innerHTML = '';
+  const hits = catCityList.filter(d => d.label.toLowerCase().includes(v) || v === '');
+  if(!hits.length) { catCityDrop.classList.remove('show'); return; }
+  hits.forEach(d => catCityDrop.appendChild(buildCatDropItem(d.icon, d.label, () => {
+    catCityEl.value = d.label; catCityDrop.classList.remove('show'); filterCards();
+  })));
+  catCityDrop.classList.add('show');
+}
+catCityEl.addEventListener('input', updateCatCityDrop);
+catCityEl.addEventListener('focus', updateCatCityDrop);
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('#catSvcField'))  catSvcDrop.classList.remove('show');
+  if(!e.target.closest('#catCityField')) catCityDrop.classList.remove('show');
+});
+
+function filterCards() {
+  const city = catCityEl.value.toLowerCase();
+  const name = catSvcEl.value.toLowerCase();
+  document.querySelectorAll('.salon-item').forEach(c => {
+    const show = (!city || c.dataset.loc.includes(city)) && (!name || c.dataset.name.includes(name));
+    c.style.display = show ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

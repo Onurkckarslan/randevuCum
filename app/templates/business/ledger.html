@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+{% block title %}Randevu Defteri — {{ biz.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── LEDGER DARK THEME ── */
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+.panel-page-title { font-size: 1.2rem; font-weight: 800; color: #f1f0f5; }
+.panel-back-btn {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: #c4b5fd; border-radius: 10px; padding: 7px 16px;
+  font-size: .82rem; font-weight: 600; text-decoration: none; transition: background .15s;
+}
+.panel-back-btn:hover { background: rgba(255,255,255,.13); color: #e9d5ff; }
+
+/* Date nav */
+.date-nav {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 10px 16px; margin-bottom: 20px;
+}
+.date-nav-btn {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  color: #c4b5fd; border-radius: 8px; padding: 6px 14px;
+  font-size: .82rem; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: background .15s; text-decoration: none;
+}
+.date-nav-btn:hover { background: rgba(124,58,237,.2); color: #e9d5ff; }
+.date-nav-btn.today { background: linear-gradient(135deg,rgba(124,58,237,.3),rgba(236,72,153,.2)); border-color: rgba(124,58,237,.4); }
+.date-input {
+  background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px; color: #f1f0f5; padding: 6px 12px;
+  font-size: .85rem; font-family: 'Inter', sans-serif; color-scheme: dark;
+}
+.date-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(124,58,237,.2); }
+.date-label { font-size: .8rem; font-weight: 800; color: rgba(196,181,253,.6); letter-spacing: .06em; }
+
+/* Grid container — both-axis scroll */
+.ledger-wrap {
+  background: rgba(255,255,255,.03); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 20px;
+  overflow: auto; max-height: calc(100vh - 220px);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Grid table */
+.ledger-table {
+  border-collapse: separate; border-spacing: 0;
+  min-width: 100%;
+}
+
+/* Sticky header row */
+.ledger-table thead th {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(13,13,22,.97); backdrop-filter: blur(20px);
+  padding: 12px 14px; text-align: center;
+  font-size: .72rem; font-weight: 800; letter-spacing: .08em;
+  color: rgba(196,181,253,.6); text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  white-space: nowrap;
+}
+/* Sticky time column */
+.ledger-table .time-cell {
+  position: sticky; left: 0; z-index: 5;
+  background: rgba(13,13,22,.95); backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255,255,255,.08);
+  padding: 0 14px; width: 74px; min-width: 74px;
+  text-align: center; font-size: .82rem; font-weight: 800;
+  color: rgba(196,181,253,.7); vertical-align: middle;
+  white-space: nowrap;
+}
+/* Corner cell (sticky both) */
+.ledger-table thead th:first-child {
+  left: 0; z-index: 20;
+  border-right: 1px solid rgba(255,255,255,.08);
+  min-width: 74px;
+}
+
+/* Data cells */
+.ledger-table tbody tr { transition: background .1s; }
+.ledger-table tbody tr:hover { background: rgba(255,255,255,.025); }
+.ledger-table tbody td.slot-cell {
+  padding: 4px; border: 1px solid rgba(255,255,255,.04);
+  min-width: 150px; height: 52px; vertical-align: middle;
+}
+.ledger-table tbody tr:last-child td { border-bottom: none; }
+
+/* ── SLOT TYPES ── */
+/* Boş — koyu yeşil */
+.slot-bos {
+  width: 100%; height: 44px; border-radius: 8px; cursor: pointer;
+  background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.18);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(52,211,153,.6); font-size: .72rem; font-weight: 700;
+  transition: all .15s; letter-spacing: .04em;
+}
+.slot-bos:hover {
+  background: rgba(16,185,129,.2); border-color: rgba(16,185,129,.4);
+  color: #34d399; box-shadow: 0 0 12px rgba(16,185,129,.15);
+}
+
+/* Dolu — koyu kırmızı */
+.slot-dolu {
+  width: 100%; height: 44px; border-radius: 8px; cursor: pointer;
+  background: rgba(239,68,68,.18); border: 1px solid rgba(239,68,68,.3);
+  display: flex; flex-direction: column; align-items: flex-start;
+  justify-content: center; padding: 0 10px;
+  transition: all .15s; overflow: hidden;
+}
+.slot-dolu:hover {
+  background: rgba(239,68,68,.28); border-color: rgba(239,68,68,.5);
+  box-shadow: 0 0 12px rgba(239,68,68,.2);
+}
+.slot-dolu-name { font-size: .75rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+.slot-dolu-svc  { font-size: .67rem; color: rgba(252,165,165,.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+
+/* ── MODALS ── */
+.ledger-modal {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+}
+.ledger-modal.open { display: flex; }
+.ledger-modal-box {
+  background: linear-gradient(135deg, #1a0a3e, #1e0b4b);
+  border: 1px solid rgba(124,58,237,.3); border-radius: 22px;
+  padding: 28px; width: 92%; max-width: 420px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.6), 0 0 0 1px rgba(124,58,237,.12);
+  animation: modalIn .22s cubic-bezier(.16,1,.3,1);
+}
+@keyframes modalIn { from{opacity:0;transform:scale(.93) translateY(14px)} to{opacity:1;transform:none} }
+.modal-title { font-size: 1.05rem; font-weight: 800; color: #e9d5ff; margin-bottom: 18px; }
+.modal-label { font-size: .72rem; font-weight: 700; letter-spacing: .07em; color: rgba(196,181,253,.5); margin-bottom: 5px; }
+.modal-input {
+  width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; color: #f1f0f5; font-size: .88rem; padding: 9px 14px;
+  font-family: 'Inter', sans-serif; margin-bottom: 14px;
+}
+.modal-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(124,58,237,.2); border-color: rgba(124,58,237,.45); }
+.modal-select { appearance: none; -webkit-appearance: none; }
+.modal-btn-row { display: flex; gap: 10px; margin-top: 6px; }
+.modal-btn-confirm {
+  flex: 1; background: linear-gradient(135deg,#7c3aed,#ec4899); border: none;
+  color: white; border-radius: 12px; padding: 11px; font-weight: 800;
+  font-size: .9rem; cursor: pointer; font-family: 'Inter', sans-serif;
+  box-shadow: 0 3px 14px rgba(124,58,237,.35); transition: opacity .15s;
+}
+.modal-btn-confirm:hover { opacity: .88; }
+.modal-btn-cancel {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: #c4b5fd; border-radius: 12px; padding: 11px 18px; font-weight: 700;
+  font-size: .88rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: background .15s;
+}
+.modal-btn-cancel:hover { background: rgba(255,255,255,.12); }
+.modal-close-x {
+  background: none; border: none; color: rgba(196,181,253,.5); font-size: 1.3rem;
+  cursor: pointer; float: right; margin-top: -4px; margin-left: 8px; line-height: 1;
+}
+/* Detail badge */
+.detail-badge {
+  display: inline-flex; gap: 6px; align-items: center;
+  background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.25);
+  color: #fca5a5; border-radius: 8px; padding: 4px 12px;
+  font-size: .78rem; font-weight: 700; margin-bottom: 14px;
+}
+
+/* Legend */
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: .78rem; color: rgba(196,181,253,.6); }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="panel-page-title mb-0">📋 Randevu Defteri</h5>
+  <a href="/panel" class="panel-back-btn">← Panel</a>
+</div>
+
+<!-- Date Nav -->
+<div class="date-nav">
+  <span class="date-label">TARİH:</span>
+  <input type="date" class="date-input" id="datePicker" value="{{ sel_date }}"
+         onchange="window.location='/panel/randevu-defteri?d='+this.value">
+  <a href="/panel/randevu-defteri" class="date-nav-btn today">📅 Bugün</a>
+  {% set parts = sel_date.split('-') %}
+  <span style="font-size:.82rem;color:rgba(196,181,253,.55);">
+    {{ sel_date }} — {{ staff_list|length }} personel, {{ slot_map|length }} randevulu saat
+  </span>
+</div>
+
+<!-- Legend -->
+<div class="legend mb-3">
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(16,185,129,.5);"></div>Boş — tıkla hızlı randevu</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(239,68,68,.5);"></div>Dolu — tıkla detay gör</div>
+</div>
+
+<!-- Grid -->
+<div class="ledger-wrap">
+  <table class="ledger-table">
+    <thead>
+      <tr>
+        <th>Saat</th>
+        <!-- Personel sütunları -->
+        {% if staff_list %}
+          {% for s in staff_list %}
+          <th>
+            <div style="font-size:.85rem;font-weight:800;color:#c4b5fd;">{{ s.name }}</div>
+            <div style="font-size:.65rem;color:rgba(196,181,253,.4);font-weight:500;">Personel</div>
+          </th>
+          {% endfor %}
+        {% else %}
+          <th>
+            <div style="font-size:.85rem;font-weight:800;color:#c4b5fd;">{{ biz.name }}</div>
+            <div style="font-size:.65rem;color:rgba(196,181,253,.4);font-weight:500;">Genel</div>
+          </th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for slot in slots %}
+      <tr>
+        <td class="time-cell">{{ slot }}</td>
+
+        {% if staff_list %}
+          {% for s in staff_list %}
+          {% set appt = slot_map.get(slot, {}).get(s.id) %}
+          <td class="slot-cell">
+            {% if appt %}
+            <div class="slot-dolu" onclick="showDetail('{{ appt.id }}','{{ appt.customer_name }}','{{ appt.customer_phone }}','{{ appt.service.name if appt.service else '—' }}','{{ slot }}','{{ s.name }}','{{ appt.status }}')">
+              <div class="slot-dolu-name">{{ appt.customer_name }}</div>
+              <div class="slot-dolu-svc">{{ appt.service.name if appt.service else '—' }}</div>
+            </div>
+            {% else %}
+            <div class="slot-bos" onclick="openBook('{{ slot }}','{{ s.id }}','{{ s.name }}')">+ Boş</div>
+            {% endif %}
+          </td>
+          {% endfor %}
+
+        {% else %}
+          {% set appt = slot_map.get(slot, {}).get(0) %}
+          <td class="slot-cell">
+            {% if appt %}
+            <div class="slot-dolu" onclick="showDetail('{{ appt.id }}','{{ appt.customer_name }}','{{ appt.customer_phone }}','{{ appt.service.name if appt.service else '—' }}','{{ slot }}','Genel','{{ appt.status }}')">
+              <div class="slot-dolu-name">{{ appt.customer_name }}</div>
+              <div class="slot-dolu-svc">{{ appt.service.name if appt.service else '—' }}</div>
+            </div>
+            {% else %}
+            <div class="slot-bos" onclick="openBook('{{ slot }}',0,'Genel')">+ Boş</div>
+            {% endif %}
+          </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ── MODAL: Hızlı Randevu ── -->
+<div class="ledger-modal" id="bookModal">
+  <div class="ledger-modal-box">
+    <button class="modal-close-x" onclick="closeModals()">✕</button>
+    <div class="modal-title">⚡ Hızlı Randevu</div>
+    <form method="post" action="/{{ biz.slug }}/randevu-al">
+      <input type="hidden" name="selected_date" value="{{ sel_date }}">
+      <input type="hidden" name="selected_time" id="bk-time">
+      <input type="hidden" name="staff_id"      id="bk-staff">
+
+      <div class="modal-label">SAAT & PERSONEL</div>
+      <div style="color:#c4b5fd;font-weight:700;font-size:.9rem;margin-bottom:14px;" id="bk-info"></div>
+
+      <div class="modal-label">HİZMET SEÇ</div>
+      <select name="service_id" class="modal-input modal-select" required>
+        <option value="">— Seçin —</option>
+        {% for svc in services %}
+        <option value="{{ svc.id }}">{{ svc.name }}{% if svc.price %} — {{ svc.price }} TL{% endif %}</option>
+        {% endfor %}
+      </select>
+
+      <div class="modal-label">AD SOYAD</div>
+      <input type="text" name="customer_name" class="modal-input" placeholder="Müşteri adı" required>
+
+      <div class="modal-label">TELEFON</div>
+      <input type="tel"  name="customer_phone" class="modal-input" placeholder="0555 xxx xx xx" required>
+
+      <div class="modal-btn-row">
+        <button type="submit" class="modal-btn-confirm">✓ Randevu Oluştur</button>
+        <button type="button" class="modal-btn-cancel" onclick="closeModals()">İptal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── MODAL: Randevu Detay ── -->
+<div class="ledger-modal" id="detailModal">
+  <div class="ledger-modal-box">
+    <button class="modal-close-x" onclick="closeModals()">✕</button>
+    <div class="modal-title">📋 Randevu Detayı</div>
+    <div class="detail-badge">🔴 Dolu</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+      <div>
+        <div class="modal-label">MÜŞTERİ</div>
+        <div style="font-weight:800;color:#f1f0f5;" id="dt-name"></div>
+      </div>
+      <div>
+        <div class="modal-label">TELEFON</div>
+        <div style="font-weight:700;color:#a78bfa;" id="dt-phone"></div>
+      </div>
+      <div>
+        <div class="modal-label">HİZMET</div>
+        <div style="font-weight:700;color:#c4b5fd;" id="dt-svc"></div>
+      </div>
+      <div>
+        <div class="modal-label">SAAT</div>
+        <div style="font-weight:700;color:#c4b5fd;" id="dt-time"></div>
+      </div>
+      <div>
+        <div class="modal-label">PERSONEL</div>
+        <div style="font-weight:700;color:#c4b5fd;" id="dt-staff"></div>
+      </div>
+      <div>
+        <div class="modal-label">DURUM</div>
+        <div style="font-weight:700;color:#fbbf24;" id="dt-status"></div>
+      </div>
+    </div>
+    <div class="modal-btn-row">
+      <form method="post" id="dt-cancel-form" style="flex:1;">
+        <button type="submit" class="modal-btn-confirm" style="background:linear-gradient(135deg,#dc2626,#b91c1c);width:100%;">
+          ✕ Randevuyu İptal Et
+        </button>
+      </form>
+      <button class="modal-btn-cancel" onclick="closeModals()">Kapat</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openBook(time, staffId, staffName) {
+  document.getElementById('bk-time').value  = time;
+  document.getElementById('bk-staff').value = staffId;
+  document.getElementById('bk-info').textContent = time + ' — ' + staffName;
+  document.getElementById('bookModal').classList.add('open');
+}
+function showDetail(id, name, phone, svc, time, staff, status) {
+  document.getElementById('dt-name').textContent   = name;
+  document.getElementById('dt-phone').textContent  = phone;
+  document.getElementById('dt-svc').textContent    = svc;
+  document.getElementById('dt-time').textContent   = time;
+  document.getElementById('dt-staff').textContent  = staff;
+  document.getElementById('dt-status').textContent = status;
+  document.getElementById('dt-cancel-form').action = '/panel/randevu-iptal/' + id;
+  document.getElementById('detailModal').classList.add('open');
+}
+function closeModals() {
+  document.getElementById('bookModal').classList.remove('open');
+  document.getElementById('detailModal').classList.remove('open');
+}
+document.querySelectorAll('.ledger-modal').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) closeModals(); });
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModals(); });
+</script>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Çalışma Saatleri — {{ biz.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── PANEL DARK THEME — work_hours ── */
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+.panel-card {
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 18px;
+  padding: 28px;
+}
+.panel-page-title { font-size: 1.25rem; font-weight: 800; color: #f1f0f5; }
+.panel-back-btn {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: #c4b5fd; border-radius: 10px; padding: 7px 16px;
+  font-size: .82rem; font-weight: 600; text-decoration: none; transition: background .15s;
+}
+.panel-back-btn:hover { background: rgba(255,255,255,.13); color: #e9d5ff; }
+
+/* Time inputs */
+.wh-time {
+  background: rgba(0,0,0,.4) !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 10px !important;
+  color: #f1f0f5 !important;
+  font-size: .85rem !important;
+  padding: 8px 12px !important;
+  width: 120px;
+  color-scheme: dark;
+  transition: border-color .15s, box-shadow .15s;
+}
+.wh-time:focus {
+  box-shadow: 0 0 0 3px rgba(124,58,237,.18) !important;
+  border-color: rgba(124,58,237,.5) !important;
+  outline: none !important;
+}
+
+/* Checkbox — violet accent */
+.wh-check {
+  width: 20px; height: 20px; border-radius: 6px; cursor: pointer;
+  border: 2px solid rgba(124,58,237,.4) !important;
+  background: rgba(0,0,0,.4) !important;
+  accent-color: #7c3aed;
+  transition: all .15s;
+}
+.wh-check:checked {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+}
+
+/* Table */
+.wh-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.wh-table thead th {
+  font-size: .68rem; font-weight: 800; letter-spacing: .09em;
+  text-transform: uppercase; color: rgba(196,181,253,.5);
+  padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.wh-table tbody tr { transition: background .15s; }
+.wh-table tbody tr:hover { background: rgba(124,58,237,.06); }
+.wh-table tbody td {
+  padding: 13px 16px; vertical-align: middle;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  font-size: .88rem;
+}
+.wh-table tbody tr:last-child td { border-bottom: none; }
+
+.day-name { font-weight: 700; color: #e9e3f5; min-width: 100px; }
+.day-closed { opacity: .4; }
+
+/* Closed row dimming via JS */
+tr.is-closed .wh-time { opacity: .3; pointer-events: none; }
+
+/* Save button */
+.btn-panel-save {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  border: none; color: white; border-radius: 12px;
+  padding: 12px 32px; font-size: .9rem; font-weight: 700;
+  cursor: pointer; transition: opacity .15s, transform .15s;
+  margin-top: 8px;
+}
+.btn-panel-save:hover { opacity: .88; transform: translateY(-1px); }
+
+/* Kapalı badge */
+.badge-closed {
+  background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.2);
+  color: #fca5a5; border-radius: 8px; padding: 2px 10px;
+  font-size: .72rem; font-weight: 700; margin-left: 8px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="panel-page-title mb-0">🕐 Çalışma Saatleri</h5>
+  <a href="/panel" class="panel-back-btn">← Panel</a>
+</div>
+
+<div class="panel-card">
+  <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.55);margin-bottom:22px;">
+    📅 HAFTALIK ÇALIŞMA PROGRAMI
+  </div>
+
+  <form method="post" action="/panel/calisma-saatleri-kaydet">
+    <div style="overflow-x:auto;">
+      <table class="wh-table">
+        <thead>
+          <tr>
+            <th>Gün</th>
+            <th>Açılış</th>
+            <th>Kapanış</th>
+            <th style="text-align:center;">Kapalı</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for i in range(7) %}
+          {% set day = days[i] %}
+          {% set wh = hours.get(i) %}
+          {% set is_closed = wh and wh.is_closed %}
+          <tr id="wh-row-{{ i }}" {% if is_closed %}class="is-closed"{% endif %}>
+            <td>
+              <span class="day-name">{{ day }}</span>
+              {% if is_closed %}<span class="badge-closed">Kapalı</span>{% endif %}
+            </td>
+            <td>
+              <input type="time" name="open_{{ i }}" class="wh-time"
+                     value="{{ wh.open_time if wh else '09:00' }}">
+            </td>
+            <td>
+              <input type="time" name="close_{{ i }}" class="wh-time"
+                     value="{{ wh.close_time if wh else '19:00' }}">
+            </td>
+            <td style="text-align:center;">
+              <input type="checkbox" name="closed_{{ i }}" class="wh-check"
+                     id="chk-{{ i }}"
+                     {% if is_closed %}checked{% endif %}
+                     onchange="toggleDay({{ i }}, this.checked)">
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,.07);">
+      <button type="submit" class="btn-panel-save">💾 Kaydet</button>
+      <span style="font-size:.75rem; color:rgba(196,181,253,.4); margin-left:16px;">
+        Değişiklikler hemen geçerli olur
+      </span>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleDay(i, isClosed) {
+  const row = document.getElementById('wh-row-' + i);
+  const badge = row.querySelector('.badge-closed');
+
+  if(isClosed) {
+    row.classList.add('is-closed');
+    if(!badge) {
+      const span = document.createElement('span');
+      span.className = 'badge-closed';
+      span.textContent = 'Kapalı';
+      row.querySelector('.day-name').after(span);
+    }
+  } else {
+    row.classList.remove('is-closed');
+    if(badge) badge.remove();
+  }
+}
+</script>
+{% endblock %}

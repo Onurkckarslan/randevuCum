@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -n '1,959p' index.html)",
+      "Bash(sed -n '1050,1293p' index.html)",
+      "Bash(sed -n '960,990p' index.html)",
+      "Bash(sed -n '992,1049p' index.html)",
+      "Bash(sed -n '1294,$p' index.html)",
+      "Bash(sed -n '1,959p' app/templates/index.html)",
+      "Bash(sed -n '960,1203p' app/templates/index.html)",
+      "Bash(sed -n '1205,1235p' app/templates/index.html)",
+      "Bash(sed -n '1237,1293p' app/templates/index.html)",
+      "Bash(sed -n '1295,1313p' app/templates/index.html)",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(find . -name *.db -o -name *.sqlite)",
+      "Bash(python3:*)",
+      "Bash(curl -s http://localhost:8000/kamil-akbulut-studio)",
+      "Bash(pkill -f 'python run.py')",
+      "Bash(curl:*)",
+      "Bash(grep -n \"@router.get.*\\\\/{\" app/routes/*.py)"
+    ]
+  }
+}

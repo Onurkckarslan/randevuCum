@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}Randevular — {{ biz.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── APPOINTMENTS DARK THEME ── */
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+.panel-page-title { font-size: 1.25rem; font-weight: 800; color: #f1f0f5; }
+.panel-back-btn {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: #c4b5fd; border-radius: 10px; padding: 7px 16px;
+  font-size: .82rem; font-weight: 600; text-decoration: none; transition: background .15s;
+}
+.panel-back-btn:hover { background: rgba(255,255,255,.13); color: #e9d5ff; }
+
+/* Glassmorphism table container */
+.appt-card {
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Table */
+.appt-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.appt-table thead th {
+  font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(196,181,253,.5); padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.07); background: rgba(124,58,237,.05);
+}
+.appt-table tbody tr {
+  transition: background .15s;
+}
+.appt-table tbody tr:hover { background: rgba(255,255,255,.04); }
+.appt-table tbody td {
+  padding: 14px 18px; vertical-align: middle;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  font-size: .88rem; color: #e9e3f5;
+}
+.appt-table tbody tr:last-child td { border-bottom: none; }
+
+/* Date + Time */
+.appt-date { font-weight: 600; color: rgba(196,181,253,.8); font-size: .85rem; }
+.appt-time { font-size: 1.05rem; font-weight: 900; color: #f1f0f5; }
+
+/* Customer */
+.appt-cust-name { font-weight: 700; color: #f1f0f5; }
+.appt-cust-phone { font-size: .75rem; color: rgba(196,181,253,.5); margin-top: 2px; }
+
+/* Service */
+.appt-svc {
+  background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.2);
+  color: #c4b5fd; border-radius: 8px; padding: 3px 10px;
+  font-size: .75rem; font-weight: 700; white-space: nowrap;
+}
+
+/* Status badges */
+.badge-bekliyor {
+  background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.3);
+  color: #fbbf24; border-radius: 20px; padding: 4px 12px;
+  font-size: .73rem; font-weight: 700; white-space: nowrap;
+}
+.badge-onaylandi {
+  background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.3);
+  color: #34d399; border-radius: 20px; padding: 4px 12px;
+  font-size: .73rem; font-weight: 700; white-space: nowrap;
+}
+.badge-iptal {
+  background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2);
+  color: rgba(252,165,165,.7); border-radius: 20px; padding: 4px 12px;
+  font-size: .73rem; font-weight: 700; white-space: nowrap;
+}
+.badge-tamamlandi {
+  background: rgba(6,182,212,.12); border: 1px solid rgba(6,182,212,.25);
+  color: #67e8f9; border-radius: 20px; padding: 4px 12px;
+  font-size: .73rem; font-weight: 700; white-space: nowrap;
+}
+
+/* Cancel button */
+.btn-iptal {
+  background: transparent; border: 1px solid rgba(239,68,68,.4);
+  color: rgba(239,68,68,.8); border-radius: 8px; padding: 5px 14px;
+  font-size: .78rem; font-weight: 600; cursor: pointer; transition: all .15s;
+  font-family: 'Inter', sans-serif;
+}
+.btn-iptal:hover {
+  background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.65); color: #fca5a5;
+}
+
+/* Empty state */
+.appt-empty {
+  text-align: center; padding: 64px 20px;
+  color: rgba(196,181,253,.4);
+}
+
+/* Responsive scroll */
+@media(max-width: 768px) {
+  .appt-table-wrap { overflow-x: auto; }
+  .appt-table { min-width: 600px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="panel-page-title mb-0">📅 Randevular</h5>
+  <a href="/panel" class="panel-back-btn">← Panel</a>
+</div>
+
+<!-- Filtre -->
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+  <a href="/panel/randevular?filter=upcoming"
+     style="padding:7px 16px;border-radius:10px;font-size:.82rem;font-weight:700;text-decoration:none;
+     {% if filter == 'upcoming' %}background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;{% else %}background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#c4b5fd;{% endif %}">
+     Yaklaşan
+  </a>
+  <a href="/panel/randevular?filter=all"
+     style="padding:7px 16px;border-radius:10px;font-size:.82rem;font-weight:700;text-decoration:none;
+     {% if filter == 'all' %}background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;{% else %}background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#c4b5fd;{% endif %}">
+     Tümü
+  </a>
+  <a href="/panel/randevular?filter=past"
+     style="padding:7px 16px;border-radius:10px;font-size:.82rem;font-weight:700;text-decoration:none;
+     {% if filter == 'past' %}background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;{% else %}background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#c4b5fd;{% endif %}">
+     Geçmiş
+  </a>
+</div>
+
+{% if appointments %}
+<div class="appt-card">
+  <div class="appt-table-wrap">
+    <table class="appt-table">
+      <thead>
+        <tr>
+          <th>Tarih</th>
+          <th>Saat</th>
+          <th>Müşteri</th>
+          <th>Hizmet</th>
+          <th>Durum</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for a in appointments %}
+      <tr>
+        <!-- Tarih -->
+        <td><span class="appt-date">{{ a.date }}</span></td>
+
+        <!-- Saat -->
+        <td><span class="appt-time">{{ a.time }}</span></td>
+
+        <!-- Müşteri -->
+        <td>
+          <div class="appt-cust-name">{{ a.customer_name }}</div>
+          <div class="appt-cust-phone">📞 {{ a.customer_phone }}</div>
+        </td>
+
+        <!-- Hizmet -->
+        <td>
+          {% if a.service %}
+          <span class="appt-svc">{{ a.service.name }}</span>
+          {% else %}
+          <span style="color:rgba(196,181,253,.3);font-size:.82rem;">—</span>
+          {% endif %}
+        </td>
+
+        <!-- Durum -->
+        <td>
+          {% if a.status == 'bekliyor' %}
+            <span class="badge-bekliyor">⏳ Bekliyor</span>
+          {% elif a.status == 'onaylandi' %}
+            <span class="badge-onaylandi">✓ Onaylandı</span>
+          {% elif a.status == 'iptal' %}
+            <span class="badge-iptal">✕ İptal</span>
+          {% elif a.status == 'tamamlandi' %}
+            <span class="badge-tamamlandi">✔ Tamamlandı</span>
+          {% else %}
+            <span class="badge-bekliyor">{{ a.status }}</span>
+          {% endif %}
+        </td>
+
+        <!-- Aksiyon -->
+        <td>
+          {% if a.status != 'iptal' %}
+          <form method="post" action="/panel/randevu-iptal/{{ a.id }}">
+            <button class="btn-iptal" type="submit">İptal</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+<div class="appt-empty">
+  <div style="font-size:3rem;margin-bottom:12px;opacity:.4;">📅</div>
+  <div style="font-weight:700;font-size:.95rem;margin-bottom:6px;">Henüz randevu yok</div>
+  <div style="font-size:.82rem;opacity:.7;">Müşteriler randevu aldığında burada listelenecek.</div>
+</div>
+{% endif %}
+
+{% endblock %}

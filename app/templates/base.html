@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Mobil tarayıcı address/nav bar rengi — patlıcan moru -->
+    <meta name="theme-color" content="#2E0854">
+    <meta name="msapplication-navbutton-color" content="#2E0854">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>{% block title %}RandevuCum{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/static/css/particles.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-light: rgba(124,58,237,.15);
+            --primary-dark: #5b21b6;
+            --secondary: #f59e0b;
+            --bg: #121212;
+            --card-shadow: 0 4px 24px rgba(124,58,237,0.18);
+            --text-main: #f1f0f5;
+            --text-muted: rgba(241,240,245,.55);
+            --border-col: rgba(255,255,255,.08);
+        }
+
+        * { font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text-main); min-height: 100vh; padding-top: 68px; position: relative; z-index: 1; }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: linear-gradient(135deg, #1e0b4b 0%, #2d0a5c 60%, #1a0a3e 100%);
+            box-shadow: 0 2px 20px rgba(0,0,0,.3);
+            padding: 10px 0;
+            position: fixed !important;
+            top: 0; left: 0; right: 0;
+            z-index: 1050;
+        }
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #fff !important;
+            letter-spacing: -0.5px;
+        }
+        /* .navbar-brand span rengi inline style'a bırakıldı */
+        .navbar-toggler-icon { filter: invert(1); }
+
+        /* Nav linkleri her zaman beyaz + kalın */
+        .navbar .nav-link,
+        .navbar .nav-link.dropdown-toggle {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: .92rem !important;
+        }
+        .navbar .nav-link:hover { opacity: .75; }
+        .navbar .dropdown-toggle::after { border-top-color: #fff; }
+
+        /* ── BUTTONS ── */
+        .btn-primary {
+            background: var(--primary); border-color: var(--primary);
+            font-weight: 600; border-radius: 10px; padding: 8px 20px;
+        }
+        .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+        .btn-outline-primary { border-color: var(--primary); color: var(--primary); border-radius: 10px; font-weight: 600; }
+        .btn-outline-primary:hover { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .btn-outline-secondary { border-radius: 10px; font-weight: 500; }
+        .btn-outline-danger { border-radius: 8px; }
+
+        /* ── CARDS ── */
+        .card { border: 1px solid var(--border-col) !important; border-radius: 16px; box-shadow: var(--card-shadow); background: rgba(255,255,255,.04) !important; color: var(--text-main); }
+
+        /* ── FORMS ── */
+        .form-control, .form-select {
+            border-radius: 10px; border: 1.5px solid rgba(255,255,255,.12);
+            padding: 10px 14px; font-size: 0.95rem;
+            background: rgba(255,255,255,.06) !important; color: var(--text-main) !important;
+        }
+        .form-control::placeholder { color: var(--text-muted); }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.2);
+            background: rgba(255,255,255,.09) !important;
+        }
+        .form-label { font-weight: 600; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 6px; }
+
+        /* ── BADGE ── */
+        .badge-cat { background: var(--primary-light); color: var(--primary); font-weight: 600; font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; }
+        .badge-cat.berber { background: #fef3c7; color: #92400e; }
+
+        /* ── STEP ── */
+        .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .step-num { width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+        .step-num.done { background: #10b981; }
+
+        /* ── SERVICE CARD ── */
+        .svc-card { border: 1.5px solid rgba(255,255,255,.1); border-radius: 12px; padding: 14px; cursor: pointer; transition: all 0.15s; background: rgba(255,255,255,.04); color: var(--text-main); }
+        .svc-card:hover { border-color: var(--primary); background: rgba(124,58,237,.12); }
+        .svc-card.selected { border-color: var(--primary); background: rgba(124,58,237,.18); }
+
+        /* ── TIME SLOT ── */
+        .slot-btn { border: 1.5px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); color: var(--text-main); border-radius: 10px; padding: 8px 16px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; min-width: 80px; }
+        .slot-btn:hover { border-color: var(--primary); color: #c4b5fd; }
+        .slot-btn.selected { background: var(--primary); border-color: var(--primary); color: white; }
+
+        /* ── PANEL SIDEBAR ── */
+        .panel-nav .nav-link { color: var(--text-muted); border-radius: 10px; padding: 10px 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        .panel-nav .nav-link:hover { background: rgba(124,58,237,.15); color: #c4b5fd; }
+        .panel-nav .nav-link.active { background: var(--primary); color: white; }
+
+        /* ── TABLE ── */
+        .table { border-radius: 12px; overflow: hidden; }
+        .table th { background: rgba(255,255,255,.05); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); border: none; }
+        .table td { vertical-align: middle; border-color: rgba(255,255,255,.06); color: var(--text-main); }
+
+        /* ── STATUS BADGES ── */
+        .status-bekliyor { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status-onaylandi { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status-iptal { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+
+        .divider { height: 1px; background: rgba(255,255,255,.07); margin: 20px 0; }
+
+        /* ── DROPDOWN DARK ── */
+        .dropdown-menu { background: rgba(19,19,26,.97) !important; border: 1px solid rgba(255,255,255,.1) !important; backdrop-filter: blur(20px); }
+        .dropdown-item { color: rgba(241,240,245,.7) !important; font-weight: 500; }
+        .dropdown-item:hover, .dropdown-item:focus { background: rgba(124,58,237,.15) !important; color: #e9d5ff !important; }
+        .dropdown-divider { border-color: rgba(255,255,255,.08) !important; }
+
+        /* ── MOBILE TWEAKS ── */
+        @media(max-width: 576px) {
+            body { padding-top: 60px; }
+            .navbar { padding: 8px 0; }
+            .navbar-brand span { font-size: 1.15rem !important; }
+            .container { padding-left: 12px; padding-right: 12px; }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/" style="text-decoration:none;">
+          <!-- Calendar + Clock + Check SVG logo -->
+          <svg width="42" height="34" viewBox="0 0 42 34" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+            <defs>
+              <linearGradient id="nlg" x1="0" y1="0" x2="42" y2="34" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#7c3aed"/>
+                <stop offset="48%"  stop-color="#ec4899"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+              <filter id="nglow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="1.2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- Calendar body -->
+            <rect x="1.5" y="5.5" width="23" height="20" rx="3"
+                  stroke="url(#nlg)" stroke-width="1.9" fill="none" filter="url(#nglow)"/>
+            <!-- Calendar top divider -->
+            <line x1="1.5" y1="11" x2="24.5" y2="11"
+                  stroke="url(#nlg)" stroke-width="1.9"/>
+            <!-- Calendar pegs -->
+            <line x1="7"  y1="2" x2="7"  y2="9" stroke="url(#nlg)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="18" y1="2" x2="18" y2="9" stroke="url(#nlg)" stroke-width="2" stroke-linecap="round"/>
+            <!-- Calendar dots (2×2 grid) -->
+            <circle cx="7.5"  cy="16.5" r="1.4" fill="url(#nlg)"/>
+            <circle cx="13"   cy="16.5" r="1.4" fill="url(#nlg)"/>
+            <circle cx="7.5"  cy="21.5" r="1.4" fill="url(#nlg)"/>
+            <circle cx="13"   cy="21.5" r="1.4" fill="url(#nlg)"/>
+
+            <!-- Clock circle (overlapping right) -->
+            <circle cx="30.5" cy="22" r="10.5"
+                    stroke="url(#nlg)" stroke-width="1.9"
+                    fill="rgba(8,8,16,.75)" filter="url(#nglow)"/>
+            <!-- Clock minute hand (12 o'clock) -->
+            <line x1="30.5" y1="15.5" x2="30.5" y2="22"
+                  stroke="url(#nlg)" stroke-width="1.7" stroke-linecap="round"/>
+            <!-- Clock hour hand (pointing right ~1 o'clock) -->
+            <line x1="30.5" y1="22" x2="34" y2="24"
+                  stroke="url(#nlg)" stroke-width="1.7" stroke-linecap="round"/>
+            <!-- Checkmark (inside clock) -->
+            <path d="M26 22 L29.5 25.5 L36 17.5"
+                  stroke="url(#nlg)" stroke-width="1.9"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+
+          <!-- Wordmark: "Randevu" beyaz + "Cum" gradient (değiştirilmez) -->
+          <span style="font-size:1.35rem; font-weight:900; letter-spacing:-.5px; color:#fff; -webkit-text-fill-color:#fff; line-height:1;">Randevu<span class="cum-grad" style="background:linear-gradient(135deg,#a78bfa 0%,#ec4899 50%,#06b6d4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:900;">Cum</span></span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto ms-3 gap-1">
+
+                <!-- Salonlar -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Kategoriler</a>
+                    <ul class="dropdown-menu shadow border-0 rounded-3 p-2" style="min-width:220px;max-height:70vh;overflow-y:auto;">
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/kuaforler">💇 Kuaförler</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/berberler">✂️ Berberler</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/guzellik">💅 Güzellik & Estetik</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/spa">🧖 Spa & Masaj</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/tirnak">💎 Tırnak & Makyaj</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/dovme">🎨 Dövme & Piercing</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/tesettur">🌸 Tesettür Kuaförü</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/psikoloji">🧠 Psikoloji & Danışmanlık</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/beslenme-diyet">🥗 Beslenme & Diyet</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/fizyoterapi">🦴 Fizyoterapi & Terapi</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/dis-sagligi">🦷 Ağız & Diş Sağlığı</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/spor-fitness">🏋️ Spor & Fitness</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/pilates-yoga">🧘 Pilates & Yoga</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/egitim-ozel-ders">📚 Eğitim & Özel Ders</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/sanat-muzik">🎸 Sanat & Müzik</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/kocluk">🚀 Koçluk & Kişisel Gelişim</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/saglik">🏥 Sağlık Merkezleri</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/saglik-medikal">⚕️ Sağlık & Medikal</a></li>
+                    </ul>
+                </li>
+
+                <!-- Kuaför & Berber -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Kuaför & Berber</a>
+                    <ul class="dropdown-menu shadow border-0 rounded-3 p-2">
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/kuaforler">💇 Kuaförler</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/berberler">✂️ Berberler</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/hizmet/sac-kesimi">✂️ Saç Kesimi</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/hizmet/fon">💨 Fön</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/hizmet/sac-boyama">🎨 Saç Boyama</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/hizmet/gelin-basi">👰 Gelin Başı</a></li>
+                    </ul>
+                </li>
+
+                <!-- Güzellik & Bakım -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Güzellik & Bakım</a>
+                    <ul class="dropdown-menu shadow border-0 rounded-3 p-2">
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/guzellik">💅 Güzellik & Estetik</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/tirnak">💎 Tırnak & Makyaj</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/spa">🧖 Spa & Masaj</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/dovme">🎨 Dövme & Piercing</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/solaryum">☀️ Solaryum</a></li>
+                    </ul>
+                </li>
+
+                <!-- Sağlık & Terapi -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Sağlık & Terapi</a>
+                    <ul class="dropdown-menu shadow border-0 rounded-3 p-2">
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/psikoloji">🧠 Psikoloji & Danışmanlık</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/beslenme-diyet">🥗 Beslenme & Diyet</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/fizyoterapi">🦴 Fizyoterapi & Terapi</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/dis-sagligi">🦷 Ağız & Diş Sağlığı</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/saglik">🏥 Sağlık Merkezleri</a></li>
+                    </ul>
+                </li>
+
+                <!-- Danışmanlık -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Danışmanlık</a>
+                    <ul class="dropdown-menu shadow border-0 rounded-3 p-2">
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/kocluk">🚀 Koçluk & Kişisel Gelişim</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/kurumsal">🏢 Kurumsal Danışmanlık</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/spor-fitness">🏋️ Spor & Fitness</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/pilates-yoga">🧘 Pilates & Yoga</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/kategori/egitim-ozel-ders">📚 Eğitim & Özel Ders</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+
+            <!-- SAĞ TARAF -->
+            <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0 pb-2 pb-lg-0">
+                <a href="/isletmeler-icin" class="text-decoration-none me-2 d-none d-lg-block" style="font-size:.88rem;font-weight:700;color:#fff;white-space:nowrap;">İşletmeler İçin</a>
+
+                {% if current_business %}
+                <div class="dropdown w-100">
+                    <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2 w-100 justify-content-center" style="padding:10px 18px;font-size:.9rem;border-color:rgba(255,255,255,.4);color:#fff;" data-bs-toggle="dropdown">
+                        <i class="bi bi-shop"></i> {{ current_business.name }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2 w-100">
+                        <li><a class="dropdown-item rounded-2 py-2" href="/panel"><i class="bi bi-speedometer2 me-2"></i>Panel</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/panel/randevular"><i class="bi bi-calendar3 me-2"></i>Randevular</a></li>
+                        <li><a class="dropdown-item rounded-2 py-2" href="/panel/profil"><i class="bi bi-gear me-2"></i>Profil</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item rounded-2 py-2 text-danger" href="/cikis"><i class="bi bi-box-arrow-right me-2"></i>Çıkış Yap</a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <a href="/giris"
+                   class="d-flex align-items-center justify-content-center text-decoration-none"
+                   style="min-width:110px;height:40px;border:1.5px solid rgba(255,255,255,.35);color:#fff;border-radius:10px;font-size:.88rem;font-weight:700;background:rgba(255,255,255,.08);backdrop-filter:blur(4px);transition:.2s;padding:0 16px;"
+                   onmouseover="this.style.background='rgba(255,255,255,.18)'"
+                   onmouseout="this.style.background='rgba(255,255,255,.08)'">Giriş Yap</a>
+                <a href="/kayit"
+                   class="d-flex align-items-center justify-content-center text-decoration-none"
+                   style="min-width:110px;height:40px;background:var(--primary);color:#fff;border-radius:10px;font-size:.88rem;font-weight:700;transition:.2s;box-shadow:0 2px 12px rgba(124,58,237,.4);padding:0 16px;"
+                   onmouseover="this.style.background='var(--primary-dark)'"
+                   onmouseout="this.style.background='var(--primary)'">✦ Kayıt Ol</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- FOOTER -->
+<footer style="margin-top:3rem;padding:28px 0;text-align:center;border-top:1px solid rgba(255,255,255,.07);background:rgba(10,10,15,.7);">
+  <div style="margin-bottom:8px;"><span style="font-size:1.1rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#ec4899,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">RandevuCum</span></div>
+  <div style="font-size:.78rem;color:rgba(196,181,253,.35);">&copy; 2026 RandevuCum &mdash; Online Randevu Sistemi</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/particles.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

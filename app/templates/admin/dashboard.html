@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Panel — RandevuCum</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f; --surface: rgba(18,12,30,.9); --card: rgba(255,255,255,.04);
+  --border: rgba(255,255,255,.08); --violet: #7c3aed; --pink: #ec4899;
+  --cyan: #06b6d4; --green: #10b981; --text: #f1f0f5; --muted: rgba(241,240,245,.5);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; top: 0; left: 0; width: 240px; height: 100vh;
+  background: rgba(12,8,24,.97); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 24px 0; z-index: 100;
+}
+.sidebar-logo {
+  padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+}
+.sidebar-logo .name { font-size: 1.1rem; font-weight: 900; color: #fff; }
+.sidebar-logo .name span { color: #a78bfa; }
+.sidebar-logo .sub { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; color: var(--muted); text-decoration: none;
+  font-size: .88rem; font-weight: 600; transition: all .15s; cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover, .nav-item.active { background: rgba(124,58,237,.12); color: #c4b5fd; border-left: 3px solid var(--violet); }
+.nav-item .ico { width: 20px; text-align: center; font-size: 1rem; }
+.nav-section { font-size: .65rem; font-weight: 800; letter-spacing: .1em; color: rgba(196,181,253,.3); padding: 16px 20px 6px; }
+.sidebar-bottom { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); }
+.logout-btn {
+  display: flex; align-items: center; gap: 8px;
+  color: rgba(239,68,68,.7); font-size: .85rem; font-weight: 600;
+  text-decoration: none; transition: color .15s;
+}
+.logout-btn:hover { color: #fca5a5; }
+
+/* Main content */
+.main { margin-left: 240px; padding: 32px; min-height: 100vh; }
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-size: 1.6rem; font-weight: 900; letter-spacing: -.5px; }
+.page-header p { color: var(--muted); font-size: .88rem; margin-top: 4px; }
+
+/* Stat cards */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px;
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.stat-card.violet::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+.stat-card.pink::before   { background: linear-gradient(90deg, #ec4899, #f9a8d4); }
+.stat-card.cyan::before   { background: linear-gradient(90deg, #06b6d4, #67e8f9); }
+.stat-card.green::before  { background: linear-gradient(90deg, #10b981, #6ee7b7); }
+.stat-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; color: var(--muted); margin-bottom: 8px; }
+.stat-num { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
+.stat-sub { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+
+/* Table */
+.table-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden;
+}
+.table-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+}
+.table-header h2 { font-size: 1rem; font-weight: 800; }
+.search-input {
+  background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; padding: 8px 14px; color: var(--text);
+  font-size: .83rem; outline: none; font-family: inherit; width: 220px;
+}
+.search-input:focus { border-color: rgba(124,58,237,.5); }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; padding: 12px 16px; font-size: .72rem; font-weight: 800;
+  letter-spacing: .08em; color: var(--muted);
+  border-bottom: 1px solid var(--border); background: rgba(0,0,0,.2);
+}
+td { padding: 14px 16px; font-size: .85rem; border-bottom: 1px solid rgba(255,255,255,.04); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.02); }
+.plan-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 20px; padding: 4px 12px; font-size: .72rem; font-weight: 800;
+}
+.plan-premium { background: rgba(124,58,237,.2); border: 1px solid rgba(124,58,237,.4); color: #c4b5fd; }
+.plan-temel   { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: var(--muted); }
+.status-badge {
+  display: inline-block; border-radius: 20px; padding: 3px 10px; font-size: .7rem; font-weight: 700;
+}
+.status-active   { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.3); color: #34d399; }
+.status-inactive { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); color: #fca5a5; }
+.btn-action {
+  display: inline-block; padding: 5px 14px; border-radius: 8px; font-size: .75rem; font-weight: 700;
+  text-decoration: none; transition: all .15s; cursor: pointer; border: none; font-family: inherit;
+}
+.btn-view { background: rgba(124,58,237,.2); color: #c4b5fd; }
+.btn-view:hover { background: rgba(124,58,237,.35); color: #e9d5ff; }
+
+/* Search filter */
+.filter-row { display: flex; gap: 8px; padding: 12px 22px; border-bottom: 1px solid var(--border); }
+.filter-chip {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  color: var(--muted); border-radius: 20px; padding: 5px 14px;
+  font-size: .75rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.filter-chip:hover, .filter-chip.active {
+  background: rgba(124,58,237,.2); border-color: rgba(124,58,237,.4); color: #c4b5fd;
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">Randevu<span>Cum</span></div>
+    <div class="sub">🛡️ Admin Paneli</div>
+  </div>
+  <div class="nav-section">MENÜ</div>
+  <a class="nav-item active" href="/admin"><span class="ico">📊</span> Dashboard</a>
+  <a class="nav-item" href="/admin?filter=premium"><span class="ico">⭐</span> Premium İşletmeler</a>
+  <a class="nav-item" href="/admin?filter=temel"><span class="ico">📦</span> Temel İşletmeler</a>
+  <a class="nav-item" href="/admin?filter=inactive"><span class="ico">⛔</span> Pasif İşletmeler</a>
+  <div class="sidebar-bottom">
+    <a href="/admin/logout" class="logout-btn">🚪 Çıkış Yap</a>
+  </div>
+</nav>
+
+<!-- Main -->
+<div class="main">
+  <div class="page-header">
+    <h1>Admin Dashboard</h1>
+    <p>{{ now.strftime('%d %B %Y, %H:%M') }} — Hoş geldin 👋</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card violet">
+      <div class="stat-label">TOPLAM İŞLETME</div>
+      <div class="stat-num">{{ total_biz }}</div>
+      <div class="stat-sub">{{ active_cnt }} aktif</div>
+    </div>
+    <div class="stat-card pink">
+      <div class="stat-label">PREMIUM</div>
+      <div class="stat-num">{{ premium_cnt }}</div>
+      <div class="stat-sub">899₺/ay</div>
+    </div>
+    <div class="stat-card cyan">
+      <div class="stat-label">TEMEL</div>
+      <div class="stat-num">{{ temel_cnt }}</div>
+      <div class="stat-sub">699₺/ay</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">BU AY RANDEVU</div>
+      <div class="stat-num">{{ month_appt }}</div>
+      <div class="stat-sub">toplam {{ total_appt }}</div>
+    </div>
+  </div>
+
+  <!-- İşletme Tablosu -->
+  <div class="table-card">
+    <div class="table-header">
+      <h2>İşletmeler</h2>
+      <input class="search-input" type="text" placeholder="🔍 İşletme ara..." onkeyup="filterTable(this.value)">
+    </div>
+    <div class="filter-row">
+      <button class="filter-chip active" onclick="setFilter(this,'all')">Tümü ({{ total_biz }})</button>
+      <button class="filter-chip" onclick="setFilter(this,'premium')">⭐ Premium ({{ premium_cnt }})</button>
+      <button class="filter-chip" onclick="setFilter(this,'temel')">📦 Temel ({{ temel_cnt }})</button>
+      <button class="filter-chip" onclick="setFilter(this,'inactive')">⛔ Pasif</button>
+    </div>
+    <table id="bizTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>İŞLETME ADI</th>
+          <th>KATEGORİ</th>
+          <th>TELEFON</th>
+          <th>PLAN</th>
+          <th>KALAN GÜN</th>
+          <th>DURUM</th>
+          <th>KAYIT</th>
+          <th>İŞLEM</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for biz in businesses %}
+        <tr class="biz-row" data-plan="{{ biz.plan }}" data-active="{{ 'yes' if biz.is_active else 'no' }}" data-name="{{ biz.name|lower }}">
+          <td style="color:var(--muted);">{{ biz.id }}</td>
+          <td>
+            <div style="font-weight:700;">{{ biz.name }}</div>
+            <div style="font-size:.72rem;color:var(--muted);">/{{ biz.slug }}</div>
+          </td>
+          <td style="color:var(--muted);">{{ biz.category }}</td>
+          <td style="font-size:.82rem;">{{ biz.phone }}</td>
+          <td>
+            {% if biz.plan == 'premium' %}
+            <span class="plan-badge plan-premium">⭐ Premium</span>
+            {% else %}
+            <span class="plan-badge plan-temel">📦 Temel</span>
+            {% endif %}
+          </td>
+          <td style="font-size:.78rem;">
+            {% if biz.plan_expires_at %}
+              {% set days_left = (biz.plan_expires_at - now).days %}
+              {% if days_left > 7 %}
+                <span style="color:#34d399;">{{ days_left }} gün</span>
+              {% elif days_left > 0 %}
+                <span style="color:#fbbf24;">⚠️ {{ days_left }} gün</span>
+              {% else %}
+                <span style="color:#fca5a5;">Süresi doldu</span>
+              {% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if biz.is_active %}
+            <span class="status-badge status-active">Aktif</span>
+            {% else %}
+            <span class="status-badge status-inactive">Pasif</span>
+            {% endif %}
+          </td>
+          <td style="font-size:.78rem;color:var(--muted);">{{ biz.created_at.strftime('%d.%m.%Y') }}</td>
+          <td>
+            <a href="/admin/business/{{ biz.id }}" class="btn-action btn-view">Detay →</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted);">Henüz kayıtlı işletme yok.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+let currentFilter = 'all';
+function filterTable(q) {
+  document.querySelectorAll('.biz-row').forEach(row => {
+    const nameMatch = row.dataset.name.includes(q.toLowerCase());
+    const filterMatch =
+      currentFilter === 'all' ||
+      (currentFilter === 'premium'  && row.dataset.plan === 'premium') ||
+      (currentFilter === 'temel'    && row.dataset.plan === 'temel') ||
+      (currentFilter === 'inactive' && row.dataset.active === 'no');
+    row.style.display = (nameMatch && filterMatch) ? '' : 'none';
+  });
+}
+function setFilter(btn, filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  filterTable(document.querySelector('.search-input').value);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Hizmetler — {{ biz.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── PANEL DARK THEME — services ── */
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+.panel-card {
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 18px;
+  padding: 28px;
+}
+
+/* Page header */
+.panel-page-title { font-size: 1.25rem; font-weight: 800; color: #f1f0f5; }
+.panel-back-btn {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: #c4b5fd; border-radius: 10px; padding: 7px 16px;
+  font-size: .82rem; font-weight: 600; text-decoration: none;
+  transition: background .15s;
+}
+.panel-back-btn:hover { background: rgba(255,255,255,.13); color: #e9d5ff; }
+
+/* Form labels */
+.panel-label {
+  font-size: .75rem; font-weight: 700; letter-spacing: .06em;
+  color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;
+}
+
+/* Inputs */
+.panel-input, .panel-input-group .form-control {
+  background: rgba(0,0,0,.35) !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 12px !important;
+  color: #f1f0f5 !important;
+  font-size: .88rem !important;
+  padding: 10px 14px !important;
+  transition: border-color .15s, box-shadow .15s;
+}
+.panel-input:focus, .panel-input-group .form-control:focus {
+  box-shadow: 0 0 0 3px rgba(124,58,237,.18) !important;
+  border-color: rgba(124,58,237,.5) !important;
+  outline: none !important;
+}
+.panel-input::placeholder, .panel-input-group .form-control::placeholder {
+  color: rgba(196,181,253,.35) !important;
+}
+.panel-input-group .input-group-text {
+  background: rgba(0,0,0,.4) !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  color: rgba(196,181,253,.6) !important;
+  border-radius: 0 12px 12px 0 !important;
+  font-size: .82rem;
+}
+.panel-input-group .form-control { border-radius: 12px 0 0 12px !important; }
+
+/* Buttons */
+.btn-panel-add {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  border: none; color: white; border-radius: 12px;
+  padding: 10px 24px; font-size: .88rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap; height: 44px;
+  transition: opacity .15s, transform .15s;
+  margin-top: 24px;
+}
+.btn-panel-add:hover { opacity: .88; transform: translateY(-1px); }
+
+.btn-panel-del {
+  background: transparent;
+  border: 1px solid rgba(239,68,68,.4);
+  color: rgba(239,68,68,.85);
+  border-radius: 8px; padding: 5px 14px;
+  font-size: .8rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.btn-panel-del:hover {
+  background: rgba(239,68,68,.1);
+  border-color: rgba(239,68,68,.7);
+  color: #fca5a5;
+}
+
+/* Table */
+.panel-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.panel-table thead th {
+  font-size: .7rem; font-weight: 800; letter-spacing: .08em;
+  color: rgba(196,181,253,.55); border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 10px 16px; text-transform: uppercase;
+}
+.panel-table tbody tr {
+  transition: background .15s;
+}
+.panel-table tbody tr:hover { background: rgba(124,58,237,.07); }
+.panel-table tbody td {
+  padding: 14px 16px; color: #e9e3f5;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  vertical-align: middle; font-size: .88rem;
+}
+.panel-table tbody tr:last-child td { border-bottom: none; }
+
+.svc-badge {
+  background: rgba(124,58,237,.18); border: 1px solid rgba(124,58,237,.25);
+  color: #c4b5fd; border-radius: 8px; padding: 3px 10px;
+  font-size: .75rem; font-weight: 600;
+}
+.svc-price { font-weight: 800; color: #a78bfa; }
+
+/* Empty state */
+.panel-empty { text-align: center; padding: 48px 20px; color: rgba(196,181,253,.4); }
+.panel-empty-icon { font-size: 2.5rem; opacity: .4; margin-bottom: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="panel-page-title mb-0">✂️ Hizmetler</h5>
+  <a href="/panel" class="panel-back-btn">← Panel</a>
+</div>
+
+<!-- Yeni Hizmet Ekle -->
+<div class="panel-card mb-4">
+  <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.55);margin-bottom:18px;">
+    ➕ YENİ HİZMET EKLE
+  </div>
+  <form method="post" action="/panel/hizmet-ekle">
+    <div class="d-flex gap-3 align-items-end flex-wrap">
+
+      <div style="flex:2; min-width:180px;">
+        <label class="panel-label">Hizmet Adı</label>
+        <input type="text" name="name" class="panel-input" style="width:100%;"
+               placeholder="örn: Saç Kesimi, Fön..." required>
+      </div>
+
+      <div style="flex:1; min-width:140px;">
+        <label class="panel-label">İşlem Süresi</label>
+        <div class="input-group panel-input-group">
+          <input type="number" name="duration" class="form-control"
+                 placeholder="30" value="30" min="10">
+          <span class="input-group-text">dak.</span>
+        </div>
+      </div>
+
+      <div style="flex:1; min-width:130px;">
+        <label class="panel-label">Ücret</label>
+        <div class="input-group panel-input-group">
+          <input type="number" name="price" class="form-control"
+                 placeholder="150" value="0" min="0">
+          <span class="input-group-text">TL</span>
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" class="btn-panel-add">+ Ekle</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Hizmet Listesi -->
+{% if services %}
+<div class="panel-card" style="padding:0; overflow:hidden;">
+  <table class="panel-table">
+    <thead>
+      <tr>
+        <th>Hizmet Adı</th>
+        <th>İşlem Süresi</th>
+        <th>Ücret</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for svc in services %}
+    <tr>
+      <td style="font-weight:700;">{{ svc.name }}</td>
+      <td>
+        <span class="svc-badge">
+          <i class="bi bi-clock me-1"></i>{{ svc.duration }} dakika
+        </span>
+      </td>
+      <td>
+        {% if svc.price %}
+        <span class="svc-price">{{ svc.price }} TL</span>
+        {% else %}
+        <span style="color:rgba(196,181,253,.4); font-size:.82rem;">Belirtilmedi</span>
+        {% endif %}
+      </td>
+      <td style="text-align:right; padding-right:20px;">
+        <form method="post" action="/panel/hizmet-sil/{{ svc.id }}" style="display:inline;">
+          <button class="btn-panel-del" type="submit">Sil</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="panel-empty">
+  <div class="panel-empty-icon">✂️</div>
+  <div style="font-size:.9rem;">Henüz hizmet eklenmedi.</div>
+  <div style="font-size:.78rem; margin-top:6px; opacity:.7;">Yukarıdaki formu kullanarak ilk hizmetini ekle.</div>
+</div>
+{% endif %}
+{% endblock %}

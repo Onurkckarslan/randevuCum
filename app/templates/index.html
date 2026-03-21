@@ -1,0 +1,1818 @@
+{% extends "base.html" %}
+{% block title %}RandevuCum — Online Randevu Sistemi{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --ink:    #0a0a0f;
+  --surface:#13131a;
+  --card:   rgba(255,255,255,.04);
+  --border: rgba(255,255,255,.08);
+  --violet: #7c3aed;
+  --pink:   #ec4899;
+  --cyan:   #06b6d4;
+  --green:  #10b981;
+  --text:   #f1f0f5;
+  --muted:  rgba(241,240,245,.5);
+  --glow:   rgba(124,58,237,.35);
+}
+
+/* ── DARK BG — sabit, koşulsuz ── */
+body {
+  background: #121212 !important;
+  color: var(--text) !important;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content:''; pointer-events:none;
+  position:fixed; inset:0; z-index:0; opacity:.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+
+/* ── GRADIENT MESH (rafine edilmiş) ── */
+.mesh {
+  position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+}
+.mesh span {
+  position:absolute; border-radius:50%; filter:blur(120px);
+  animation: drift 14s ease-in-out infinite alternate;
+}
+/* Violet — sol üst, biraz daha yoğun */
+.mesh span:nth-child(1){
+  width:680px; height:680px;
+  background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+  top:-160px; left:-140px; opacity:.14; animation-delay:0s;
+}
+/* Pink — sağ alt, sıcak ton */
+.mesh span:nth-child(2){
+  width:560px; height:560px;
+  background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+  bottom:-140px; right:-120px; opacity:.12; animation-delay:-5s;
+}
+/* Cyan/indigo — merkez alt */
+.mesh span:nth-child(3){
+  width:440px; height:440px;
+  background: radial-gradient(circle, #4f46e5 0%, #06b6d4 60%, transparent 100%);
+  top:calc(50% - 220px); left:calc(50% - 220px); opacity:.09; animation-delay:-9s;
+}
+@keyframes drift {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(38px,26px) scale(1.07); }
+}
+
+/* ── CONTAINER ── */
+.lp { position:relative; z-index:1; color:var(--text); }
+.lp-wrap { max-width:1160px; margin:0 auto; padding:0 24px; }
+
+/* ── NAVBAR OVERRIDE (dark — kalıcı) ── */
+.navbar {
+  background: rgba(10,10,15,.7) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+.navbar-brand { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+/* Gradient span — CSS override'dan koru */
+.navbar-brand .cum-grad {
+  background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #06b6d4 100%);
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+.navbar .nav-link { color: var(--muted) !important; }
+.navbar .nav-link:hover { color: var(--text) !important; opacity: 1 !important; }
+.dropdown-menu { background: rgba(19,19,26,.97) !important; border:1px solid var(--border) !important; }
+.dropdown-item { color: var(--muted) !important; }
+.dropdown-item:hover { background: var(--card) !important; color: var(--text) !important; }
+.btn-primary { background: var(--violet) !important; border-color: var(--violet) !important; }
+.btn-outline-primary { border-color: var(--violet) !important; color: var(--violet) !important; }
+
+/* ── HERO ── */
+.hero { min-height:100vh; display:flex; align-items:center; padding:120px 0 80px; }
+.hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(124,58,237,.15); border:1px solid rgba(124,58,237,.3);
+  color:#c4b5fd; border-radius:100px; padding:6px 16px; font-size:.8rem; font-weight:600;
+  margin-bottom:28px; letter-spacing:.04em;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hero-title {
+  font-size:clamp(2.5rem,6vw,5rem); font-weight:900; line-height:1.05;
+  letter-spacing:-2px; margin-bottom:24px;
+}
+.hero-title .line { display:block; overflow:hidden; }
+/* Word-by-word giriş animasyonu */
+.word-anim {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(32px);
+  filter: blur(6px);
+  animation: wordIn .75s cubic-bezier(.16,1,.3,1) forwards;
+}
+.w1 { animation-delay: .05s; }
+.w2 { animation-delay: .2s; }
+.w3 { animation-delay: .38s; }
+@keyframes wordIn {
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+/* grad-text animasyonu — shimmer */
+.grad-text {
+  background-size: 200% auto;
+  animation: wordIn .75s cubic-bezier(.16,1,.3,1) .38s forwards,
+             shimmer 4s linear 1.2s infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+.grad-text {
+  background: linear-gradient(135deg, #a78bfa, #ec4899, #06b6d4);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size:1.15rem; color:var(--muted); max-width:480px; line-height:1.7; margin-bottom:40px;
+  animation: fadeIn .8s .4s both;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+
+.hero-btns { display:flex; gap:12px; flex-wrap:wrap; animation: fadeIn .8s .55s both; }
+.btn-glow {
+  display:inline-flex; align-items:center; gap:8px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4);
+  background-size: 200% 200%;
+  animation: gradShift 6s ease infinite;
+  color:white; border:none; border-radius:14px;
+  padding:14px 28px; font-size:1rem; font-weight:700; cursor:pointer; text-decoration:none;
+  box-shadow: 0 0 30px rgba(124,58,237,.45), 0 4px 20px rgba(124,58,237,.3);
+  transition: transform .18s cubic-bezier(.23,1,.32,1), box-shadow .18s ease;
+  position:relative; overflow:hidden; will-change:transform;
+}
+@keyframes gradShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.btn-glow::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),transparent);
+  pointer-events:none;
+}
+/* Pulse glow ring */
+.btn-glow::before {
+  content:''; position:absolute; inset:-3px; border-radius:17px; z-index:-1;
+  background: linear-gradient(135deg, var(--violet), var(--pink), var(--cyan));
+  opacity:0; transition:opacity .25s;
+  filter: blur(8px);
+}
+.btn-glow:hover::before { opacity:.7; }
+.btn-glow:hover { color:white; box-shadow: 0 0 60px rgba(124,58,237,.7), 0 8px 32px rgba(236,72,153,.35); }
+.btn-ghost {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--card); color:var(--text); border:1px solid var(--border);
+  border-radius:14px; padding:14px 28px; font-size:1rem; font-weight:600; cursor:pointer; text-decoration:none;
+  backdrop-filter:blur(10px); transition:all .2s;
+}
+.btn-ghost:hover { background:rgba(255,255,255,.08); color:var(--text); border-color:rgba(255,255,255,.2); transform:translateY(-2px); }
+
+/* ── FLOATING BOOKING CARD ── */
+.hero-visual { position:relative; animation: float 6s ease-in-out infinite; }
+@keyframes float {
+  0%,100% { transform:translateY(0) rotateX(4deg) rotateY(-6deg); }
+  50%      { transform:translateY(-18px) rotateX(4deg) rotateY(-6deg); }
+}
+.booking-card {
+  background:rgba(19,19,26,.85); backdrop-filter:blur(30px);
+  border:1px solid rgba(255,255,255,.12); border-radius:24px;
+  padding:28px; width:340px; max-width:100%;
+  box-shadow: 0 40px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05);
+  transform-style:preserve-3d; perspective:1000px;
+}
+.bc-top { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.bc-avatar { width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--violet),var(--pink));display:flex;align-items:center;justify-content:center;font-size:1.2rem; }
+.bc-name { font-weight:700; font-size:.95rem; }
+.bc-sub { font-size:.75rem; color:var(--muted); }
+.bc-badge { margin-left:auto; background:rgba(16,185,129,.15); color:#34d399; border:1px solid rgba(16,185,129,.25); border-radius:8px; padding:4px 10px; font-size:.72rem; font-weight:700; }
+.bc-date { font-size:.75rem; color:var(--muted); font-weight:600; letter-spacing:.08em; margin-bottom:10px; }
+.bc-slots { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.bc-slot {
+  padding:8px 12px; border-radius:10px; font-size:.82rem; font-weight:700; cursor:pointer;
+  border:1px solid var(--border); color:var(--muted); transition:.15s;
+}
+.bc-slot.av { border-color:rgba(16,185,129,.4); color:#34d399; background:rgba(16,185,129,.08); }
+.bc-slot.av:hover, .bc-slot.sel { background:var(--green); color:white; border-color:var(--green); transform:scale(1.05); }
+.bc-slot.busy { border-color:rgba(239,68,68,.3); color:rgba(239,68,68,.6); cursor:default; }
+.bc-btn {
+  width:100%; padding:13px; border:none; border-radius:12px; cursor:pointer; font-weight:800; font-size:.95rem;
+  background:linear-gradient(135deg,var(--violet),var(--pink)); color:white;
+  box-shadow: 0 4px 20px rgba(124,58,237,.4); transition:.2s;
+}
+.bc-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(124,58,237,.6); }
+
+/* ── STATS ── */
+.stats { padding:48px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.stat-item { text-align:center; }
+.stat-num { font-size:3rem; font-weight:900; letter-spacing:-2px; }
+.stat-lbl { color:var(--muted); font-size:.85rem; margin-top:4px; }
+
+/* ── BENTO GRID ── */
+.bento { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
+.bento-card {
+  background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px;
+  backdrop-filter:blur(12px); transition:all .3s; overflow:hidden; position:relative;
+}
+.bento-card::before {
+  content:''; position:absolute; inset:0; opacity:0;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(124,58,237,.15), transparent 60%);
+  transition:opacity .3s;
+}
+.bento-card:hover::before { opacity:1; }
+.bento-card:hover { border-color:rgba(124,58,237,.3); transform:translateY(-4px); }
+.bc1 { grid-column:span 7; }
+.bc2 { grid-column:span 5; }
+.bc3 { grid-column:span 4; }
+.bc4 { grid-column:span 4; }
+.bc5 { grid-column:span 4; }
+.bento-icon { width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:16px; }
+.bento-title { font-size:1.15rem; font-weight:700; margin-bottom:8px; }
+.bento-desc { font-size:.88rem; color:var(--muted); line-height:1.6; }
+
+/* SMS ANIMATION */
+.sms-preview { background:rgba(0,0,0,.3); border-radius:14px; padding:14px; margin-top:16px; border:1px solid var(--border); }
+.sms-bubble { background:var(--violet); color:white; border-radius:12px 12px 12px 4px; padding:10px 14px; font-size:.8rem; display:inline-block; animation:smsIn .5s .3s both; }
+@keyframes smsIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:none} }
+
+/* ── STEPS ── */
+.steps { padding:80px 0; }
+.step-line { position:relative; }
+.step-line::before { content:''; position:absolute; top:28px; left:calc(50% + 20px); right:0; height:1px; background:linear-gradient(90deg,var(--violet),transparent); }
+.step-num { width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--violet),var(--pink));display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;margin-bottom:16px; }
+
+/* ── PRICING ── */
+.pricing-card {
+  background:var(--card); border:1px solid var(--border); border-radius:24px; padding:32px;
+  backdrop-filter:blur(12px); transition:all .3s; position:relative; overflow:hidden;
+}
+.pricing-card.featured {
+  border-color:var(--violet); background:rgba(124,58,237,.08);
+  box-shadow: 0 0 60px rgba(124,58,237,.2);
+}
+.pricing-card.featured::before {
+  content:'EN POPÜLER'; position:absolute; top:16px; right:16px;
+  background:var(--violet); color:white; font-size:.68rem; font-weight:800;
+  padding:3px 10px; border-radius:100px; letter-spacing:.08em;
+}
+.price-num { font-size:3rem; font-weight:900; letter-spacing:-2px; }
+.check-item { display:flex; align-items:center; gap:10px; font-size:.88rem; color:var(--muted); margin-bottom:10px; }
+.check-item i { color:var(--green); flex-shrink:0; }
+
+/* ── CTA ── */
+.cta-section {
+  margin:80px 0; padding:80px 40px; border-radius:28px; text-align:center;
+  background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(236,72,153,.15));
+  border:1px solid rgba(124,58,237,.25); position:relative; overflow:hidden;
+}
+.cta-section::before {
+  content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+  background:radial-gradient(circle,rgba(124,58,237,.1) 0%,transparent 60%);
+  animation: rotateBg 20s linear infinite;
+}
+@keyframes rotateBg { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+/* ── SCROLL REVEAL ── */
+.reveal { opacity:0; transform:translateY(32px); transition:opacity .7s, transform .7s; }
+.reveal.visible { opacity:1; transform:none; }
+.reveal-delay-1 { transition-delay:.1s; }
+.reveal-delay-2 { transition-delay:.2s; }
+.reveal-delay-3 { transition-delay:.3s; }
+
+/* ── DIRECTIONAL REVEAL — LEFT TO RIGHT ── */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-48px);
+  transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── DIRECTIONAL REVEAL — RIGHT TO LEFT ── */
+.reveal-right {
+  opacity: 0;
+  transform: translateX(48px);
+  transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+}
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── SCALE + DIRECTIONAL — LEFT ── */
+.reveal-scale-left {
+  opacity: 0;
+  transform: translateX(-48px) scale(.95);
+  transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+}
+.reveal-scale-left.visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+/* ── SCALE + DIRECTIONAL — RIGHT ── */
+.reveal-scale-right {
+  opacity: 0;
+  transform: translateX(48px) scale(.95);
+  transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+}
+.reveal-scale-right.visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+/* ── FOOTER ── */
+.lp-footer { border-top:1px solid var(--border); padding:48px 0 32px; color:var(--muted); font-size:.85rem; }
+.footer-link { color:var(--muted); text-decoration:none; transition:.15s; }
+.footer-link:hover { color:var(--text); }
+
+/* ══════════════════════════════════════════════
+   QUICK SEARCH MODULE
+══════════════════════════════════════════════ */
+.quick-search {
+  background: rgba(15,15,22,.82);
+  backdrop-filter: blur(28px);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 20px;
+  padding: 20px 20px 16px;
+  margin-bottom: 14px;
+}
+.qs-field-wrap { position: relative; }
+.qs-field {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px; padding: 11px 14px;
+  transition: border-color .2s, box-shadow .2s;
+  position: relative;
+}
+.qs-field:focus-within {
+  border-color: rgba(124,58,237,.65);
+  box-shadow: 0 0 0 3px rgba(124,58,237,.13), 0 0 24px rgba(124,58,237,.18);
+}
+.qs-ico { font-size: .95rem; flex-shrink: 0; }
+.qs-input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: .88rem; font-weight: 500;
+  width: 100%; font-family: 'Inter', sans-serif;
+}
+.qs-input::placeholder { color: rgba(241,240,245,.3); }
+.qs-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 12px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white; border: none; border-radius: 12px;
+  font-size: .9rem; font-weight: 700; cursor: pointer;
+  transition: opacity .2s, transform .15s; font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 20px rgba(124,58,237,.35);
+}
+.qs-btn:hover { opacity:.88; transform:translateY(-1px); }
+.qs-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
+.qs-tag {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+  color: var(--muted); border-radius:100px; padding:5px 11px;
+  font-size:.72rem; font-weight:600; cursor:pointer;
+  transition:all .15s; font-family:'Inter',sans-serif;
+}
+.qs-tag:hover, .qs-tag.active {
+  background:rgba(124,58,237,.2); border-color:rgba(124,58,237,.45); color:#c4b5fd;
+}
+/* Dropdown */
+.qs-drop {
+  position:absolute; top:calc(100% + 6px); left:0; right:0;
+  background:rgba(12,12,20,.98); backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.1); border-radius:14px;
+  padding:6px; z-index:300; display:none;
+  box-shadow:0 20px 60px rgba(0,0,0,.55); max-height:210px; overflow-y:auto;
+}
+.qs-drop.show { display:block; }
+.qs-drop-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 11px; border-radius:10px; cursor:pointer;
+  transition:background .12s; color:var(--muted); font-size:.83rem; font-weight:500;
+}
+.qs-drop-item:hover { background:rgba(124,58,237,.15); color:var(--text); }
+.di-icon {
+  font-size:.92rem; width:28px; height:28px;
+  background:rgba(124,58,237,.15); border-radius:8px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+/* Search Result Cards */
+.sr-card {
+  background:rgba(19,19,26,.88); backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.09); border-radius:16px;
+  padding:14px 16px; display:flex; align-items:center; gap:13px;
+  cursor:pointer; text-decoration:none; color:var(--text);
+  opacity:0; transform:translateY(16px) scale(.97);
+  animation:srIn .42s cubic-bezier(.16,1,.3,1) forwards;
+}
+.sr-card:hover {
+  border-color:rgba(124,58,237,.4); background:rgba(124,58,237,.08);
+  color:var(--text); transform:translateY(-2px) scale(1) !important;
+}
+.sr-avatar {
+  width:44px; height:44px; border-radius:12px;
+  background:linear-gradient(135deg,var(--violet),var(--pink));
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.2rem; flex-shrink:0;
+}
+.sr-name { font-weight:700; font-size:.88rem; }
+.sr-meta { font-size:.73rem; color:var(--muted); margin-top:2px; }
+.sr-price { font-weight:800; color:#a78bfa; font-size:.92rem; }
+.sr-back {
+  display:flex; align-items:center; gap:6px;
+  color:var(--muted); font-size:.78rem; font-weight:600;
+  cursor:pointer; padding:6px 2px; transition:color .15s;
+  background:none; border:none; font-family:'Inter',sans-serif;
+}
+.sr-back:hover { color:var(--text); }
+@keyframes srIn { to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* ══════════════════════════════════════════════
+   HERO PORTAL (merkezi arama odaklı)
+══════════════════════════════════════════════ */
+.hero-portal {
+  flex-direction: column; align-items: center; text-align: center;
+  padding: 88px 0 72px; min-height: 100vh;
+}
+.hero-center { max-width: 820px; margin: 0 auto; width: 100%; }
+.hero-center .hero-badge { margin-bottom: 20px; }
+.hero-center .hero-title { margin-bottom: 18px; }
+.hero-center .hero-sub { max-width: 520px; margin: 0 auto; text-align: center; }
+
+/* ══════════════════════════════════════════════
+   HERO SEARCH BOX — Premium Glassmorphism
+══════════════════════════════════════════════ */
+.hero-search {
+  /* Carved crystal / polished glass base */
+  background: linear-gradient(
+    135deg,
+    rgba(18,18,30,.78) 0%,
+    rgba(13,10,22,.82) 100%
+  );
+  backdrop-filter: blur(48px) saturate(180%);
+  -webkit-backdrop-filter: blur(48px) saturate(180%);
+  /* Elegant thin border stack: outer glow + inner crystal edge */
+  border: 1px solid rgba(255,255,255,.09);
+  outline: 1px solid rgba(124,58,237,.08);
+  border-radius: 22px; padding: 7px;
+  margin: 28px 0 18px;
+  /* Z-index: dropdown'lar stats'ın üstünde görünsün */
+  position: relative;
+  z-index: 20;
+  /* Layered shadow: depth + ambient violet glow */
+  box-shadow:
+    0 32px 80px rgba(0,0,0,.38),
+    0 0 0 1px rgba(124,58,237,.1),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    inset 0 -1px 0 rgba(0,0,0,.2);
+  transition: box-shadow .4s ease, border-color .3s ease;
+  position: relative;
+  /* Ambient pulse animation */
+  animation: searchGlow 5s ease-in-out infinite;
+}
+@keyframes searchGlow {
+  0%,100% { box-shadow: 0 32px 80px rgba(0,0,0,.38), 0 0 40px rgba(124,58,237,.06), inset 0 1px 0 rgba(255,255,255,.06); }
+  50%      { box-shadow: 0 32px 80px rgba(0,0,0,.38), 0 0 70px rgba(124,58,237,.13), inset 0 1px 0 rgba(255,255,255,.08); }
+}
+/* Whole-box focus glow (when any input is active) */
+.hero-search:focus-within {
+  border-color: rgba(124,58,237,.28);
+  outline-color: rgba(124,58,237,.18);
+  box-shadow:
+    0 32px 80px rgba(0,0,0,.4),
+    0 0 0 4px rgba(124,58,237,.1),
+    0 0 80px rgba(124,58,237,.18),
+    inset 0 1px 0 rgba(255,255,255,.1);
+  animation: none;
+}
+.hs-row { display: flex; align-items: stretch; gap: 0; }
+
+/* Individual field */
+.hs-field {
+  display: flex; align-items: center; gap: 11px;
+  padding: 15px 22px; flex: 1; position: relative;
+  background: transparent; border-radius: 16px;
+  transition: background .25s;
+}
+.hs-field:focus-within {
+  background: rgba(124,58,237,.06);
+}
+.hs-divider {
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,.1), transparent);
+  margin: 10px 0; flex-shrink: 0;
+}
+/* Icons — muted violet-white */
+.hs-ico {
+  font-size: 1rem; flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(167,139,250,.4));
+  opacity: .75; transition: opacity .2s;
+}
+.hs-field:focus-within .hs-ico { opacity: 1; }
+
+/* Inputs */
+.hs-input {
+  background: none; border: none; outline: none;
+  color: var(--text); font-size: .95rem; font-weight: 500;
+  width: 100%; font-family: 'Inter', sans-serif;
+  transition: color .2s;
+}
+.hs-input::placeholder {
+  color: rgba(200,190,230,.35);
+  transition: opacity .25s ease;
+}
+.hs-input:focus::placeholder { opacity: 0; }
+
+/* Gradient CTA button — dynamic + magnetic */
+.hs-btn {
+  display: flex; align-items: center; gap: 9px; padding: 14px 30px;
+  background: linear-gradient(135deg, #6d28d9, #7c3aed, #ec4899, #06b6d4);
+  background-size: 300% 300%; animation: gradShift 5s ease infinite;
+  color: white; border: none; border-radius: 16px;
+  font-size: .95rem; font-weight: 700; letter-spacing: .01em; cursor: pointer;
+  white-space: nowrap; font-family: 'Inter', sans-serif; flex-shrink: 0;
+  box-shadow: 0 4px 28px rgba(124,58,237,.45), 0 1px 0 rgba(255,255,255,.15) inset;
+  transition: box-shadow .25s, transform .18s cubic-bezier(.23,1,.32,1);
+  will-change: transform;
+  position: relative; overflow: hidden;
+}
+/* Sheen overlay */
+.hs-btn::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hs-btn:hover {
+  box-shadow: 0 6px 40px rgba(124,58,237,.65), 0 0 20px rgba(236,72,153,.3);
+  transform: translateY(-2px);
+}
+
+/* Popular tags */
+.hs-tags {
+  display: flex; align-items: center; gap: 7px;
+  margin-top: 14px; flex-wrap: wrap; justify-content: center; padding: 0 6px 5px;
+}
+.hs-tag-label { font-size: .73rem; color: var(--muted); flex-shrink: 0; font-weight: 600; }
+.hs-tag {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  color: rgba(200,190,230,.55); border-radius: 100px; padding: 5px 13px;
+  font-size: .73rem; font-weight: 600; cursor: pointer;
+  transition: all .18s; font-family: 'Inter', sans-serif;
+}
+.hs-tag:hover {
+  background: rgba(124,58,237,.18); border-color: rgba(124,58,237,.4);
+  color: #c4b5fd; transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(124,58,237,.2);
+}
+
+/* Autocomplete dropdown — her zaman stats + içerik üstünde */
+.hs-drop {
+  position: absolute; top: calc(100% + 10px); left: 0; right: 0;
+  background: rgba(6,6,14,.98);       /* neredeyse opak, alttaki metin görünmez */
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px; padding: 6px;
+  z-index: 500;       /* stats (z-index:1) üstünde, her şeyin üstünde */
+  display: none;
+  box-shadow: 0 24px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(124,58,237,.1);
+  max-height: 220px; overflow-y: auto;
+}
+.hs-drop.show { display: block; text-align: left; }
+
+/* ══════════════════════════════════════════════
+   RESULTS PAGE
+══════════════════════════════════════════════ */
+#searchResultsPage {
+  padding: 120px 0 80px; position: relative; z-index: 1;
+  min-height: 100vh;
+}
+/* ── Sort Bar ── */
+.rp-sort-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 24px;
+  padding: 12px 18px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+}
+.rp-filter-chip {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(196,181,253,.8); border-radius: 20px; padding: 5px 14px;
+  font-size: .78rem; font-weight: 600; cursor: pointer; transition: all .15s;
+  font-family: 'Inter', sans-serif;
+}
+.rp-filter-chip:hover, .rp-filter-chip.active {
+  background: rgba(124,58,237,.2); border-color: rgba(124,58,237,.4); color: #c4b5fd;
+}
+.rp-sort-select {
+  background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1);
+  color: #c4b5fd; border-radius: 10px; padding: 7px 32px 7px 14px;
+  font-size: .82rem; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23a78bfa' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  z-index: 30; position: relative;
+}
+.rp-sort-select:focus { outline: none; box-shadow: 0 0 0 3px rgba(124,58,237,.2); }
+/* ── Grid ── */
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+/* ── Premium Cards ── */
+.rp-card {
+  background: rgba(18,12,30,.8); backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 22px; overflow: hidden;
+  display: flex; flex-direction: column;
+  color: var(--text); text-decoration: none;
+  opacity: 0; transform: translateY(22px);
+  animation: rpIn .55s cubic-bezier(.16,1,.3,1) forwards;
+  transition: border-color .25s, transform .25s, box-shadow .25s, background .25s;
+}
+.rp-card:hover {
+  border-color: rgba(124,58,237,.5);
+  background: rgba(124,58,237,.06);
+  transform: translateY(-7px);
+  box-shadow: 0 20px 50px rgba(124,58,237,.25), 0 0 0 1px rgba(124,58,237,.15);
+  color: var(--text);
+}
+/* Photo zone */
+.rp-photo {
+  width: 100%; height: 155px; position: relative;
+  overflow: hidden; flex-shrink: 0;
+}
+.rp-photo-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.2rem;
+}
+.rp-photo-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(10,10,15,.85) 100%);
+}
+.rp-cat-badge-photo {
+  position: absolute; top: 10px; left: 12px; z-index: 2;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.14);
+  color: #e9d5ff; border-radius: 20px; padding: 3px 10px;
+  font-size: .7rem; font-weight: 700;
+}
+.rp-rating-photo {
+  position: absolute; top: 10px; right: 12px; z-index: 2;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.1);
+  color: #fbbf24; border-radius: 20px; padding: 3px 10px;
+  font-size: .72rem; font-weight: 800;
+}
+/* Card body */
+.rp-body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+.rp-name { font-size: .98rem; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+.rp-location { font-size: .76rem; color: var(--muted); margin-bottom: 10px; }
+.rp-service-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+.rp-svc-tag {
+  background: rgba(124,58,237,.1); border: 1px solid rgba(124,58,237,.18);
+  color: rgba(196,181,253,.75); border-radius: 6px; padding: 2px 8px;
+  font-size: .67rem; font-weight: 600;
+}
+.rp-divider { height: 1px; background: var(--border); margin-bottom: 12px; }
+.rp-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.rp-price {
+  font-size: 1.15rem; font-weight: 900;
+  background: linear-gradient(135deg,#a78bfa,#ec4899);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  line-height: 1.1;
+}
+.rp-price-label { font-size: .65rem; color: var(--muted); margin-top: 2px; }
+.rp-book-btn {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white; border: none; border-radius: 12px;
+  padding: 9px 18px; font-size: .8rem; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: opacity .15s, box-shadow .15s;
+  box-shadow: 0 3px 12px rgba(124,58,237,.35);
+  white-space: nowrap;
+}
+.rp-book-btn:hover { opacity:.88; box-shadow: 0 6px 20px rgba(124,58,237,.55); }
+.rp-empty {
+  grid-column: 1/-1; text-align: center; padding: 60px 20px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+}
+.rp-loading { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 60px 0; }
+.rp-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--violet); animation: dotPulse 1.2s ease-in-out infinite; }
+.rp-dot:nth-child(2) { background: var(--pink); animation-delay: .2s; }
+.rp-dot:nth-child(3) { background: var(--cyan); animation-delay: .4s; }
+@keyframes dotPulse { 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
+@keyframes rpIn { to { opacity: 1; transform: translateY(0); } }
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px) {
+  .hs-row { flex-wrap: wrap; }
+  .hs-divider { display: none; }
+  .hs-btn { width: 100%; justify-content: center; border-radius: 12px; }
+  .rp-grid { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width:992px) {
+  .hero-portal { padding: 80px 0 60px; }
+  .bc1,.bc2,.bc3,.bc4,.bc5 { grid-column:span 12; }
+}
+@media(max-width:768px) {
+  .hero-portal { padding: 72px 0 48px; }
+  /* Stats tek satır, kompakt */
+  .hero-stats-row { gap: 12px !important; }
+  .hero-stats-row .stat-sep { display: none; }
+  .hero-stats-row > div { padding: 0 4px; }
+}
+@media(max-width:576px) {
+  .hero-portal { padding: 64px 0 40px; }
+  .hero-title { font-size: 2rem; letter-spacing: -.5px; }
+  .hero-title .line { line-height: 1.15; }
+  .hero-sub { font-size: .93rem; }
+  .hs-row { flex-direction: column; }
+  .hs-divider { display: none; }
+  .hs-btn { border-radius: 12px; padding: 13px; }
+  .cta-section { padding: 40px 20px; }
+  .bento-card { padding: 18px; }
+  .rp-grid { grid-template-columns: 1fr; }
+  /* Stats: 2x2 grid on very small */
+  .hero-stats-row { flex-wrap: wrap !important; justify-content: center !important; gap: 10px 16px !important; }
+  .hero-stats-row .stat-sep { display: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lp" id="landing">
+
+<!-- MESH BACKGROUND -->
+<div class="mesh">
+  <span></span><span></span><span></span>
+</div>
+
+<!-- ═══ HERO — 2 KOLON ═══ -->
+<style>
+.hero-2col {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 60px;
+  align-items: center;
+  min-height: 100vh;
+  padding: 100px 0 60px;
+}
+/* Sol — başlık */
+.hero-left { text-align: left; }
+.hero-left .hero-title { text-align: left; }
+.hero-left .hero-sub { text-align: left; margin: 0 0 32px; max-width: 520px; }
+
+/* Sağ — arama kartı */
+.search-card {
+  background: rgba(13,10,22,.85);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(124,58,237,.22);
+  outline: 1px solid rgba(124,58,237,.06);
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow:
+    0 32px 80px rgba(0,0,0,.5),
+    0 0 0 1px rgba(124,58,237,.08),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  position: relative; z-index: 20;
+}
+.search-card-title {
+  font-size: 1.1rem; font-weight: 800; color: #f1f0f5;
+  line-height: 1.5; margin-bottom: 28px;
+}
+.sc-label {
+  font-size: .75rem; font-weight: 800; letter-spacing: .08em;
+  color: #a78bfa; margin-bottom: 8px; display: block;
+}
+.sc-field {
+  width: 100%; padding: 13px 16px 13px 42px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px; color: #f1f0f5; font-size: .92rem;
+  outline: none; font-family: 'Inter', sans-serif; margin-bottom: 16px;
+  transition: border-color .2s, box-shadow .2s;
+  position: relative;
+}
+.sc-field:focus {
+  border-color: rgba(167,139,250,.6);
+  box-shadow: 0 0 0 3px rgba(124,58,237,.18);
+}
+.sc-field::placeholder { color: rgba(196,181,253,.4); }
+.sc-field-wrap { position: relative; margin-bottom: 16px; }
+.sc-field-wrap .sc-ico {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: .95rem; pointer-events: none; z-index: 1;
+}
+.sc-field-wrap .sc-field { margin-bottom: 0; }
+.sc-select {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px; color: #f1f0f5; font-size: .92rem;
+  outline: none; font-family: 'Inter', sans-serif; margin-bottom: 16px;
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%23a78bfa' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  background-size: 12px;
+  transition: border-color .2s;
+}
+.sc-select:focus { border-color: rgba(167,139,250,.6); }
+.sc-select option { background: #1e0b4b; color: #f1f0f5; }
+.sc-select optgroup { background: #0f0f1a; color: #a78bfa; font-weight: 700; }
+.sc-search-btn {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4);
+  background-size: 200% 200%; animation: gradShift 6s ease infinite;
+  border: none; border-radius: 14px; color: white;
+  font-size: 1rem; font-weight: 800; cursor: pointer;
+  font-family: 'Inter', sans-serif; letter-spacing: .01em;
+  box-shadow: 0 0 30px rgba(124,58,237,.45), 0 4px 20px rgba(124,58,237,.3);
+  transition: transform .18s, box-shadow .18s; margin-top: 4px;
+  position: relative; overflow: hidden;
+}
+.sc-search-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
+  pointer-events: none;
+}
+.sc-search-btn:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(124,58,237,.7), 0 8px 32px rgba(236,72,153,.35); }
+
+/* Autocomplete drop */
+.sc-drop {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: rgba(6,6,18,.98); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 5px;
+  z-index: 500; display: none;
+  box-shadow: 0 16px 40px rgba(0,0,0,.6);
+  max-height: 200px; overflow-y: auto;
+}
+.sc-drop.show { display: block; }
+.sc-drop-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px; border-radius: 8px; cursor: pointer;
+  color: rgba(196,181,253,.8); font-size: .84rem; font-weight: 500;
+  transition: background .1s;
+}
+.sc-drop-item:hover { background: rgba(124,58,237,.18); color: #f1f0f5; }
+.sc-drop-item .di { font-size: .85rem; width: 22px; text-align: center; flex-shrink: 0; }
+
+/* Stats altında */
+.hero-stats-3 {
+  display: flex; gap: 0; margin-top: 20px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; overflow: hidden;
+}
+.hs3-item {
+  flex: 1; padding: 14px 10px; text-align: center;
+  border-right: 1px solid rgba(255,255,255,.08);
+}
+.hs3-item:last-child { border-right: none; }
+.hs3-num { font-size: 1.3rem; font-weight: 900; color: #a78bfa; }
+.hs3-label { font-size: .68rem; color: rgba(196,181,253,.5); margin-top: 3px; }
+
+@media(max-width: 992px) {
+  .hero-2col { grid-template-columns: 1fr; padding: 90px 0 40px; gap: 40px; }
+  .hero-left { text-align: center; }
+  .hero-left .hero-title { text-align: center; }
+  .hero-left .hero-sub { margin: 0 auto 32px; text-align: center; }
+  .search-card { max-width: 480px; margin: 0 auto; }
+}
+</style>
+
+<section class="hero" style="min-height:100vh;display:flex;align-items:center;padding:0;">
+<div class="lp-wrap" style="width:100%;">
+<div class="hero-2col">
+
+  <!-- SOL — Başlık -->
+  <div class="hero-left" style="animation:fadeIn .7s both;">
+    <div class="hero-badge" style="animation:fadeIn .6s both;">✦ Türkiye'nin En Modern Randevu Sistemi</div>
+    <h1 class="hero-title">
+      <span class="line"><span class="word-anim w1">Zaman Kıymetli,</span></span>
+      <span class="line">
+        <span class="word-anim w2">Randevun&nbsp;</span><span class="word-anim w3 grad-text">Cebinde!</span>
+      </span>
+    </h1>
+    <p class="hero-sub" style="animation:fadeIn .8s .3s both;">
+      Binlerce onaylı uzman ve işletme arasından size en uygun olanı seçin, saniyeler içinde kolayca randevu oluşturun.
+    </p>
+    <div class="d-none d-md-flex gap-3" style="animation:fadeIn .8s .5s both;">
+      <a href="/kayit" class="btn-glow">✦ Kaydol</a>
+      <a href="/kuaforler" class="btn-ghost">İşletmeleri Gör →</a>
+    </div>
+  </div>
+
+  <!-- SAĞ — Arama Kartı -->
+  <div style="animation:fadeIn .8s .2s both; position:relative; z-index:20;">
+  <div class="search-card">
+    <div class="search-card-title">Binlerce onaylı uzman ve işletme arasından size en uygun olanı seçin, saniyeler içinde kolayca randevu oluşturun.</div>
+
+    <!-- İl -->
+    <label class="sc-label">İl Seçin</label>
+    <div class="sc-field-wrap" id="scCityWrap">
+      <span class="sc-ico">📍</span>
+      <input id="scCity" class="sc-field" type="text"
+             placeholder="İl Ara (Örn: İstanbul)"
+             autocomplete="off"
+             oninput="updateScCityDrop()"
+             onfocus="updateScCityDrop()"
+             onkeydown="if(event.key==='Enter') doScSearch()">
+      <div class="sc-drop" id="scCityDrop"></div>
+    </div>
+
+    <!-- Kategori -->
+    <label class="sc-label">Kategori</label>
+    <select id="scKat" class="sc-select">
+      <option value="">Tümü</option>
+      <optgroup label="Güzellik & Bakım">
+        <option value="kuaforler">💇 Kuaförler</option>
+        <option value="berberler">✂️ Berberler</option>
+        <option value="guzellik">💅 Güzellik & Estetik</option>
+        <option value="spa">🧖 Spa & Masaj</option>
+        <option value="tirnak">💎 Tırnak & Makyaj</option>
+        <option value="dovme">🎨 Dövme & Piercing</option>
+        <option value="tesettur">🌸 Tesettür Kuaförü</option>
+        <option value="solaryum">☀️ Solaryum</option>
+      </optgroup>
+      <optgroup label="Sağlık & Terapi">
+        <option value="psikoloji">🧠 Psikoloji & Danışmanlık</option>
+        <option value="beslenme-diyet">🥗 Beslenme & Diyet</option>
+        <option value="fizyoterapi">🦴 Fizyoterapi & Terapi</option>
+        <option value="dis-sagligi">🦷 Ağız & Diş Sağlığı</option>
+        <option value="saglik">🏥 Sağlık Merkezleri</option>
+        <option value="saglik-medikal">⚕️ Sağlık & Medikal</option>
+      </optgroup>
+      <optgroup label="Spor & Eğitim">
+        <option value="spor-fitness">🏋️ Spor & Fitness</option>
+        <option value="pilates-yoga">🧘 Pilates & Yoga</option>
+        <option value="saglikli-yasam">🏃 Sağlıklı Yaşam</option>
+        <option value="egitim-ozel-ders">📚 Eğitim & Özel Ders</option>
+        <option value="sanat-muzik">🎸 Sanat & Müzik</option>
+      </optgroup>
+      <optgroup label="Danışmanlık">
+        <option value="kocluk">🚀 Koçluk & Kişisel Gelişim</option>
+        <option value="kurumsal">🏢 Kurumsal Danışmanlık</option>
+        <option value="cocuk-aile">👨‍👩‍👧 Çocuk & Aile Hizmetleri</option>
+        <option value="rehabilitasyon">💙 Rehabilitasyon</option>
+      </optgroup>
+    </select>
+
+    <button class="sc-search-btn" onclick="doScSearch()">İşletmeleri Detaylı Görüntüle</button>
+
+    <!-- Stats -->
+    <div class="hero-stats-3">
+      <div class="hs3-item">
+        <div class="hs3-num">500+</div>
+        <div class="hs3-label">Uzman</div>
+      </div>
+      <div class="hs3-item">
+        <div class="hs3-num">10.000+</div>
+        <div class="hs3-label">Mutlu Müşteri</div>
+      </div>
+      <div class="hs3-item">
+        <div class="hs3-num">4.8/5</div>
+        <div class="hs3-label">Kullanıcı Puanı</div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+</div>
+</div>
+</section>
+
+<!-- ═══ BENTO ÖZELLİKLER ═══ -->
+<section style="padding:40px 0 80px;">
+<div class="lp-wrap">
+  <div class="text-center mb-5 reveal">
+    <p style="font-size:.8rem;font-weight:700;letter-spacing:.12em;color:#a78bfa;">NEDEN RANDEVUCum?</p>
+    <h2 style="font-size:2.5rem;font-weight:800;letter-spacing:-1.5px;color:var(--text);">Her şey <span class="grad-text">tek yerde.</span></h2>
+  </div>
+  <div class="bento">
+    <!-- KART 1 -->
+    <div class="bento-card bc1 reveal reveal-left" onmousemove="trackMouse(event,this)">
+      <div class="bento-icon" style="background:rgba(124,58,237,.15);">⚡</div>
+      <div class="bento-title" style="font-size:1.5rem;letter-spacing:-.5px;">7/24 Anında Randevu</div>
+      <div class="bento-desc" style="max-width:380px;">Gece yarısı bile randevu alabilirsiniz. Telefon bekleme yok, kuyruk yok. Sadece tıkla, randevunu al, SMS ile onayla.</div>
+      <!-- mini mockup -->
+      <div class="sms-preview">
+        <div style="font-size:.7rem;color:var(--muted);margin-bottom:8px;">📱 SMS Onayı</div>
+        <div class="sms-bubble">✅ Randevunuz onaylandı! Onur Berber — 14.03.2026 saat 14:00</div>
+      </div>
+    </div>
+    <!-- KART 2 -->
+    <div class="bento-card bc2 reveal reveal-left reveal-delay-1" onmousemove="trackMouse(event,this)">
+      <div class="bento-icon" style="background:rgba(236,72,153,.12);">🔒</div>
+      <div class="bento-title">Güvenli & Ücretsiz</div>
+      <div class="bento-desc">İşletmeler için temel paket tamamen ücretsiz. Kredi kartı gerekmez, kurulum yok, sözleşme yok.</div>
+      <div style="margin-top:20px;">
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+          <span style="color:#34d399;font-size:.9rem;">✓</span><span style="font-size:.85rem;color:var(--muted);">SSL şifreleme</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+          <span style="color:#34d399;font-size:.9rem;">✓</span><span style="font-size:.85rem;color:var(--muted);">KVKK uyumlu</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="color:#34d399;font-size:.9rem;">✓</span><span style="font-size:.85rem;color:var(--muted);">Sınırsız randevu</span>
+        </div>
+      </div>
+    </div>
+    <!-- KART 3 -->
+    <div class="bento-card bc3 reveal reveal-left reveal-delay-2" onmousemove="trackMouse(event,this)">
+      <div class="bento-icon" style="background:rgba(6,182,212,.12);">📊</div>
+      <div class="bento-title">Panel & İstatistik</div>
+      <div class="bento-desc" style="font-size:.82rem;">Randevularınızı, personeli ve çalışma saatlerini tek panelden yönetin.</div>
+    </div>
+    <!-- KART 4 -->
+    <div class="bento-card bc4 reveal reveal-left reveal-delay-1" onmousemove="trackMouse(event,this)">
+      <div class="bento-icon" style="background:rgba(16,185,129,.12);">💬</div>
+      <div class="bento-title">SMS Hatırlatma</div>
+      <div class="bento-desc" style="font-size:.82rem;">Randevu onayı + 1 gün önce + 2 saat önce otomatik SMS.</div>
+    </div>
+    <!-- KART 5 -->
+    <div class="bento-card bc5 reveal reveal-left reveal-delay-3" onmousemove="trackMouse(event,this)">
+      <div class="bento-icon" style="background:rgba(245,158,11,.12);">🎨</div>
+      <div class="bento-title">Fotoğraf Galerisi</div>
+      <div class="bento-desc" style="font-size:.82rem;">Salonunuzun fotoğraflarını yükleyin, müşterileri etkileyin.</div>
+    </div>
+  </div>
+</div>
+</section>
+<!-- ═══ FİYATLANDIRMA ═══ -->
+<section style="padding:80px 0;">
+<div class="lp-wrap">
+  <div class="text-center mb-5 reveal">
+    <p style="font-size:.8rem;font-weight:700;letter-spacing:.12em;color:#a78bfa;">FİYATLANDIRMA</p>
+    <h2 style="font-size:2.5rem;font-weight:800;letter-spacing:-1.5px;color:var(--text);">Şeffaf <span class="grad-text">fiyatlandırma.</span></h2>
+  </div>
+<style>
+/* ── Pricing Cards ── */
+.pricing-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  max-width: 860px; margin: 0 auto;
+}
+.pricing-box {
+  background: rgba(18,12,30,.8);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 24px; padding: 36px 32px;
+  display: flex; flex-direction: column; gap: 0;
+  position: relative; overflow: hidden;
+  transition: transform .3s, box-shadow .3s, border-color .3s;
+}
+.pricing-box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 60px rgba(124,58,237,.25);
+}
+.pricing-box.premium {
+  border-color: rgba(124,58,237,.5);
+  background: rgba(124,58,237,.07);
+  box-shadow: 0 0 60px rgba(124,58,237,.15);
+}
+.pricing-box.premium::before {
+  content: '⭐ EN POPÜLER';
+  position: absolute; top: 18px; right: -28px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white; font-size: .65rem; font-weight: 800;
+  padding: 5px 40px; transform: rotate(38deg);
+  letter-spacing: .08em; z-index: 2;
+}
+.pricing-label {
+  font-size: .72rem; font-weight: 800; letter-spacing: .12em;
+  color: #a78bfa; margin-bottom: 10px;
+}
+.pricing-name {
+  font-size: 1.6rem; font-weight: 900; color: #f1f0f5;
+  letter-spacing: -.5px; margin-bottom: 8px;
+}
+.pricing-free {
+  font-size: .75rem; font-weight: 700; color: #10b981;
+  background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.25);
+  border-radius: 20px; padding: 4px 12px; display: inline-block; margin-bottom: 20px;
+}
+.pricing-amount {
+  display: flex; align-items: flex-end; gap: 4px; margin-bottom: 6px;
+}
+.pricing-num {
+  font-size: 3.2rem; font-weight: 900; line-height: 1;
+  background: linear-gradient(135deg, #a78bfa, #ec4899);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.pricing-currency { font-size: 1.2rem; font-weight: 800; color: #a78bfa; padding-bottom: 8px; }
+.pricing-period { font-size: .78rem; color: rgba(196,181,253,.5); margin-bottom: 28px; }
+.pricing-divider { height: 1px; background: rgba(255,255,255,.08); margin-bottom: 24px; }
+.pricing-features { list-style: none; padding: 0; margin: 0 0 32px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.pricing-features li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: .88rem; color: rgba(241,240,245,.75);
+}
+.pricing-features li::before {
+  content: '✓'; width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+  background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.3);
+  color: #34d399; font-size: .72rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.pricing-btn {
+  display: block; width: 100%; padding: 14px;
+  background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.15);
+  color: #f1f0f5; border-radius: 14px; font-size: .95rem; font-weight: 700;
+  text-align: center; text-decoration: none; cursor: pointer;
+  transition: all .2s; font-family: 'Inter', sans-serif;
+}
+.pricing-btn:hover { background: rgba(255,255,255,.12); color: white; border-color: rgba(255,255,255,.3); }
+.pricing-box.premium .pricing-btn {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  border-color: transparent;
+  box-shadow: 0 4px 20px rgba(124,58,237,.4);
+}
+.pricing-box.premium .pricing-btn:hover {
+  box-shadow: 0 8px 32px rgba(124,58,237,.6);
+  transform: translateY(-2px);
+}
+@media(max-width: 640px) {
+  .pricing-wrap { grid-template-columns: 1fr; }
+}
+
+/* ── Salon List Cards ── */
+.salon-card {
+  display: flex; align-items: stretch; gap: 0;
+  background: rgba(18,12,30,.75);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px; overflow: hidden;
+  text-decoration: none; color: var(--text);
+  transition: border-color .25s, transform .25s, box-shadow .25s, background .25s;
+  position: relative;
+}
+.salon-card:hover {
+  border-color: rgba(124,58,237,.5);
+  background: rgba(124,58,237,.07);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(124,58,237,.2), 0 0 0 1px rgba(124,58,237,.12);
+  color: var(--text);
+}
+/* "Öne Çıkan" rozeti */
+.salon-featured-badge {
+  position: absolute; top: 0; left: 0;
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: white; font-size: .68rem; font-weight: 800;
+  padding: 5px 12px 5px 10px;
+  border-radius: 0 0 14px 0;
+  letter-spacing: .05em; z-index: 2;
+}
+/* Fotoğraf kutusu */
+.salon-photo {
+  width: 200px; min-width: 200px; position: relative;
+  overflow: hidden; flex-shrink: 0;
+}
+.salon-photo-img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .4s ease;
+}
+.salon-card:hover .salon-photo-img { transform: scale(1.05); }
+.salon-photo-placeholder {
+  width: 100%; height: 100%; min-height: 130px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem;
+}
+.salon-photo-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, transparent 60%, rgba(18,12,30,.5) 100%);
+  pointer-events: none;
+}
+/* İçerik */
+.salon-body {
+  flex: 1; padding: 18px 20px; display: flex; flex-direction: column; justify-content: center; gap: 6px;
+}
+.salon-cat-path {
+  font-size: .72rem; color: #06b6d4; font-weight: 700; letter-spacing: .04em;
+}
+.salon-name {
+  font-size: 1.08rem; font-weight: 800; color: var(--text); letter-spacing: -.2px;
+}
+.salon-rating {
+  display: flex; align-items: center; gap: 6px; font-size: .8rem;
+}
+.salon-stars { color: #fbbf24; letter-spacing: -1px; }
+.salon-rating-num { font-weight: 800; color: var(--text); }
+.salon-rating-info { color: var(--muted); }
+.salon-review {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px; padding: 9px 13px;
+  font-size: .78rem; color: var(--muted); font-style: italic;
+  max-width: 500px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Sağ fiyat kutusu */
+.salon-price-box {
+  padding: 18px 22px; display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: center; gap: 10px;
+  flex-shrink: 0; border-left: 1px solid rgba(255,255,255,.06);
+  min-width: 150px;
+}
+.salon-price {
+  font-size: 1.6rem; font-weight: 900; letter-spacing: -1px;
+  background: linear-gradient(135deg, #ec4899, #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1;
+}
+.salon-price sup { font-size: .75rem; font-weight: 700; -webkit-text-fill-color: transparent; }
+.salon-price-label { font-size: .68rem; color: var(--muted); margin-top: 2px; }
+.salon-book-btn {
+  display: inline-block;
+  border: 1.5px solid rgba(124,58,237,.6); color: #c4b5fd;
+  border-radius: 10px; padding: 7px 16px; font-size: .78rem; font-weight: 700;
+  white-space: nowrap; transition: all .2s; cursor: pointer; font-family: 'Inter', sans-serif;
+  background: transparent;
+}
+.salon-card:hover .salon-book-btn {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  border-color: transparent; color: white;
+  box-shadow: 0 4px 16px rgba(124,58,237,.4);
+}
+@media(max-width: 640px) {
+  .salon-photo { width: 110px; min-width: 110px; }
+  .salon-price-box { padding: 12px 14px; min-width: 110px; }
+  .salon-price { font-size: 1.2rem; }
+  .salon-review { display: none; }
+}
+</style>
+
+  <div class="pricing-wrap reveal">
+    <!-- TEMEL -->
+    <div class="pricing-box reveal reveal-left">
+      <div class="pricing-label">TEMEL PAKET</div>
+      <div class="pricing-name">Temel</div>
+      <div class="pricing-free">✓ ilk 15 gün ücretsiz</div>
+      <div class="pricing-amount">
+        <span class="pricing-num">699</span>
+        <span class="pricing-currency">₺</span>
+      </div>
+      <div class="pricing-period">/ aylık · KDV dahil</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>Limitsiz Randevu Sistemi</li>
+        <li>Online Randevu Sistemi</li>
+        <li>Özel QR Kod</li>
+        <li>Özel Müşteri Temsilcisi</li>
+      </ul>
+      <a href="/kayit" class="pricing-btn">Hemen Başla →</a>
+    </div>
+    <!-- PREMIUM -->
+    <div class="pricing-box premium reveal reveal-left reveal-delay-1">
+      <div class="pricing-label">PREMIUM PAKET</div>
+      <div class="pricing-name">Premium</div>
+      <div class="pricing-free">✓ ilk 15 gün ücretsiz</div>
+      <div class="pricing-amount">
+        <span class="pricing-num">899</span>
+        <span class="pricing-currency">₺</span>
+      </div>
+      <div class="pricing-period">/ aylık · KDV dahil</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>Limitsiz Randevu Sistemi</li>
+        <li>Online Randevu Sistemi</li>
+        <li>Özel QR Kod</li>
+        <li>Özel Müşteri Temsilcisi</li>
+        <li>SMS Bildirim Sistemi</li>
+        <li>Muhasebe Kaydı</li>
+        <li>Sınırsız Personel Kaydı</li>
+        <li>Gelişmiş Personel Yetki Sistemi</li>
+      </ul>
+      <a href="/kayit" class="pricing-btn">Premium'a Geç →</a>
+    </div>
+  </div>
+</div>
+</section>
+<!-- ═══ TÜM HİZMETLER ═══ -->
+<section style="padding:20px 0 80px;">
+<div class="lp-wrap">
+  <div class="text-center mb-4 reveal">
+    <p style="font-size:.8rem;font-weight:700;letter-spacing:.12em;color:#a78bfa;">KATEGORİLER</p>
+    <h2 style="font-size:2rem;font-weight:800;letter-spacing:-1px;color:var(--text);">Tüm <span class="grad-text">Hizmetler</span></h2>
+  </div>
+  <div class="row g-2 reveal">
+    {% set hizmetler = [
+      ("✂️","Saç Kesimi","sac-kesimi"),("💨","Fön","fon"),("🎨","Saç Boyama","sac-boyama"),
+      ("👰","Gelin Başı","gelin-basi"),("🌟","Röfle","rofle"),("💆","Brezilya Fönü","brezilya-fonu"),
+      ("🌀","Perma","perma"),("🪒","Sakal Tıraşı","sakal-tirazi"),("👦","Çocuk Tıraşı","cocuk-tirazi"),
+      ("👁️","Kaş Alma","kas-alma"),("💄","Makyaj","makyaj"),("✨","İpek Kirpik","ipek-kirpik"),
+      ("💅","Jel Tırnak","jel-tirnak"),("💅","Protez Tırnak","protez-tirnak"),("🧖","Masaj","masaj"),
+      ("🛁","Sauna","sauna"),("🫧","Hamam","hamam"),("☀️","Solaryum","solaryum"),
+      ("🔥","Ağda","agda"),("🎨","Dövme","dovme"),("💉","Piercing","piercing"),
+      ("🧘","Pilates","pilates"),("🏋️","Fitness","fitness"),("🧴","Cilt Bakımı","cilt-bakimi"),
+      ("💆","Saç Bakımı","sac-bakimi")
+    ] %}
+    {% for emoji, name, slug in hizmetler %}
+    <div class="col-6 col-md-4 col-lg-3">
+      <a href="/{{ slug }}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--muted);font-size:.85rem;font-weight:600;transition:all .15s;"
+         onmouseover="this.style.borderColor='rgba(124,58,237,.4)';this.style.color='#c4b5fd';this.style.background='rgba(124,58,237,.08)'"
+         onmouseout="this.style.borderColor='rgba(255,255,255,.08)';this.style.color='rgba(241,240,245,.5)';this.style.background='rgba(255,255,255,.04)'">
+        <span style="font-size:1.1rem;">{{ emoji }}</span> {{ name }}
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+</section>
+
+
+<!-- ═══ İŞLETMELER CTA ═══ -->
+<section style="padding:0 0 80px;">
+<div class="lp-wrap">
+  <div class="cta-section reveal">
+    <div style="position:relative;z-index:1;">
+      <p style="font-size:.8rem;font-weight:700;letter-spacing:.12em;color:#c4b5fd;margin-bottom:12px;">İŞLETMENİZ Mİ VAR?</p>
+      <h2 style="font-size:2.5rem;font-weight:900;letter-spacing:-1.5px;color:var(--text);margin-bottom:16px;">Randevu kaosuna<br><span class="grad-text">son verin.</span></h2>
+      <p style="color:var(--muted);max-width:460px;margin:0 auto 32px;line-height:1.7;">Online randevu sistemi, SMS hatırlatma, personel yönetimi ve daha fazlası — 2 dakikada hazır.</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/kayit" class="btn-glow">✦ Kaydol</a>
+        <a href="/isletmeler-icin" class="btn-ghost">Detayları Gör</a>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="lp-footer">
+<div class="lp-wrap">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <!-- İkon kutusu -->
+        <div style="width:36px;height:36px;border-radius:8px;
+                    background:linear-gradient(135deg,#3b1d8a,#7c3aed);
+                    display:flex;align-items:center;justify-content:center;
+                    box-shadow:0 2px 12px rgba(124,58,237,.4);flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="17" rx="3" stroke="white" stroke-width="1.8"/>
+            <path d="M3 9h18" stroke="white" stroke-width="1.8"/>
+            <path d="M8 2v4M16 2v4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M12 13v5M9.5 15.5L12 18l2.5-2.5" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <!-- Yazı -->
+        <span style="font-size:1.25rem;font-weight:900;color:#ffffff;letter-spacing:-.3px;">Randevu<span style="color:#a78bfa;">Cum</span></span>
+      </div>
+      <div style="font-size:.78rem;">Online Randevu Sistemi</div>
+    </div>
+    <div class="d-flex gap-4 flex-wrap">
+      <a href="/kuaforler" class="footer-link">Kuaförler</a>
+      <a href="/berberler" class="footer-link">Berberler</a>
+      <a href="/guzellik-merkezleri" class="footer-link">Güzellik</a>
+      <a href="/isletmeler-icin" class="footer-link">İşletmeler</a>
+      <a href="/kayit" class="footer-link">Kaydol</a>
+    </div>
+    <div style="font-size:.78rem;">© 2026 RandevuCum</div>
+  </div>
+</div>
+</footer>
+
+</div><!-- /lp -->
+
+<!-- ═══ RESULTS PAGE (landing kapanınca açılır) ═══ -->
+<div id="searchResultsPage" style="display:none; position:relative; z-index:1;">
+
+  <!-- Mesh arka plan (results'da da devam) -->
+  <div class="mesh" style="opacity:.6;">
+    <span></span><span></span><span></span>
+  </div>
+
+  <div class="lp-wrap" style="position:relative; z-index:2;">
+
+    <!-- Üst bar: geri + yeni arama -->
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:28px; padding-top:20px;">
+      <button class="sr-back" onclick="backToHome()">← Ana Sayfaya Dön</button>
+      <div style="display:flex; gap:8px;">
+        <input id="rpSearchInput" class="qs-input"
+               style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 14px;color:var(--text);font-size:.85rem;width:180px;"
+               placeholder="Yeniden ara..." onkeydown="if(event.key==='Enter'){ hsSvc.value=this.value; doHeroSearch(); }">
+        <button class="qs-btn" style="width:auto;padding:8px 16px;font-size:.82rem;border-radius:10px;"
+                onclick="hsSvc.value=document.getElementById('rpSearchInput').value; doHeroSearch()">Ara →</button>
+      </div>
+    </div>
+
+    <!-- Başlık -->
+    <div style="margin-bottom:28px;">
+      <p style="font-size:.72rem;font-weight:800;letter-spacing:.12em;color:#a78bfa;margin-bottom:8px;">ARAMA SONUÇLARI</p>
+      <h2 id="rpTitle" style="font-size:1.8rem;font-weight:900;letter-spacing:-.5px;color:var(--text);margin-bottom:6px;"></h2>
+      <p id="rpMeta" style="font-size:.85rem;color:var(--muted);"></p>
+    </div>
+
+    <!-- Sort / Filter Bar -->
+    <div class="rp-sort-bar" id="rpSortBar" style="display:none;">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span style="font-size:.72rem; font-weight:700; color:rgba(196,181,253,.5); letter-spacing:.06em; margin-right:4px;">FİLTRE:</span>
+        <button class="rp-filter-chip active" onclick="filterCat(this,'')">Tümü</button>
+        <button class="rp-filter-chip" onclick="filterCat(this,'Berber')">✂️ Berber</button>
+        <button class="rp-filter-chip" onclick="filterCat(this,'Kuaför')">💇 Kuaför</button>
+        <button class="rp-filter-chip" onclick="filterCat(this,'Güzellik')">💅 Güzellik</button>
+        <button class="rp-filter-chip" onclick="filterCat(this,'SPA')">🧖 SPA</button>
+        <button class="rp-filter-chip" onclick="filterCat(this,'Diş Hekimi')">🦷 Diş</button>
+      </div>
+      <select class="rp-sort-select" id="rpSort" onchange="applySortFilter()">
+        <option value="default">Sırala: Varsayılan</option>
+        <option value="price-asc">💰 Fiyat: Düşük → Yüksek</option>
+        <option value="price-desc">💎 Fiyat: Yüksek → Düşük</option>
+        <option value="rating">⭐ En Yüksek Puan</option>
+      </select>
+    </div>
+
+    <!-- Loading dots -->
+    <div class="rp-loading" id="rpLoading" style="display:none;">
+      <div class="rp-dot"></div><div class="rp-dot"></div><div class="rp-dot"></div>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="rp-grid" id="rpGrid"></div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── YENİ ARAMA KARTI (sağ panel) ──────────────
+const scCityList = [
+  {label:"İstanbul",icon:"🌉"},{label:"Ankara",icon:"🏛️"},{label:"İzmir",icon:"🌊"},
+  {label:"Bursa",icon:"🏔️"},{label:"Antalya",icon:"🌴"},{label:"Adana",icon:"🌿"},
+  {label:"Konya",icon:"🌾"},{label:"Gaziantep",icon:"🏺"},{label:"Kayseri",icon:"⛰️"},
+  {label:"Eskişehir",icon:"🚂"},{label:"Trabzon",icon:"⛵"},{label:"Uşak",icon:"📍"},
+  {label:"Denizli",icon:"🐓"},{label:"Mersin",icon:"🌊"},{label:"Samsun",icon:"⚓"},
+];
+const scSvcList = [
+  {label:"Saç Kesimi",icon:"✂️"},{label:"Fön",icon:"💨"},{label:"Saç Boyama",icon:"🎨"},
+  {label:"Makyaj",icon:"💄"},{label:"Kaş Alma",icon:"👁️"},{label:"Masaj",icon:"🤲"},
+  {label:"SPA",icon:"🧖"},{label:"Ağda",icon:"🔥"},{label:"Jel Tırnak",icon:"💅"},
+  {label:"Sakal Tıraşı",icon:"🪒"},{label:"Gelin Başı",icon:"👰"},{label:"Diş",icon:"🦷"},
+];
+
+function buildScItem(icon, label, onClick) {
+  const d = document.createElement('div');
+  d.className = 'sc-drop-item';
+  d.innerHTML = `<span class="di">${icon}</span><span>${label}</span>`;
+  d.addEventListener('mousedown', e => { e.preventDefault(); onClick(); });
+  return d;
+}
+function closeScDrops() {
+  document.getElementById('scCityDrop').classList.remove('show');
+}
+
+const scCityEl = document.getElementById('scCity');
+const scCityDrop = document.getElementById('scCityDrop');
+function updateScCityDrop() {
+  const v = scCityEl.value.toLowerCase();
+  scCityDrop.innerHTML = '';
+  const hits = scCityList.filter(d => d.label.toLowerCase().includes(v) || v === '');
+  if (!hits.length) { scCityDrop.classList.remove('show'); return; }
+  hits.forEach(d => scCityDrop.appendChild(buildScItem(d.icon, d.label, () => {
+    scCityEl.value = d.label; scCityDrop.classList.remove('show');
+  })));
+  scCityDrop.classList.add('show');
+}
+scCityEl.addEventListener('input', updateScCityDrop);
+scCityEl.addEventListener('focus', updateScCityDrop);
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#scCityWrap')) scCityDrop.classList.remove('show');
+});
+
+// Kategori → URL map (slug → /kategori/slug)
+function doScSearch() {
+  closeScDrops();
+  const kat  = document.getElementById('scKat').value.trim();
+  const city = scCityEl.value.trim();
+
+  // Kategori seçildiyse direkt o sayfaya git
+  if (kat) {
+    window.location.href = '/kategori/' + kat;
+    return;
+  }
+
+  // Kategori seçilmemişse tüm işletmelere git
+  window.location.href = '/kuaforler';
+}
+
+// ── SCROLL REVEAL — ENHANCED WITH DIRECTIONAL ANIMATIONS ──────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, {
+  threshold: 0.12,
+  rootMargin: '0px 0px -50px 0px'
+});
+// Tüm reveal varyasyonlarını observe et (.reveal, .reveal-left, .reveal-right, vb.)
+document.querySelectorAll('[class*="reveal"]').forEach(el => observer.observe(el));
+
+// ── BENTO MOUSE GLOW ───────────────────────────
+function trackMouse(e, card) {
+  const r = card.getBoundingClientRect();
+  const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+  const y = ((e.clientY - r.top)  / r.height * 100).toFixed(1);
+  card.style.setProperty('--mx', x + '%');
+  card.style.setProperty('--my', y + '%');
+}
+
+// ── MAGNETIC HOVER — btn-glow + hs-btn ────────
+function applyMagnetic(selector, strength) {
+  document.querySelectorAll(selector).forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const r = btn.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width  / 2) * strength;
+      const y = (e.clientY - r.top  - r.height / 2) * strength;
+      btn.style.transform = `translate(${x}px, ${y}px) scale(1.03)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
+  });
+}
+applyMagnetic('.btn-glow', 0.28);
+applyMagnetic('.hs-btn',   0.18);
+
+// ══════════════════════════════════════════════
+//  HERO SEARCH  — Mock Data & Logic
+// ══════════════════════════════════════════════
+const mockBizData = [
+  { name:"Elegance Kuaför",       cat:"Kuaför",     district:"İstanbul / Kadıköy",  icon:"💇", rating:5.0, price:250, slug:"elegance-kuafor",  services:["Saç Kesimi","Fön","Saç Boyama","Gelin Başı"] },
+  { name:"Başkent Berber",        cat:"Berber",     district:"Ankara / Çankaya",    icon:"✂️", rating:4.9, price:120, slug:"baskent-berber",   services:["Saç Kesimi","Sakal Tıraşı","Fön"] },
+  { name:"Akdeniz Diş Kliniği",   cat:"Diş Hekimi",district:"Antalya / Merkez",    icon:"🦷", rating:4.9, price:300, slug:"akdeniz-dis",      services:["Diş Tedavisi","İmplant","Kanal","Beyazlatma"] },
+  { name:"İzmir Güzellik",        cat:"Güzellik",  district:"İzmir / Karşıyaka",   icon:"💅", rating:4.8, price:180, slug:"izmir-guzellik",   services:["Makyaj","Kaş Alma","İpek Kirpik","Ağda"] },
+  { name:"Bursa Fön & Stil",      cat:"Kuaför",    district:"Bursa / Osmangazi",   icon:"💨", rating:4.7, price:160, slug:"bursa-fon",        services:["Fön","Brezilya Fönü","Styling","Röfle"] },
+  { name:"Premium SPA İstanbul",  cat:"SPA",       district:"İstanbul / Beşiktaş", icon:"🧖", rating:4.9, price:450, slug:"premium-spa",      services:["Masaj","Sauna","Aromaterapi","Cilt Bakımı"] },
+  { name:"Tırnak Atölyesi",       cat:"Tırnak",    district:"Ankara / Kızılay",    icon:"💅", rating:4.8, price:200, slug:"tirnak-atolyesi",  services:["Jel Tırnak","Protez Tırnak","Nail Art"] },
+  { name:"Konya Berber & Kuaför", cat:"Berber",    district:"Konya / Selçuklu",    icon:"✂️", rating:4.7, price:90,  slug:"konya-berber",     services:["Saç Kesimi","Sakal","Fön"] },
+  { name:"Trabzon Güzellik",      cat:"Güzellik",  district:"Trabzon / Merkez",    icon:"✨", rating:4.6, price:130, slug:"trabzon-guzellik", services:["Ağda","Makyaj","Kaş Alma"] },
+  { name:"Onur Berber",           cat:"Berber",    district:"Uşak / Merkez",       icon:"✂️", rating:5.0, price:150, slug:"onur-berber",      services:["Saç Kesimi","Sakal Tıraşı","Fön"] },
+  { name:"Gaziantep Diş",         cat:"Diş Hekimi",district:"Gaziantep / Şehitkamil",icon:"🦷",rating:4.8,price:220,slug:"gantep-dis",       services:["Diş Tedavisi","Dolgu","Çekim"] },
+  { name:"Eskişehir SPA",         cat:"SPA",       district:"Eskişehir / Merkez",  icon:"🧖", rating:4.7, price:280, slug:"eskisehir-spa",    services:["Masaj","SPA","Kaplıca"] },
+];
+
+const districtList = [
+  {label:"İstanbul",  icon:"🌉"},
+  {label:"Ankara",    icon:"🏛️"},
+  {label:"İzmir",     icon:"🌊"},
+  {label:"Bursa",     icon:"🏔️"},
+  {label:"Antalya",   icon:"🌴"},
+  {label:"Adana",     icon:"🌿"},
+  {label:"Konya",     icon:"🌾"},
+  {label:"Gaziantep", icon:"🏺"},
+  {label:"Kayseri",   icon:"⛰️"},
+  {label:"Eskişehir", icon:"🚂"},
+  {label:"Trabzon",   icon:"⛵"},
+  {label:"Uşak",      icon:"📍"},
+];
+
+const serviceList = [
+  {label:"Saç Kesimi",  icon:"✂️"}, {label:"Fön",         icon:"💨"},
+  {label:"Saç Boyama",  icon:"🎨"}, {label:"Kuaför",      icon:"💇"},
+  {label:"Berber",      icon:"✂️"}, {label:"Diş Hekimi",  icon:"🦷"},
+  {label:"Güzellik",    icon:"💅"}, {label:"SPA & Masaj", icon:"🧖"},
+  {label:"Tırnak",      icon:"💎"}, {label:"Kaş Alma",    icon:"👁️"},
+  {label:"Ağda",        icon:"🔥"}, {label:"Makyaj",      icon:"💄"},
+  {label:"Gelin Başı",  icon:"👰"}, {label:"Dövme",       icon:"🎨"},
+];
+
+function buildDrop(icon, label, onClick) {
+  const d = document.createElement('div');
+  d.className = 'qs-drop-item';
+  d.innerHTML = `<div class="di-icon">${icon}</div><span>${label}</span>`;
+  d.addEventListener('mousedown', e => { e.preventDefault(); onClick(); });
+  return d;
+}
+
+// ── Hizmet autocomplete ──
+const hsSvcEl    = document.getElementById('hsSvc');
+const hsSvcDrop  = document.getElementById('hsSvcDrop');
+function updateSvcDrop() {
+  const v = hsSvcEl.value.toLowerCase();
+  hsSvcDrop.innerHTML = '';
+  const hits = serviceList.filter(s => s.label.toLowerCase().includes(v) || v === '');
+  if(!hits.length) { hsSvcDrop.classList.remove('show'); return; }
+  hits.slice(0,8).forEach(s => hsSvcDrop.appendChild(buildDrop(s.icon, s.label, () => {
+    hsSvcEl.value = s.label; hsSvcDrop.classList.remove('show');
+  })));
+  hsSvcDrop.classList.add('show');
+}
+hsSvcEl.addEventListener('input', updateSvcDrop);
+hsSvcEl.addEventListener('focus', updateSvcDrop);
+
+// ── Şehir autocomplete ──
+const hsCityEl   = document.getElementById('hsCity');
+const hsCityDrop = document.getElementById('hsCityDrop');
+function updateCityDrop() {
+  const v = hsCityEl.value.toLowerCase();
+  hsCityDrop.innerHTML = '';
+  const hits = districtList.filter(d => d.label.toLowerCase().includes(v) || v === '');
+  if(!hits.length) { hsCityDrop.classList.remove('show'); return; }
+  hits.forEach(d => hsCityDrop.appendChild(buildDrop(d.icon, d.label, () => {
+    hsCityEl.value = d.label; hsCityDrop.classList.remove('show');
+  })));
+  hsCityDrop.classList.add('show');
+}
+hsCityEl.addEventListener('input', updateCityDrop);
+hsCityEl.addEventListener('focus', updateCityDrop);
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('#hsSvcField'))  hsSvcDrop.classList.remove('show');
+  if(!e.target.closest('#hsCityField')) hsCityDrop.classList.remove('show');
+});
+
+// ── Hızlı etiket ──
+function hsQuickSearch(svc) { hsSvcEl.value = svc; doHeroSearch(); }
+
+// ── Ana Arama & Portal Geçişi ──
+function doHeroSearch() {
+  hsSvcDrop.classList.remove('show');
+  hsCityDrop.classList.remove('show');
+
+  const svc  = hsSvcEl.value.trim();
+  const city = hsCityEl.value.trim();
+
+  // Filtrele
+  let results = mockBizData;
+  if(svc)  results = results.filter(b =>
+    b.name.toLowerCase().includes(svc.toLowerCase()) ||
+    b.cat.toLowerCase().includes(svc.toLowerCase()) ||
+    b.services.some(s => s.toLowerCase().includes(svc.toLowerCase())));
+  if(city) results = results.filter(b =>
+    b.district.toLowerCase().includes(city.toLowerCase()));
+
+  // Başlık
+  let title = 'Tüm İşletmeler';
+  if(svc && city)  title = `${city} İçin "${svc}" Hizmeti Veren İşletmeler`;
+  else if(svc)     title = `"${svc}" Hizmeti Veren İşletmeler`;
+  else if(city)    title = `${city}'daki Tüm İşletmeler`;
+
+  // URL (SPA hissi)
+  const params = new URLSearchParams();
+  if(svc)  params.set('hizmet', svc);
+  if(city) params.set('sehir', city);
+  history.pushState({search:true}, '', '/?' + params.toString());
+
+  // Landing blur + fade out
+  const landing = document.getElementById('landing');
+  landing.style.transition = 'opacity .3s ease, transform .3s ease, filter .3s ease';
+  landing.style.opacity    = '0';
+  landing.style.transform  = 'scale(.98) translateY(-8px)';
+  landing.style.filter     = 'blur(5px)';
+
+  setTimeout(() => {
+    landing.style.display = 'none';
+
+    const rp = document.getElementById('searchResultsPage');
+    rp.style.display = 'block';
+    document.getElementById('rpTitle').textContent = title;
+    document.getElementById('rpMeta').textContent  = `${results.length} işletme bulundu`;
+    document.getElementById('rpLoading').style.display = 'flex';
+    document.getElementById('rpGrid').innerHTML = '';
+
+    // Kısa loading → stagger
+    setTimeout(() => {
+      document.getElementById('rpLoading').style.display = 'none';
+      const grid = document.getElementById('rpGrid');
+
+      if(!results.length) {
+        grid.innerHTML = `<div class="rp-empty">
+          <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
+          <div style="color:var(--text);font-weight:700;font-size:1.1rem;margin-bottom:8px;">Sonuç bulunamadı</div>
+          <div style="color:var(--muted);font-size:.85rem;">Farklı bir hizmet veya şehir deneyin</div>
+        </div>`;
+        return;
+      }
+
+      window._rpResults = results;  // sort/filter için sakla
+      window._rpCatFilter = '';
+      document.getElementById('rpSortBar').style.display = 'flex';
+      renderCards(results, grid);
+    }, 620);
+  }, 290);
+}
+
+// ── Premium Card Render ──────────────────────
+// Gradient backgrounds per category
+const catBg = {
+  'Berber':     'linear-gradient(135deg,#3b1d8a,#7c3aed)',
+  'Kuaför':     'linear-gradient(135deg,#5b21b6,#ec4899)',
+  'Güzellik':   'linear-gradient(135deg,#9d174d,#ec4899)',
+  'SPA':        'linear-gradient(135deg,#065f46,#06b6d4)',
+  'Diş Hekimi': 'linear-gradient(135deg,#1e3a5f,#06b6d4)',
+  'Tırnak':     'linear-gradient(135deg,#6d1b7b,#ec4899)',
+};
+
+function renderCards(list, grid) {
+  grid.innerHTML = '';
+  if(!list.length) {
+    grid.innerHTML = `<div class="rp-empty">
+      <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
+      <div style="color:var(--text);font-weight:700;font-size:1.1rem;margin-bottom:8px;">Sonuç bulunamadı</div>
+      <div style="color:var(--muted);font-size:.85rem;">Farklı bir hizmet veya şehir deneyin</div>
+    </div>`;
+    return;
+  }
+  list.forEach((biz, i) => {
+    const bg = catBg[biz.cat] || 'linear-gradient(135deg,#4c1d95,#7c3aed)';
+    const tags = biz.services.slice(0,3).map(s => `<span class="rp-svc-tag">${s}</span>`).join('');
+    const stars = '⭐'.repeat(Math.round(biz.rating));
+    const a = document.createElement('a');
+    a.href      = '/' + biz.slug;
+    a.className = 'rp-card';
+    a.style.animationDelay = (i * 65) + 'ms';
+    a.innerHTML = `
+      <div class="rp-photo">
+        <div class="rp-photo-placeholder" style="background:${bg};">${biz.icon}</div>
+        <div class="rp-photo-overlay"></div>
+        <span class="rp-cat-badge-photo">${biz.cat}</span>
+        <span class="rp-rating-photo">⭐ ${biz.rating}</span>
+      </div>
+      <div class="rp-body">
+        <div class="rp-name">${biz.name}</div>
+        <div class="rp-location">📍 ${biz.district}</div>
+        <div class="rp-service-tags">${tags}</div>
+        <div class="rp-divider"></div>
+        <div class="rp-footer">
+          <span class="rp-book-btn">Randevu Al →</span>
+        </div>
+      </div>`;
+    grid.appendChild(a);
+  });
+  // Magnetic on book buttons
+  grid.querySelectorAll('.rp-book-btn').forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const r = btn.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width/2) * 0.2;
+      const y = (e.clientY - r.top - r.height/2) * 0.2;
+      btn.style.transform = `translate(${x}px,${y}px)`;
+    });
+    btn.addEventListener('mouseleave', () => btn.style.transform = '');
+  });
+}
+
+// ── Sort & Filter ─────────────────────────────
+function applySortFilter() {
+  const sort = document.getElementById('rpSort').value;
+  let list = (_rpResults || []).filter(b =>
+    !window._rpCatFilter || b.cat === window._rpCatFilter ||
+    b.cat.includes(window._rpCatFilter)
+  );
+  if(sort === 'price-asc')  list = [...list].sort((a,b) => a.price - b.price);
+  if(sort === 'price-desc') list = [...list].sort((a,b) => b.price - a.price);
+  if(sort === 'rating')     list = [...list].sort((a,b) => b.rating - a.rating);
+  document.getElementById('rpMeta').textContent = `${list.length} işletme bulundu`;
+  renderCards(list, document.getElementById('rpGrid'));
+}
+
+function filterCat(btn, cat) {
+  window._rpCatFilter = cat;
+  document.querySelectorAll('.rp-filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  applySortFilter();
+}
+
+// ── Geri dön ──
+function backToHome() {
+  document.getElementById('searchResultsPage').style.display = 'none';
+  document.getElementById('rpSortBar').style.display = 'none';
+  document.getElementById('rpSort').value = 'default';
+  window._rpCatFilter = '';
+  document.querySelectorAll('.rp-filter-chip').forEach((c,i) => {
+    c.classList.toggle('active', i===0);
+  });
+  const landing = document.getElementById('landing');
+  landing.style.display = 'block';
+  requestAnimationFrame(() => {
+    landing.style.transition = 'opacity .4s ease, transform .4s ease, filter .4s ease';
+    landing.style.opacity    = '1';
+    landing.style.transform  = '';
+    landing.style.filter     = '';
+  });
+  history.pushState({}, '', '/');
+  hsSvcEl.value  = '';
+  hsCityEl.value = '';
+}
+window.addEventListener('popstate', e => { if(!e.state?.search) backToHome(); });
+</script>
+{% endblock %}

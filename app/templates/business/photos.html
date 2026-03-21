@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Fotoğraflar — {{ biz.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+.photo-item {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; overflow: hidden; position: relative;
+}
+.photo-item img { width: 100%; height: 150px; object-fit: cover; display: block; }
+.photo-actions {
+  padding: 10px 12px; display: flex; gap: 8px; align-items: center; justify-content: space-between;
+}
+.photo-cover-badge {
+  background: linear-gradient(135deg,#7c3aed,#ec4899);
+  color: white; border-radius: 6px; padding: 2px 8px;
+  font-size: .68rem; font-weight: 800;
+}
+.btn-set-cover {
+  background: rgba(124,58,237,.15); border: 1px solid rgba(124,58,237,.3);
+  color: #c4b5fd; border-radius: 8px; padding: 5px 10px;
+  font-size: .72rem; font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: background .15s;
+}
+.btn-set-cover:hover { background: rgba(124,58,237,.3); }
+.btn-del-photo {
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25);
+  color: #fca5a5; border-radius: 8px; padding: 5px 10px;
+  font-size: .72rem; font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: background .15s;
+}
+.btn-del-photo:hover { background: rgba(239,68,68,.22); }
+.upload-zone {
+  background: rgba(255,255,255,.03); border: 2px dashed rgba(124,58,237,.3);
+  border-radius: 16px; padding: 32px; text-align: center;
+  margin-bottom: 24px; transition: border-color .15s;
+}
+.upload-zone:hover { border-color: rgba(124,58,237,.6); }
+.upload-btn {
+  background: linear-gradient(135deg,#7c3aed,#ec4899); border: none;
+  color: white; border-radius: 12px; padding: 11px 28px;
+  font-weight: 700; font-size: .9rem; cursor: pointer; font-family: inherit;
+  box-shadow: 0 3px 14px rgba(124,58,237,.35); transition: opacity .15s;
+}
+.upload-btn:hover { opacity: .88; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 style="font-weight:800;color:#f1f0f5;margin:0;">📷 Fotoğraflar</h5>
+  <a href="/panel" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#c4b5fd;border-radius:10px;padding:7px 16px;font-size:.82rem;font-weight:600;text-decoration:none;">← Panel</a>
+</div>
+
+<!-- Yükle -->
+<div class="upload-zone">
+  <form method="post" action="/panel/fotograf-yukle" enctype="multipart/form-data">
+    <div style="font-size:2rem;margin-bottom:8px;">📸</div>
+    <div style="font-weight:700;color:#c4b5fd;margin-bottom:4px;">Fotoğraf Yükle</div>
+    <div style="font-size:.78rem;color:rgba(196,181,253,.45);margin-bottom:16px;">JPG, PNG — Maks 5MB</div>
+    <input type="file" name="file" accept="image/*" required
+           style="display:none;" id="fileInput"
+           onchange="this.form.submit()">
+    <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click()">
+      <i class="bi bi-upload me-2"></i>Dosya Seç & Yükle
+    </button>
+  </form>
+</div>
+
+<!-- Fotoğraf grid -->
+{% if photos %}
+<div class="photo-grid">
+  {% for p in photos %}
+  <div class="photo-item">
+    <img src="/static/uploads/{{ p.filename }}" alt="Fotoğraf">
+    <div class="photo-actions">
+      {% if p.is_cover %}
+      <span class="photo-cover-badge">✓ Kapak</span>
+      {% else %}
+      <form method="post" action="/panel/fotograf-kapak/{{ p.id }}" style="margin:0;">
+        <button type="submit" class="btn-set-cover">Kapak Yap</button>
+      </form>
+      {% endif %}
+      <form method="post" action="/panel/fotograf-sil/{{ p.id }}" style="margin:0;"
+            onsubmit="return confirm('Silinsin mi?')">
+        <button type="submit" class="btn-del-photo">Sil</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div style="text-align:center;padding:40px;color:rgba(196,181,253,.35);">
+  <div style="font-size:2.5rem;margin-bottom:10px;">🖼️</div>
+  <div style="font-size:.9rem;">Henüz fotoğraf eklenmedi.</div>
+</div>
+{% endif %}
+
+{% endblock %}

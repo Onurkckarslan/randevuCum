@@ -1,0 +1,34 @@
+/* ══════════════════════════════════════════════════
+   FLOATING PARTICLES BACKGROUND EFFECT
+═══════════════════════════════════════════════════ */
+
+#particles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  will-change: opacity;
+  overflow: hidden;
+}
+
+#particles-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Mobile optimization */
+@media (max-width: 576px) {
+  #particles-container {
+    opacity: 0.85;
+  }
+}
+
+@media (max-width: 768px) {
+  #particles-container {
+    opacity: 0.9;
+  }
+}

@@ -1,0 +1,751 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ biz.name }} — Randevu Al | RandevuCum{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ══════════════════════════════════════════════
+   DARK THEME — Booking Page
+══════════════════════════════════════════════ */
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+/* ── HEADER ── */
+.biz-header {
+  background: rgba(255,255,255,.04); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.09); border-radius: 18px;
+  padding: 18px 20px; margin-bottom: 0;
+}
+.biz-title { font-size: 1.3rem; font-weight: 900; color: #f1f0f5; margin-bottom: 5px; }
+.biz-stars { color: #fbbf24; font-size: .88rem; }
+
+/* ── TELEFON BUTONU ── */
+.btn-call {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white; border-radius: 14px; padding: 15px; font-size: 1.1rem; font-weight: 800;
+  text-decoration: none; margin: 12px 0;
+  box-shadow: 0 4px 20px rgba(16,185,129,.35), 0 0 0 1px rgba(16,185,129,.2);
+  letter-spacing: .3px;
+}
+.btn-call:hover { opacity: .9; color: white; transform: translateY(-1px); }
+.btn-call i { font-size: 1.2rem; }
+
+/* ── KAPAK FOTOĞRAFI ── */
+/* ── COVER PHOTO ── */
+.cover-photo {
+  width: 100%; height: 280px; object-fit: cover;
+  border-radius: 18px; display: block;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+.cover-placeholder {
+  width: 100%; height: 280px; border-radius: 18px;
+  background: linear-gradient(135deg,#1e0b4b,#3b0764);
+  display: flex; align-items: center; justify-content: center; font-size: 6rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+/* ── THUMBNAIL GALERİ ── */
+.thumb-gallery {
+  display: flex; gap: 8px; overflow-x: auto; padding: 8px 0 4px;
+  scrollbar-width: thin; scrollbar-color: rgba(124,58,237,.3) transparent;
+}
+.thumb-gallery::-webkit-scrollbar { height: 4px; }
+.thumb-gallery::-webkit-scrollbar-thumb { background: rgba(124,58,237,.3); border-radius: 2px; }
+.thumb-item {
+  width: 88px; height: 66px; border-radius: 10px; overflow: hidden;
+  flex-shrink: 0; cursor: pointer;
+  border: 2px solid transparent; transition: border-color .15s, transform .15s;
+}
+.thumb-item:hover { transform: translateY(-2px); border-color: rgba(124,58,237,.4); }
+.thumb-item.active { border-color: #7c3aed; box-shadow: 0 0 12px rgba(124,58,237,.4); }
+.thumb-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ── TAB NAV ── */
+.tab-nav {
+  display: flex; background: rgba(255,255,255,.05); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 12px;
+  padding: 4px; margin: 12px 0; gap: 2px;
+}
+.tab-btn {
+  flex: 1; padding: 9px 4px; border: none; background: transparent;
+  border-radius: 9px; font-size: .82rem; font-weight: 600;
+  color: rgba(196,181,253,.6); cursor: pointer; transition: .15s; white-space: nowrap;
+}
+.tab-btn.active { background: #7c3aed; color: white; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── HİZMET SATIRI ── */
+.svc-row {
+  display: flex; align-items: center; padding: 13px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06); gap: 8px;
+}
+.svc-row:last-child { border-bottom: none; }
+
+/* Scroll Reveal Animations */
+.svc-row.reveal-right {
+  opacity: 0;
+  transform: translateX(48px);
+  transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+}
+.svc-row.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.svc-name { flex: 1; font-weight: 700; font-size: .95rem; color: #f1f0f5; }
+.svc-dur { font-size: .75rem; color: rgba(196,181,253,.5); margin-top: 2px; }
+.svc-price {
+  font-weight: 900; font-size: .95rem; white-space: nowrap; margin-right: 8px;
+  background: linear-gradient(135deg, #a78bfa, #ec4899);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.btn-randevu {
+  background: linear-gradient(135deg, #7c3aed, #ec4899); color: white;
+  border: none; border-radius: 10px; padding: 8px 16px; font-size: .82rem;
+  font-weight: 700; white-space: nowrap; cursor: pointer;
+  box-shadow: 0 2px 10px rgba(124,58,237,.3); transition: opacity .15s;
+}
+.btn-randevu:hover { opacity: .88; }
+
+/* ── ADRES ── */
+.map-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px; border-radius: 12px; font-weight: 700;
+  font-size: .92rem; text-decoration: none; margin-bottom: 10px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  color: #c4b5fd; transition: all .15s;
+}
+.map-btn:hover { background: rgba(124,58,237,.15); border-color: rgba(124,58,237,.3); color: #e9d5ff; }
+.map-btn.primary {
+  background: linear-gradient(135deg, #4285f4, #1a73e8);
+  border-color: transparent; color: white;
+  box-shadow: 0 3px 14px rgba(66,133,244,.3);
+}
+.map-btn.primary:hover { opacity: .9; color: white; }
+
+/* ── ÇALIŞMA SAATLERİ ── */
+.hours-row {
+  display: flex; justify-content: space-between; padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05); font-size: .88rem;
+}
+.hours-row:last-child { border-bottom: none; }
+.hours-day { font-weight: 700; color: #e9e3f5; }
+.hours-time { font-weight: 800; color: #a78bfa; }
+.hours-closed {
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.2);
+  color: #fca5a5; border-radius: 6px; padding: 2px 9px;
+  font-size: .75rem; font-weight: 700;
+}
+
+/* ── PERSONEL ── */
+.staff-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+.staff-item { text-align: center; }
+.staff-avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; font-weight: 900; color: white;
+  margin: 0 auto 6px;
+  box-shadow: 0 4px 16px rgba(124,58,237,.4);
+}
+.staff-name { font-size: .78rem; font-weight: 700; color: #c4b5fd; }
+
+/* ── RANDEVU FORMU (step-card) ── */
+.step-card {
+  background: rgba(255,255,255,.04); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 18px;
+  padding: 20px; margin-bottom: 12px;
+}
+.step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.step-num {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: .88rem;
+  box-shadow: 0 0 0 3px rgba(124,58,237,.25), 0 4px 14px rgba(124,58,237,.4);
+}
+.step-header .fw-bold { color: #f1f0f5 !important; font-weight: 800 !important; }
+.step-header .text-muted { color: rgba(196,181,253,.6) !important; }
+
+/* ── SLOT BUTONLARI ── */
+.slot-btn {
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
+  color: #e9e3f5; border-radius: 10px; padding: 8px 14px;
+  font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .15s;
+  min-width: 72px; text-align: center; line-height: 1.3;
+}
+/* Tüm slotlar aynı boyut */
+.slot-btn {
+  width: 80px !important;
+  height: 52px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+  display: inline-flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem !important;
+  line-height: 1.2 !important;
+}
+/* Müsait — belirgin yeşil */
+.slot-available {
+  border-color: #10b981 !important;
+  background: rgba(16,185,129,.25) !important;
+  color: #fff !important; font-weight: 700;
+}
+.slot-available:hover {
+  background: rgba(16,185,129,.45) !important;
+  box-shadow: 0 0 14px rgba(16,185,129,.35);
+}
+.slot-available.selected {
+  background: #10b981 !important; border-color: #10b981 !important;
+  color: #fff !important; box-shadow: 0 2px 14px rgba(16,185,129,.5);
+}
+/* Dolu — belirgin kırmızı */
+.slot-booked {
+  border-color: #ef4444 !important;
+  background: rgba(239,68,68,.3) !important;
+  color: #fca5a5 !important; cursor: not-allowed !important; font-weight: 700;
+}
+.slot-btn.selected {
+  background: rgba(124,58,237,.35); border-color: #7c3aed; color: white;
+  box-shadow: 0 2px 12px rgba(124,58,237,.35);
+}
+
+/* ── ÖZET KUTUSU (adım 3) ── */
+.booking-summary {
+  background: rgba(16,185,129,.12) !important;
+  border: 1px solid rgba(16,185,129,.3) !important;
+  border-radius: 12px; padding: 12px 16px; margin-bottom: 14px;
+  color: #6ee7b7 !important; font-size: .88rem; font-weight: 700;
+}
+
+/* ── BUGÜN/YARIN ── */
+.date-shortcut {
+  border: 1px solid rgba(124,58,237,.35); background: rgba(124,58,237,.1);
+  color: #c4b5fd; border-radius: 10px; padding: 9px 16px;
+  font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.date-shortcut:hover { background: rgba(124,58,237,.25); color: #e9d5ff; }
+
+/* ── DATE INPUT & SELECT — koyu arka plan ── */
+input[type="date"],
+input[type="date"]::-webkit-calendar-picker-indicator,
+select.form-select,
+.form-select {
+  background-color: #1a0a3e !important;
+  color: #f1f0f5 !important;
+  border-color: rgba(124,58,237,.3) !important;
+  color-scheme: dark;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) !important;
+  cursor: pointer;
+}
+.form-select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
+select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
+
+/* ── MOBİL MODAL ── */
+#bookModal > div {
+  background: #13111f !important;
+  border-top: 1px solid rgba(255,255,255,.1) !important;
+}
+
+/* ── DESKTOP ── */
+.right-col { display: none; }
+@media(min-width:992px){
+  .biz-header { margin: 0; }
+  .cover-photo, .cover-placeholder { height: 360px; border-radius: 20px; }
+  .layout-cols { display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: start; }
+  .right-col { display: block; position: sticky; top: 84px; max-height: calc(100vh - 100px); overflow-y: auto; }
+  .tab-nav { display: none; }
+  .tab-content { display: block !important; }
+  .desktop-hide { display: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HEADER -->
+<div class="biz-header mb-3">
+    <div class="biz-title">{{ biz.name }}</div>
+    <div class="biz-stars">
+        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+        <span style="color:#374151;font-weight:700;"> 5.0</span>
+        <span style="color:#9ca3af;font-size:.82rem;"> · Yeni</span>
+        {% if biz.district %}<span style="color:#9ca3af;font-size:.82rem;"> · {{ biz.district }}, {{ biz.city }}</span>{% endif %}
+    </div>
+</div>
+
+<div class="layout-cols">
+<!-- SOL KOLON -->
+<div>
+    <!-- TELEFON BUTONU (mobil) -->
+    {% if biz.phone %}
+    <a href="tel:{{ biz.phone }}" class="btn-call desktop-hide">
+        <i class="bi bi-telephone-fill"></i> {{ biz.phone }}
+    </a>
+    {% endif %}
+
+    <!-- KAPAK FOTOĞRAFI -->
+    {% set all_photos = photos if photos is defined else biz.photos %}
+    {% set cover_list = all_photos|selectattr("is_cover")|list %}
+    {% set cover_photo = cover_list[0] if cover_list else (all_photos[0] if all_photos else None) %}
+
+    <!-- ANA FOTOĞRAF -->
+    {% if cover_photo %}
+    <img src="/static/uploads/{{ cover_photo.filename }}" alt="{{ biz.name }}"
+         class="cover-photo mb-2" id="mainCoverPhoto">
+    {% else %}
+    <div class="cover-placeholder mb-2">
+        {{ "✂️" if biz.category=="berber" else "💇" if biz.category=="kuafor" else "💅" if biz.category=="guzellik" else "🧖" }}
+    </div>
+    {% endif %}
+
+    <!-- THUMBNAIL GALERİ -->
+    {% if all_photos|length > 1 %}
+    <div class="thumb-gallery mb-3">
+        {% for p in all_photos %}
+        <div class="thumb-item {% if p.is_cover %}active{% endif %}"
+             onclick="setMainPhoto(this, '/static/uploads/{{ p.filename }}')">
+            <img src="/static/uploads/{{ p.filename }}" alt="foto {{ loop.index }}" loading="lazy">
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- TAB NAV (sadece mobil) -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="showTab('fiyatlar',this)"><i class="bi bi-tag me-1"></i>Fiyatlar</button>
+        <button class="tab-btn" onclick="showTab('adres',this)"><i class="bi bi-geo-alt me-1"></i>Adres</button>
+        <button class="tab-btn" onclick="showTab('telefon',this)"><i class="bi bi-telephone me-1"></i>Telefon</button>
+        <button class="tab-btn" onclick="showTab('saatler',this)"><i class="bi bi-clock me-1"></i>Saatler</button>
+    </div>
+
+    <!-- TAB: FİYATLAR -->
+    <div class="tab-content active" id="tab-fiyatlar">
+        <!-- HİZMETLER -->
+        <div class="card p-3 mb-3">
+            <h6 class="fw-bold mb-3">✂️ Hizmetler & Fiyatlar</h6>
+            {% if services %}
+            <div>
+                {% for svc in services %}
+                <div class="svc-row reveal reveal-right" style="transition-delay:{{ loop.index0 * 50 }}ms;">
+                    <div style="flex:1;">
+                        <div class="svc-name">{{ svc.name }}</div>
+                        <div class="svc-dur"><i class="bi bi-clock me-1"></i>{{ svc.duration }} dakika</div>
+                    </div>
+                    {% if svc.price %}<div class="svc-price">{{ svc.price }} TL</div>{% endif %}
+                    <button class="btn-randevu" onclick="startBooking({{ svc.id }},'{{ svc.name }}',{{ svc.duration }},{{ svc.price or 0 }})">
+                        Randevu Al
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted small mb-0">Henüz hizmet eklenmemiş.</p>
+            {% endif %}
+        </div>
+
+        <!-- PERSONEL -->
+        {% if staff %}
+        <div class="card p-3 mb-3">
+            <h6 class="fw-bold mb-3">👤 Ekibimiz</h6>
+            <div class="staff-grid">
+                {% for s in staff %}
+                <div class="staff-item">
+                    <div class="staff-avatar">{{ s.name[0]|upper }}</div>
+                    <div class="staff-name">{{ s.name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ÇALIŞMA SAATLERİ -->
+        <div class="card p-3 mb-3">
+            <h6 class="fw-bold mb-3">🕐 Çalışma Saatleri</h6>
+            {% if work_hours %}
+            {% set day_names = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"] %}
+            {% for wh in work_hours|sort(attribute='day_of_week') %}
+            <div class="hours-row">
+                <span class="hours-day">{{ day_names[wh.day_of_week] }}</span>
+                {% if wh.is_closed %}
+                <span class="hours-closed">Kapalı</span>
+                {% else %}
+                <span class="hours-time">{{ wh.open_time }} – {{ wh.close_time }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted small mb-0">Çalışma saatleri henüz girilmemiş.</p>
+            {% endif %}
+        </div>
+
+        <!-- GOOGLE HARİTA & YORUMLAR -->
+        {% set maps_q = (biz.name + " " + (biz.address or "") + " " + (biz.district or "") + " " + biz.city)|urlencode %}
+        <div class="card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">📍 Konum & Yorumlar</h6>
+                <a href="https://www.google.com/maps/search/?api=1&query={{ maps_q }}" target="_blank"
+                   style="font-size:.8rem;color:var(--primary);font-weight:600;text-decoration:none;">
+                    Haritada Aç →
+                </a>
+            </div>
+            <iframe
+                src="https://maps.google.com/maps?q={{ maps_q }}&output=embed&z=16"
+                width="100%" height="220" style="border:none;border-radius:12px;display:block;"
+                loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <a href="https://www.google.com/maps/search/?api=1&query={{ maps_q }}" target="_blank"
+               class="btn fw-bold w-100 mt-2" style="background:#4285f4;color:white;border-radius:10px;padding:10px;">
+                <i class="bi bi-google me-2"></i>Google'da Yorumları Gör & Yorum Yaz
+            </a>
+        </div>
+    </div>
+
+    <!-- TAB: ADRES -->
+    <div class="tab-content" id="tab-adres">
+        <div class="card p-4 mb-3">
+            <h5 class="fw-bold mb-2">📍 Adres</h5>
+            {% if biz.address %}
+            <p style="color:#374151;line-height:1.6;margin-bottom:16px;">
+                {{ biz.name }} — {{ biz.address }}{% if biz.district %}, {{ biz.district }}{% endif %}, {{ biz.city }}
+            </p>
+            {% set maps_q = (biz.name + " " + (biz.address or "") + " " + (biz.district or "") + " " + biz.city)|urlencode %}
+            <a href="https://www.google.com/maps/search/?api=1&query={{ maps_q }}" target="_blank" class="map-btn primary mb-2">
+                <i class="bi bi-map-fill"></i> Haritada Gör
+            </a>
+            <a href="https://www.google.com/maps/dir/?api=1&destination={{ maps_q }}" target="_blank" class="map-btn">
+                <i class="bi bi-signpost-2-fill"></i> Yol Tarifi
+            </a>
+            {% else %}
+            <p class="text-muted small">Adres bilgisi eklenmemiş.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- TAB: TELEFON -->
+    <div class="tab-content" id="tab-telefon">
+        <div class="card p-4 mb-3">
+            <h5 class="fw-bold mb-3">📞 İletişim</h5>
+            {% if biz.phone %}
+            <a href="tel:{{ biz.phone }}" class="btn-call" style="border-radius:12px;">
+                <i class="bi bi-telephone-fill"></i> {{ biz.phone }}
+            </a>
+            {% endif %}
+            {% if biz.description %}
+            <p class="text-muted small mt-3 mb-0" style="line-height:1.6;">{{ biz.description }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- TAB: ÇALIŞMA SAATLERİ -->
+    <div class="tab-content" id="tab-saatler">
+        <div class="card p-4 mb-3">
+            <h5 class="fw-bold mb-3">🕐 Çalışma Saatleri</h5>
+            {% if work_hours %}
+            {% set day_names = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"] %}
+            {% for wh in work_hours|sort(attribute='day_of_week') %}
+            <div class="hours-row">
+                <span class="hours-day">{{ day_names[wh.day_of_week] }}</span>
+                {% if wh.is_closed %}
+                <span class="hours-closed">Kapalı</span>
+                {% else %}
+                <span class="hours-time">{{ wh.open_time }} – {{ wh.close_time }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted small mb-0">Çalışma saatleri eklenmemiş.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div><!-- /SOL -->
+
+<!-- SAĞ KOLON (sadece desktop) -->
+<div class="right-col">
+    {% if biz.phone %}
+    <a href="tel:{{ biz.phone }}" class="btn-call mb-3">
+        <i class="bi bi-telephone-fill"></i> {{ biz.phone }}
+    </a>
+    {% endif %}
+
+    <!-- ADIM 1: HİZMET SEÇ -->
+    <div class="step-card" id="d-step1">
+        <div class="step-header">
+            <div class="step-num">1</div>
+            <div><div class="fw-bold">Hizmet Seçin</div></div>
+        </div>
+        {% for svc in services %}
+        <div class="svc-row reveal reveal-right" style="transition-delay:{{ loop.index0 * 50 }}ms;">
+            <div style="flex:1;">
+                <div class="svc-name">{{ svc.name }}</div>
+                <div class="svc-dur">{{ svc.duration }} dk</div>
+            </div>
+            {% if svc.price %}<div class="svc-price">{{ svc.price }} TL</div>{% endif %}
+            <button class="btn-randevu" onclick="startBooking({{ svc.id }},'{{ svc.name }}',{{ svc.duration }},{{ svc.price or 0 }})">Seç</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ADIM 2 -->
+    <div class="step-card" id="d-step2" style="display:none;">
+        <div class="step-header">
+            <div class="step-num">2</div>
+            <div><div class="fw-bold">Tarih & Saat</div><small class="text-muted" id="d-svc-label"></small></div>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            <input type="date" id="d-datePicker" class="form-control" style="max-width:160px;">
+            <button type="button" class="date-shortcut" onclick="setDate('d','today')">Bugün</button>
+            <button type="button" class="date-shortcut" onclick="setDate('d','tomorrow')">Yarın</button>
+        </div>
+        {% if staff %}
+        <label class="form-label fw-semibold">Personel <span class="text-danger">*</span></label>
+        <select id="d-staffSelect" class="form-select mb-3" style="max-width:220px;">
+            <option value="">— Personel seçiniz —</option>
+            {% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+        </select>
+        {% endif %}
+        <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
+        <div id="d-slots" class="d-flex flex-wrap gap-2 mb-2"><small class="text-muted">Tarih seçin...</small></div>
+    </div>
+
+    <!-- ADIM 3 -->
+    <div class="step-card" id="d-step3" style="display:none;">
+        <div class="step-header">
+            <div class="step-num">3</div>
+            <div><div class="fw-bold">Bilgilerinizi Girin</div></div>
+        </div>
+        <div class="booking-summary" id="d-summary-box">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          <span id="d-summary"></span>
+        </div>
+        <form method="post" action="/{{ biz.slug }}/randevu-al">
+            <input type="hidden" name="service_id" id="d-f-sid">
+            <input type="hidden" name="staff_id" id="d-f-stid">
+            <input type="hidden" name="selected_date" id="d-f-date">
+            <input type="hidden" name="selected_time" id="d-f-time">
+            <div class="mb-3"><label class="form-label">Ad Soyad</label><input type="text" name="customer_name" class="form-control" placeholder="Ayşe Yılmaz" required></div>
+            <div class="mb-3"><label class="form-label">Telefon</label><input type="tel" name="customer_phone" class="form-control" placeholder="0555 123 45 67" required></div>
+            <div class="mb-3"><label class="form-label">Not <small class="text-muted">(opsiyonel)</small></label><textarea name="notes" class="form-control" rows="2"></textarea></div>
+            <button type="submit" class="btn btn-primary w-100 py-3"><i class="bi bi-calendar-check me-2"></i>Randevuyu Onayla</button>
+        </form>
+    </div>
+</div><!-- /SAĞ -->
+
+</div><!-- /layout-cols -->
+
+<!-- MOBİL RANDEVU MODAL -->
+<div id="bookModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);transition:opacity .2s;" onclick="if(event.target===this){closeModal()}">
+    <div style="background:#13111f;border:1px solid rgba(255,255,255,.1);border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;right:0;height:88vh;overflow-y:auto;overflow-x:hidden;padding:20px 16px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;transform:translateY(0);transition:transform .3s cubic-bezier(.16,1,.3,1);">
+        <!-- Drag Handle -->
+        <div style="width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:3px;margin:0 auto 16px;"></div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0" id="m-title" style="font-size:1rem;">Randevu Al</h6>
+            <button onclick="closeModal()" style="border:none;background:rgba(255,255,255,.08);width:32px;height:32px;border-radius:10px;font-size:1.1rem;color:#9ca3af;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+        <!-- Adım 2 -->
+        <div id="m-step2">
+            <label class="form-label fw-semibold">Tarih</label>
+            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                <input type="date" id="m-datePicker" class="form-control" style="max-width:160px;">
+                <button type="button" class="date-shortcut" onclick="setDate('m','today')">Bugün</button>
+                <button type="button" class="date-shortcut" onclick="setDate('m','tomorrow')">Yarın</button>
+            </div>
+            {% if staff %}
+            <label class="form-label fw-semibold">Personel <span class="text-danger">*</span></label>
+            <select id="m-staffSelect" class="form-select mb-3">
+                <option value="">— Personel seçiniz —</option>
+                {% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+            </select>
+            {% endif %}
+            <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
+            <div id="m-slots" class="d-flex flex-wrap gap-2 mb-3"><small class="text-muted">Tarih seçin...</small></div>
+        </div>
+        <!-- Adım 3 -->
+        <div id="m-step3" style="display:none;">
+            <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:12px 16px;margin-bottom:14px;color:#6ee7b7;font-size:.88rem;font-weight:700;">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span id="m-summary"></span>
+            </div>
+            <form method="post" action="/{{ biz.slug }}/randevu-al" onsubmit="return checkStaff('m')">
+                <input type="hidden" name="service_id" id="m-f-sid">
+                <input type="hidden" name="staff_id" id="m-f-stid">
+                <input type="hidden" name="selected_date" id="m-f-date">
+                <input type="hidden" name="selected_time" id="m-f-time">
+                <div class="mb-3"><label class="form-label">Ad Soyad</label><input type="text" name="customer_name" class="form-control" placeholder="Ayşe Yılmaz" required></div>
+                <div class="mb-3"><label class="form-label">Telefon</label><input type="tel" name="customer_phone" class="form-control" placeholder="0555 123 45 67" required></div>
+                <div class="mb-3"><label class="form-label">Not <small class="text-muted">(opsiyonel)</small></label><textarea name="notes" class="form-control" rows="2"></textarea></div>
+                <button type="submit" class="btn btn-primary w-100 py-3"><i class="bi bi-calendar-check me-2"></i>Randevuyu Onayla</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const slug = "{{ biz.slug }}";
+
+function setMainPhoto(el, src) {
+  const mainImg = document.getElementById('mainCoverPhoto');
+  if (mainImg) {
+    mainImg.style.opacity = '0';
+    mainImg.style.transition = 'opacity .2s';
+    setTimeout(() => {
+      mainImg.src = src;
+      mainImg.style.opacity = '1';
+    }, 200);
+  }
+  document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+let selSvc = null;
+const today = new Date().toISOString().split("T")[0];
+
+function setDate(prefix, when) {
+    const d = new Date();
+    if (when === 'tomorrow') d.setDate(d.getDate() + 1);
+    const val = d.toISOString().split("T")[0];
+    document.getElementById(prefix + "-datePicker").value = val;
+    loadSlots(prefix);
+}
+
+// TAB NAV
+function showTab(id, btn) {
+    document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-" + id).classList.add("active");
+    btn.classList.add("active");
+}
+
+// RANDEVU BAŞLAT
+function startBooking(id, name, duration, price) {
+    selSvc = { id, name, duration, price };
+    const isMobile = window.innerWidth < 992;
+    if (isMobile) {
+        document.getElementById("m-title").textContent = name + (price ? " — " + price + " TL" : "");
+        document.getElementById("m-datePicker").min = today;
+        document.getElementById("m-datePicker").value = today;
+        document.getElementById("m-step2").style.display = "block";
+        document.getElementById("m-step3").style.display = "none";
+        document.getElementById("bookModal").style.display = "block";
+        document.body.style.overflow = "hidden";
+        loadSlots("m");
+    } else {
+        document.getElementById("d-svc-label").textContent = name + (price ? " · " + price + " TL" : "") + " · " + duration + " dk";
+        document.getElementById("d-datePicker").min = today;
+        document.getElementById("d-datePicker").value = today;
+        document.getElementById("d-step2").style.display = "block";
+        document.getElementById("d-step3").style.display = "none";
+        document.getElementById("d-step2").scrollIntoView({ behavior: "smooth", block: "nearest" });
+        loadSlots("d");
+    }
+}
+
+["m", "d"].forEach(prefix => {
+    const datePicker = document.getElementById(prefix + "-datePicker");
+    if (datePicker) datePicker.addEventListener("change", () => loadSlots(prefix));
+    // Personel değişince slotları yenile
+    const staffSel = document.getElementById(prefix + "-staffSelect");
+    if (staffSel) staffSel.addEventListener("change", () => loadSlots(prefix));
+});
+
+async function loadSlots(prefix) {
+    if (!selSvc) return;
+    const date = document.getElementById(prefix + "-datePicker").value;
+    if (!date) return;
+    const staffSel = document.getElementById(prefix + "-staffSelect");
+    const staffId = staffSel?.value || "";
+    const staffParam = staffId ? `&staff_id=${staffId}` : "";
+    const res = await fetch(`/${slug}/musait-saatler?service_id=${selSvc.id}&selected_date=${date}${staffParam}`);
+    const data = await res.json();
+    const container = document.getElementById(prefix + "-slots");
+    if (data.closed) { container.innerHTML = '<span class="text-danger small"><i class="bi bi-x-circle me-1"></i>Bu gün kapalı.</span>'; return; }
+    if (!data.slots?.length) { container.innerHTML = '<span class="text-muted small">Çalışma saati girilmemiş.</span>'; return; }
+    container.innerHTML = data.slots.map(s => {
+        const t = (typeof s === "object") ? s.time : s;
+        const avail = (typeof s === "object") ? s.available : true;
+        return avail
+          ? `<button type="button" class="slot-btn slot-available" onclick="selectSlot('${t}','${date}','${prefix}',this)">${t}</button>`
+          : `<button type="button" class="slot-btn slot-booked" disabled>${t}<br><span style="font-size:.65rem;">Dolu</span></button>`;
+    }).join("");
+}
+
+function selectSlot(time, date, prefix, el) {
+    // Personel seçimi zorunlu kontrolü
+    const staffSel = document.getElementById(prefix + "-staffSelect");
+    if (staffSel && !staffSel.value) {
+        staffSel.style.border = "2px solid #ef4444";
+        staffSel.focus();
+        // Uyarı mesajı
+        let warn = document.getElementById(prefix + "-staff-warn");
+        if (!warn) {
+            warn = document.createElement("div");
+            warn.id = prefix + "-staff-warn";
+            warn.style.cssText = "color:#ef4444;font-size:.82rem;font-weight:600;margin-top:6px;";
+            warn.textContent = "⚠️ Lütfen önce bir personel seçiniz.";
+            staffSel.after(warn);
+        }
+        return;
+    }
+    // Uyarıyı temizle
+    if (staffSel) staffSel.style.border = "";
+    const warn = document.getElementById(prefix + "-staff-warn");
+    if (warn) warn.remove();
+
+    document.querySelectorAll(`#${prefix}-slots .slot-btn`).forEach(b => b.classList.remove("selected"));
+    el.classList.add("selected");
+    const staffId = staffSel?.value || "";
+    document.getElementById(prefix + "-f-sid").value = selSvc.id;
+    document.getElementById(prefix + "-f-stid").value = staffId;
+    document.getElementById(prefix + "-f-date").value = date;
+    document.getElementById(prefix + "-f-time").value = time;
+    const staffName = staffSel?.options[staffSel.selectedIndex]?.text || "";
+    document.getElementById(prefix + "-summary").textContent =
+        `${selSvc.name} · ${date.split("-").reverse().join(".")} saat ${time}` +
+        (selSvc.price ? ` · ${selSvc.price} TL` : "") +
+        (staffName ? ` · ${staffName}` : "");
+    document.getElementById(prefix + "-step3").style.display = "block";
+    document.getElementById(prefix + "-step3").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function closeModal() {
+    document.getElementById("bookModal").style.display = "none";
+    document.body.style.overflow = "";
+}
+
+function checkStaff(prefix) {
+    const staffSel = document.getElementById(prefix + "-staffSelect");
+    if (staffSel && !staffSel.value) {
+        staffSel.style.border = "2px solid #ef4444";
+        staffSel.focus();
+        staffSel.scrollIntoView({ behavior: "smooth", block: "center" });
+        let warn = document.getElementById(prefix + "-staff-warn2");
+        if (!warn) {
+            warn = document.createElement("div");
+            warn.id = prefix + "-staff-warn2";
+            warn.style.cssText = "color:#ef4444;font-size:.85rem;font-weight:600;margin-top:6px;";
+            warn.textContent = "⚠️ Lütfen personel seçiniz.";
+            staffSel.after(warn);
+        }
+        return false;
+    }
+    return true;
+}
+
+// ── SCROLL REVEAL ANIMATIONS ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, {
+  threshold: 0.12,
+  rootMargin: '0px 0px -50px 0px'
+});
+document.querySelectorAll('[class*="reveal"]').forEach(el => observer.observe(el));
+</script>
+{% endblock %}

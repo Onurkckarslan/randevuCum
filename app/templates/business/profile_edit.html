@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Profil Düzenle — {{ biz.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">⚙️ Profil Düzenle</h5>
+    <a href="/panel" class="btn btn-outline-secondary btn-sm">← Panel</a>
+</div>
+<div class="row justify-content-center">
+<div class="col-md-7">
+<div class="card p-4">
+    {% if success %}
+    <div class="alert alert-success py-2 small rounded-3">✅ Profil güncellendi.</div>
+    {% endif %}
+    <form method="post" action="/panel/profil-guncelle">
+        <div class="mb-3">
+            <label class="form-label">İşletme Adı</label>
+            <input type="text" name="name" class="form-control" value="{{ biz.name }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Kategori</label>
+            <select name="category" class="form-select">
+                <optgroup label="Güzellik & Bakım">
+                <option value="kuafor"        {{ 'selected' if biz.category == 'kuafor'        else '' }}>💇 Kuaför</option>
+                <option value="berber"        {{ 'selected' if biz.category == 'berber'        else '' }}>✂️ Berber</option>
+                <option value="guzellik"      {{ 'selected' if biz.category == 'guzellik'      else '' }}>💅 Güzellik & Estetik</option>
+                <option value="spa"           {{ 'selected' if biz.category == 'spa'           else '' }}>🧖 Spa & Masaj</option>
+                <option value="solaryum"      {{ 'selected' if biz.category == 'solaryum'      else '' }}>☀️ Solaryum</option>
+                <option value="tirnak"        {{ 'selected' if biz.category == 'tirnak'        else '' }}>💎 Tırnak & Makyaj</option>
+                <option value="dovme"         {{ 'selected' if biz.category == 'dovme'         else '' }}>🎨 Dövme & Piercing</option>
+                <option value="saglikli-yasam"{{ 'selected' if biz.category == 'saglikli-yasam'else '' }}>🏃 Sağlıklı Yaşam</option>
+                <option value="tesettur"      {{ 'selected' if biz.category == 'tesettur'      else '' }}>🌸 Tesettür Kuaförü</option>
+                </optgroup>
+                <optgroup label="Sağlık & Terapi">
+                <option value="psikoloji"     {{ 'selected' if biz.category == 'psikoloji'     else '' }}>🧠 Psikoloji & Danışmanlık</option>
+                <option value="beslenme-diyet"{{ 'selected' if biz.category == 'beslenme-diyet'else '' }}>🥗 Beslenme & Diyet</option>
+                <option value="fizyoterapi"   {{ 'selected' if biz.category == 'fizyoterapi'   else '' }}>🦴 Fizyoterapi</option>
+                <option value="dis-sagligi"   {{ 'selected' if biz.category == 'dis-sagligi'   else '' }}>🦷 Ağız & Diş Sağlığı</option>
+                <option value="saglik"        {{ 'selected' if biz.category == 'saglik'        else '' }}>🏥 Sağlık Merkezleri</option>
+                <option value="saglik-medikal"{{ 'selected' if biz.category == 'saglik-medikal'else '' }}>⚕️ Sağlık & Medikal</option>
+                </optgroup>
+                <optgroup label="Spor & Eğitim">
+                <option value="spor-fitness"  {{ 'selected' if biz.category == 'spor-fitness'  else '' }}>🏋️ Spor & Fitness</option>
+                <option value="pilates-yoga"  {{ 'selected' if biz.category == 'pilates-yoga'  else '' }}>🧘 Pilates & Yoga</option>
+                <option value="egitim-ozel-ders"{{ 'selected' if biz.category == 'egitim-ozel-ders' else '' }}>📚 Eğitim & Özel Ders</option>
+                <option value="sanat-muzik"   {{ 'selected' if biz.category == 'sanat-muzik'   else '' }}>🎸 Sanat & Müzik</option>
+                </optgroup>
+                <optgroup label="Danışmanlık">
+                <option value="kocluk"        {{ 'selected' if biz.category == 'kocluk'        else '' }}>🚀 Koçluk & Kişisel Gelişim</option>
+                <option value="kurumsal"      {{ 'selected' if biz.category == 'kurumsal'      else '' }}>🏢 Kurumsal Danışmanlık</option>
+                <option value="cocuk-aile"    {{ 'selected' if biz.category == 'cocuk-aile'    else '' }}>👨‍👩‍👧 Çocuk & Aile</option>
+                <option value="rehabilitasyon"{{ 'selected' if biz.category == 'rehabilitasyon'else '' }}>💙 Rehabilitasyon</option>
+                </optgroup>
+            </select>
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Telefon</label>
+                <input type="tel" name="phone" class="form-control" value="{{ biz.phone or '' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">İlçe</label>
+                <input type="text" name="district" class="form-control" value="{{ biz.district or '' }}">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Adres</label>
+            <input type="text" name="address" class="form-control" value="{{ biz.address or '' }}">
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Açıklama <span class="text-muted fw-normal">(müşteriler görecek)</span></label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Salonunuz hakkında kısa bir açıklama...">{{ biz.description or '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Kaydet</button>
+    </form>
+</div>
+</div>
+</div>
+{% endblock %}
