@@ -493,7 +493,7 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
     <div class="step-card" id="d-step2" style="display:none;">
         <div class="step-header">
             <div class="step-num">2</div>
-            <div><div class="fw-bold">Tarih & Saat</div><small class="text-muted" id="d-svc-label"></small></div>
+            <div><div class="fw-bold">{% if biz.category == "rent-a-car" %}Tarih Seçin{% else %}Tarih & Saat{% endif %}</div><small class="text-muted" id="d-svc-label"></small></div>
         </div>
         <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
             <input type="date" id="d-datePicker" class="form-control" style="max-width:160px;">
@@ -507,8 +507,10 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
             {% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
         </select>
         {% endif %}
+        {% if biz.category != "rent-a-car" %}
         <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
         <div id="d-slots" class="d-flex flex-wrap gap-2 mb-2"><small class="text-muted">Tarih seçin...</small></div>
+        {% endif %}
     </div>
 
     <!-- ADIM 3 -->
@@ -656,6 +658,26 @@ async function loadSlots(prefix) {
     if (!selSvc) return;
     const date = document.getElementById(prefix + "-datePicker").value;
     if (!date) return;
+
+    // Rent A Car kategorisi için otomatik saat seç
+    const isRental = "{{ biz.category }}" === "rent-a-car";
+    if (isRental) {
+        const staffSel = document.getElementById(prefix + "-staffSelect");
+        const staffId = staffSel?.value || "";
+        document.getElementById(prefix + "-f-sid").value = selSvc.id;
+        document.getElementById(prefix + "-f-stid").value = staffId;
+        document.getElementById(prefix + "-f-date").value = date;
+        document.getElementById(prefix + "-f-time").value = "09:00";
+        const staffName = staffSel?.options[staffSel.selectedIndex]?.text || "";
+        document.getElementById(prefix + "-summary").textContent =
+            `${selSvc.name} · ${date.split("-").reverse().join(".")}` +
+            (selSvc.price ? ` · ${selSvc.price} TL` : "") +
+            (staffName ? ` · ${staffName}` : "");
+        document.getElementById(prefix + "-step3").style.display = "block";
+        document.getElementById(prefix + "-step3").scrollIntoView({ behavior: "smooth", block: "nearest" });
+        return;
+    }
+
     const staffSel = document.getElementById(prefix + "-staffSelect");
     const staffId = staffSel?.value || "";
     const staffParam = staffId ? `&staff_id=${staffId}` : "";
