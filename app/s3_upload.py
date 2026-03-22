@@ -41,12 +41,13 @@ def upload_photo_to_s3(file_content: bytes, filename: str) -> str:
         elif filename.lower().endswith(".webp"):
             content_type = "image/webp"
 
-        # Upload to S3
+        # Upload to S3 (public-read ACL ile)
         s3_client.put_object(
             Bucket=S3_BUCKET,
             Key=f"photos/{filename}",
             Body=file_content,
-            ContentType=content_type
+            ContentType=content_type,
+            ACL='public-read'
         )
 
         # Return S3 URL
