@@ -159,6 +159,7 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
     if (xhr.status === 200) {
       progressFill.style.width = '100%';
       progressText.textContent = '100% ✓';
+      isUploading = false;
       setTimeout(() => {
         location.reload();
       }, 500);
