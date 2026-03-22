@@ -8,6 +8,12 @@ AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 S3_BUCKET = os.getenv("AWS_S3_BUCKET")
 S3_REGION = os.getenv("AWS_S3_REGION", "eu-west-1")
 
+# DEBUG: Print what we're reading
+print(f"[S3_INIT] AWS_ACCESS_KEY_ID: {AWS_ACCESS_KEY[:10] if AWS_ACCESS_KEY else 'NONE'}...")
+print(f"[S3_INIT] AWS_SECRET_ACCESS_KEY: {'SET' if AWS_SECRET_KEY else 'NONE'}")
+print(f"[S3_INIT] AWS_S3_BUCKET: {S3_BUCKET}")
+print(f"[S3_INIT] AWS_S3_REGION: {S3_REGION}")
+
 # Create S3 client
 s3_client = boto3.client(
     "s3",
