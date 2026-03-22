@@ -1,20 +1,22 @@
-import requests
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 import os
 import logging
-from base64 import b64encode
 
 logger = logging.getLogger(__name__)
 
-# Mailgun API configuration (Sandbox domain - verified)
-MAILGUN_DOMAIN = "sandboxa56be4d562be4870ab94fce84e9bac9a.mailgun.org"
-MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
-MAILGUN_API_URL = f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages"
-SENDER_EMAIL = "postmaster@sandboxa56be4d562be4870ab94fce84e9bac9a.mailgun.org"
+# SendGrid configuration
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+SENDER_EMAIL = "noreply@randevucum.com"
 
 def send_password_reset_email(to_email: str, reset_link: str):
-    """Şifre sıfırlama emaili gönder (Mailgun API ile)"""
+    """Şifre sıfırlama emaili gönder (SendGrid ile)"""
     try:
-        logger.info(f"[EMAIL] Mailgun API ile başlıyor... {to_email} adresine")
+        if not SENDGRID_API_KEY:
+            logger.error("[EMAIL] ❌ SENDGRID_API_KEY ayarlanmamış")
+            return False
+
+        logger.info(f"[EMAIL] SendGrid ile başlıyor... {to_email} adresine")
 
         body_html = f"""
         <html>
@@ -36,22 +38,23 @@ def send_password_reset_email(to_email: str, reset_link: str):
         </html>
         """
 
-        # Mailgun API isteği
-        auth = ("api", MAILGUN_API_KEY)
-        data = {
-            "from": SENDER_EMAIL,
-            "to": to_email,
-            "subject": "RandevuCum - Şifre Sıfırlama",
-            "html": body_html
-        }
+        # SendGrid mesajı oluştur
+        message = Mail(
+            from_email=SENDER_EMAIL,
+            to_emails=to_email,
+            subject="RandevuCum - Şifre Sıfırlama",
+            html_content=body_html
+        )
 
-        response = requests.post(MAILGUN_API_URL, auth=auth, data=data, timeout=10)
+        # SendGrid ile gönder
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
 
-        if response.status_code == 200:
+        if response.status_code == 202:
             logger.info(f"[EMAIL] ✅ Başarılı: {to_email}")
             return True
         else:
-            logger.error(f"[EMAIL] ❌ Mailgun hatası: {response.status_code} - {response.text}")
+            logger.error(f"[EMAIL] ❌ SendGrid hatası: {response.status_code}")
             return False
 
     except Exception as e:
