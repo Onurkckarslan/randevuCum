@@ -298,7 +298,7 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
 
     <!-- ANA FOTOĞRAF -->
     {% if cover_photo %}
-    <img src="/static/uploads/{{ cover_photo.filename }}" alt="{{ biz.name }}"
+    <img src="{{ cover_photo.s3_url if cover_photo.s3_url else '/static/uploads/' + cover_photo.filename }}" alt="{{ biz.name }}"
          class="cover-photo mb-2" id="mainCoverPhoto">
     {% else %}
     <div class="cover-placeholder mb-2">
@@ -311,8 +311,8 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
     <div class="thumb-gallery mb-3">
         {% for p in all_photos %}
         <div class="thumb-item {% if p.is_cover %}active{% endif %}"
-             onclick="setMainPhoto(this, '/static/uploads/{{ p.filename }}')">
-            <img src="/static/uploads/{{ p.filename }}" alt="foto {{ loop.index }}" loading="lazy">
+             onclick="setMainPhoto(this, '{{ p.s3_url if p.s3_url else '/static/uploads/' + p.filename }}')">
+            <img src="{{ p.s3_url if p.s3_url else '/static/uploads/' + p.filename }}" alt="foto {{ loop.index }}" loading="lazy">
         </div>
         {% endfor %}
     </div>

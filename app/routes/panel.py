@@ -6,6 +6,7 @@ from ..database import get_db
 from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto
 import shutil, os, uuid
 from pathlib import Path
+from ..s3_upload import upload_photo_to_s3, delete_photo_from_s3
 
 UPLOAD_DIR = Path(__file__).parent.parent / "static" / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -477,12 +478,18 @@ async def upload_photo(request: Request, file: UploadFile = File(...), db: Sessi
     ext = Path(file.filename).suffix.lower()
     if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
         raise HTTPException(status_code=400, detail="Sadece JPG, PNG, WEBP desteklenir.")
+
+    # S3'e yükle
     fname = f"{uuid.uuid4().hex}{ext}"
-    dest = UPLOAD_DIR / fname
-    with open(dest, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    file_content = await file.read()
+    s3_url = upload_photo_to_s3(file_content, fname)
+
+    if not s3_url:
+        raise HTTPException(status_code=500, detail="Fotoğraf yüklenemedi")
+
+    # DB'ye S3 URL'sini kaydet
     is_cover = not db.query(BusinessPhoto).filter(BusinessPhoto.business_id == biz.id).first()
-    db.add(BusinessPhoto(business_id=biz.id, filename=fname, is_cover=is_cover))
+    db.add(BusinessPhoto(business_id=biz.id, filename=fname, s3_url=s3_url, is_cover=is_cover))
     db.commit()
     return RedirectResponse("/panel/fotolar", status_code=302)
 
@@ -492,10 +499,8 @@ async def delete_photo(photo_id: int, request: Request, db: Session = Depends(ge
     biz = get_biz(request, db)
     photo = db.query(BusinessPhoto).filter(BusinessPhoto.id == photo_id, BusinessPhoto.business_id == biz.id).first()
     if photo:
-        try:
-            os.remove(UPLOAD_DIR / photo.filename)
-        except FileNotFoundError:
-            pass
+        # S3'den sil
+        delete_photo_from_s3(photo.filename)
         db.delete(photo)
         db.commit()
         # Eğer kapak fotoğrafıysa bir sonrakini kapak yap

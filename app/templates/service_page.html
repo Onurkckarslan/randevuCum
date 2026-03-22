@@ -291,7 +291,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 
     <div class="sc-img" style="background:linear-gradient(135deg,#3b0764,#831843);">
       {% if cover %}
-      <img src="/static/uploads/{{ cover[0].filename }}" class="sc-img-inner" alt="{{ biz.name }}">
+      <img src="{{ cover[0].s3_url if cover[0].s3_url else '/static/uploads/' + cover[0].filename }}" class="sc-img-inner" alt="{{ biz.name }}">
       {% else %}
       {{ hizmet.emoji }}
       {% endif %}

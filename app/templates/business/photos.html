@@ -93,7 +93,7 @@ body { background: #0d0d16 !important; }
 <div class="photo-grid">
   {% for p in photos %}
   <div class="photo-item">
-    <img src="/static/uploads/{{ p.filename }}" alt="Fotoğraf">
+    <img src="{{ p.s3_url if p.s3_url else '/static/uploads/' + p.filename }}" alt="Fotoğraf">
     <div class="photo-actions">
       {% if p.is_cover %}
       <span class="photo-cover-badge">✓ Kapak</span>

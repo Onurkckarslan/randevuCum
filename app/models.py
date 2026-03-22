@@ -109,6 +109,7 @@ class BusinessPhoto(Base):
     id          = Column(Integer, primary_key=True, index=True)
     business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False)
     filename    = Column(String(255), nullable=False)
+    s3_url      = Column(String(500), nullable=True)  # S3 URL
     is_cover    = Column(Boolean, default=False)
     created_at  = Column(DateTime, default=datetime.utcnow)
 
