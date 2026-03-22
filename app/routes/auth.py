@@ -23,8 +23,6 @@ def slugify(text: str) -> str:
 
 @router.get("/kayit", response_class=HTMLResponse)
 async def register_page(request: Request):
-    if get_current_business_id(request):
-        return RedirectResponse("/panel", status_code=302)
     return templates.TemplateResponse("business/register.html", {"request": request, "error": None})
 
 
@@ -71,8 +69,6 @@ async def register(
 
 @router.get("/giris", response_class=HTMLResponse)
 async def login_page(request: Request):
-    if get_current_business_id(request):
-        return RedirectResponse("/panel", status_code=302)
     return templates.TemplateResponse("business/login.html", {"request": request, "error": None})
 
 
