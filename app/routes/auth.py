@@ -11,6 +11,7 @@ import re
 import secrets
 import os
 import urllib.parse
+import threading
 
 router = APIRouter()
 
@@ -153,8 +154,8 @@ async def forgot_password(
     # Reset linki oluştur
     reset_link = f"https://www.randevucum.com/sifremi-sifirla/{token}"
 
-    # Email gönder
-    send_password_reset_email(email, reset_link)
+    # Email gönder (arka planda - request'i block etme)
+    threading.Thread(target=send_password_reset_email, args=(email, reset_link), daemon=True).start()
 
     return templates.TemplateResponse("business/forgot_password.html", {
         "request": request, "message": "Eğer bu e-posta sistemde kayıtlıysa, reset linki gönderilmiştir."
