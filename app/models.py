@@ -113,3 +113,14 @@ class BusinessPhoto(Base):
 
     business    = relationship("Business", back_populates="photos")
 
+
+class PasswordResetToken(Base):
+    """Şifre sıfırlama tokenleri"""
+    __tablename__ = "password_reset_tokens"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    email       = Column(String(120), nullable=False, index=True)
+    token       = Column(String(255), unique=True, nullable=False, index=True)
+    expires_at  = Column(DateTime, nullable=False)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
