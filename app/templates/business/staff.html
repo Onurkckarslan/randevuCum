@@ -88,11 +88,21 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
     ➕ YENİ PERSONEL EKLE
   </div>
   <form method="post" action="/panel/personel-ekle">
-    <div class="d-flex gap-3 align-items-center">
-      <input type="text" name="name" class="panel-input"
-             placeholder="Personel adı (örn: Ahmet Usta)" required>
-      <button type="submit" class="btn-panel-add">Ekle</button>
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <input type="text" name="name" class="panel-input"
+               placeholder="Personel adı (örn: Ahmet Usta)" required>
+      </div>
+      <div class="col-md-4">
+        <input type="email" name="email" class="panel-input"
+               placeholder="E-posta (örn: ahmet@email.com)" required>
+      </div>
+      <div class="col-md-4">
+        <input type="text" name="pin" class="panel-input"
+               placeholder="PIN (6 haneli, örn: 123456)" required>
+      </div>
     </div>
+    <button type="submit" class="btn-panel-add">Personeli Kaydet</button>
   </form>
 </div>
 
@@ -104,9 +114,12 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   </div>
   {% for s in staff %}
   <div class="staff-row">
-    <div class="d-flex align-items-center gap-3">
+    <div class="d-flex align-items-center gap-3" style="flex: 1;">
       <div class="staff-avatar">👤</div>
-      <div class="staff-name">{{ s.name }}</div>
+      <div>
+        <div class="staff-name">{{ s.name }}</div>
+        <div style="font-size: .75rem; color: rgba(196,181,253,.5);">{{ s.email if s.email else '(Email yok)' }}</div>
+      </div>
     </div>
     <form method="post" action="/panel/personel-sil/{{ s.id }}">
       <button class="btn-panel-del" type="submit">Sil</button>

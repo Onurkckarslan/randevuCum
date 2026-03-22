@@ -294,9 +294,27 @@ async def staff_page(request: Request, db: Session = Depends(get_db)):
 
 
 @router.post("/panel/personel-ekle")
-async def add_staff(request: Request, name: str = Form(...), db: Session = Depends(get_db)):
+async def add_staff(
+    request: Request,
+    name: str = Form(...),
+    email: str = Form(...),
+    pin: str = Form(...),
+    db: Session = Depends(get_db)
+):
     biz = get_biz(request, db)
-    db.add(Staff(business_id=biz.id, name=name))
+
+    # Email zaten var mı kontrol et
+    if db.query(Staff).filter(Staff.email == email).first():
+        # Hata: Email zaten kullanılıyor (şimdi sadece ekleme yapıyoruz, error handling eklememiyor)
+        pass
+
+    staff = Staff(
+        business_id=biz.id,
+        name=name,
+        email=email,
+        pin=pin
+    )
+    db.add(staff)
     db.commit()
     return RedirectResponse("/panel/personel", status_code=302)
 

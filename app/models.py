@@ -52,8 +52,9 @@ class Staff(Base):
     id          = Column(Integer, primary_key=True, index=True)
     business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False)
     name        = Column(String(100), nullable=False)
-    phone       = Column(String(20), nullable=True)   # Giriş için telefon
-    pin         = Column(String(10), nullable=True)   # 4 haneli PIN
+    email       = Column(String(120), nullable=True, index=True)
+    phone       = Column(String(20), nullable=True)
+    pin         = Column(String(10), nullable=True)
     is_active   = Column(Boolean, default=True)
 
     business    = relationship("Business", back_populates="staff")

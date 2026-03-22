@@ -44,28 +44,28 @@ def get_current_staff(request: Request, db: Session) -> Staff | None:
 async def staff_login_page(request: Request, db: Session = Depends(get_db)):
     if get_current_staff(request, db):
         return RedirectResponse("/personel/defterim", status_code=302)
-    return templates.TemplateResponse("staff/login.html", {"request": request, "error": None})
+    return templates.TemplateResponse("personel/giris.html", {"request": request, "error": None})
 
 
 @router.post("/giris")
 async def staff_login(
     request: Request,
-    phone: str = Form(...),
+    email: str = Form(...),
     pin: str   = Form(...),
     db: Session = Depends(get_db)
 ):
-    phone = phone.strip().replace(" ", "")
+    email = email.strip().lower()
     pin   = pin.strip()
     staff = db.query(Staff).filter(
-        Staff.phone == phone,
+        Staff.email == email,
         Staff.pin   == pin,
         Staff.is_active == True
     ).first()
 
     if not staff:
-        return templates.TemplateResponse("staff/login.html", {
+        return templates.TemplateResponse("personel/giris.html", {
             "request": request,
-            "error": "Telefon numarası veya PIN hatalı."
+            "error": "E-posta veya PIN hatalı."
         }, status_code=401)
 
     token = create_staff_token(staff.id)
@@ -82,9 +82,9 @@ async def staff_logout():
     return resp
 
 
-# ── KENDİ RANDEVU DEFTERİ ──────────────────────────────────────────────────
-@router.get("/defterim", response_class=HTMLResponse)
-async def my_ledger(request: Request, d: str = None, db: Session = Depends(get_db)):
+# ── PERSONEL PANELİ ──────────────────────────────────────────────────
+@router.get("/panel", response_class=HTMLResponse)
+async def staff_panel(request: Request, d: str = None, db: Session = Depends(get_db)):
     staff = get_current_staff(request, db)
     if not staff:
         return RedirectResponse("/personel/giris", status_code=302)
@@ -106,7 +106,7 @@ async def my_ledger(request: Request, d: str = None, db: Session = Depends(get_d
         if m >= 60:
             m = 0; h += 1
 
-    return templates.TemplateResponse("staff/my_ledger.html", {
+    return templates.TemplateResponse("personel/panel.html", {
         "request": request,
         "staff": staff,
         "biz": staff.business,

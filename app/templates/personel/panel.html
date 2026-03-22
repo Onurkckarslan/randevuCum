@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Randevularım — {{ staff.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+/* Header */
+.staff-header {
+  background: rgba(255,255,255,.04); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 18px;
+  padding: 18px 20px; margin-bottom: 20px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+}
+.staff-header-name { font-size: 1.1rem; font-weight: 900; color: #f1f0f5; }
+.staff-header-biz  { font-size: .78rem; color: rgba(196,181,253,.55); margin-top: 2px; }
+.staff-logout {
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.2);
+  color: #fca5a5; border-radius: 10px; padding: 7px 16px;
+  font-size: .78rem; font-weight: 700; text-decoration: none; transition: background .15s;
+}
+.staff-logout:hover { background: rgba(239,68,68,.22); color: #fca5a5; }
+
+/* Date nav */
+.date-nav {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px; padding: 10px 16px; margin-bottom: 16px;
+}
+.date-nav-btn {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  color: #c4b5fd; border-radius: 8px; padding: 6px 14px; font-size: .82rem;
+  font-weight: 600; cursor: pointer; font-family: inherit; text-decoration: none; transition: background .15s;
+}
+.date-nav-btn:hover { background: rgba(124,58,237,.2); color: #e9d5ff; }
+.date-input {
+  background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px; color: #f1f0f5; padding: 6px 12px; font-size: .85rem;
+  font-family: inherit; color-scheme: dark;
+}
+.date-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(124,58,237,.2); }
+
+/* Özet bar */
+.summary-bar {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.summary-chip {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 10px; padding: 8px 16px; font-size: .82rem;
+  display: flex; align-items: center; gap: 6px;
+}
+.summary-chip strong { color: #f1f0f5; font-weight: 900; }
+.summary-chip span   { color: rgba(196,181,253,.6); }
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; gap: 8px; }
+.tl-slot {
+  display: flex; align-items: center; gap: 12px;
+  border-radius: 14px; padding: 12px 16px; transition: all .15s;
+}
+/* Boş */
+.tl-empty {
+  background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.05);
+  opacity: .6;
+}
+.tl-empty:hover { opacity: 1; background: rgba(255,255,255,.04); }
+.tl-time {
+  font-size: .85rem; font-weight: 800; color: rgba(196,181,253,.7);
+  min-width: 46px; text-align: right; flex-shrink: 0;
+}
+.tl-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.tl-dot-empty { background: rgba(255,255,255,.12); }
+.tl-dot-full  { background: #7c3aed; box-shadow: 0 0 6px rgba(124,58,237,.6); }
+/* Dolu */
+.tl-full {
+  background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.2);
+}
+.tl-full:hover { background: rgba(124,58,237,.18); border-color: rgba(124,58,237,.35); }
+.tl-customer { font-size: .9rem; font-weight: 800; color: #f1f0f5; }
+.tl-svc      { font-size: .75rem; color: rgba(196,181,253,.65); margin-top: 2px; }
+.tl-status {
+  margin-left: auto; font-size: .7rem; font-weight: 800; padding: 3px 10px;
+  border-radius: 20px; flex-shrink: 0;
+}
+.status-bekliyor   { background: rgba(251,191,36,.15); color: #fbbf24; border: 1px solid rgba(251,191,36,.2); }
+.status-onaylandi  { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.2); }
+.status-tamamlandi { background: rgba(6,182,212,.15); color: #22d3ee; border: 1px solid rgba(6,182,212,.2); }
+.status-iptal      { background: rgba(239,68,68,.12); color: #fca5a5; border: 1px solid rgba(239,68,68,.2); }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  background: rgba(255,255,255,.025); border: 1px dashed rgba(255,255,255,.07);
+  border-radius: 18px; color: rgba(196,181,253,.4);
+}
+.empty-state-icon { font-size: 2.5rem; margin-bottom: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="staff-header">
+  <div>
+    <div class="staff-header-name">👤 {{ staff.name }}</div>
+    <div class="staff-header-biz">{{ biz.name }} — Personel Portalı</div>
+  </div>
+  <a href="/personel/cikis" class="staff-logout">
+    <i class="bi bi-box-arrow-right me-1"></i>Çıkış
+  </a>
+</div>
+
+<!-- Date Nav -->
+<div class="date-nav">
+  <input type="date" class="date-input" value="{{ sel_date }}"
+         onchange="window.location='/personel/panel?d='+this.value">
+  <a href="/personel/panel" class="date-nav-btn">📅 Bugün</a>
+  <span style="font-size:.78rem;color:rgba(196,181,253,.45);">{{ sel_date }}</span>
+</div>
+
+<!-- Özet -->
+<div class="summary-bar mb-2">
+  <div class="summary-chip">
+    <strong>{{ appointments|length }}</strong><span>randevu</span>
+  </div>
+  {% set toplam = appointments|selectattr('status','ne','iptal')|list|length %}
+  <div class="summary-chip">
+    <strong>{{ toplam }}</strong><span>aktif</span>
+  </div>
+  {% if appointments %}
+  {% set first = appointments|sort(attribute='time')|first %}
+  {% set last  = appointments|sort(attribute='time')|last %}
+  <div class="summary-chip">
+    <span>⏰</span><strong>{{ first.time }}</strong><span>–</span><strong>{{ last.time }}</strong>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Timeline -->
+<div class="timeline">
+  {% for slot in slots %}
+  {% set appt = slot_map.get(slot) %}
+  {% if appt %}
+  <div class="tl-slot tl-full">
+    <div class="tl-time">{{ slot }}</div>
+    <div class="tl-dot tl-dot-full"></div>
+    <div style="flex:1;min-width:0;">
+      <div class="tl-customer">{{ appt.customer_name }}</div>
+      <div class="tl-svc">
+        {{ appt.service.name if appt.service else '—' }}
+        {% if appt.customer_phone %}
+        · <a href="tel:{{ appt.customer_phone }}" style="color:rgba(196,181,253,.65);text-decoration:none;">{{ appt.customer_phone }}</a>
+        {% endif %}
+        {% if appt.notes %} · <em>{{ appt.notes }}</em>{% endif %}
+      </div>
+    </div>
+    <div class="tl-status status-{{ appt.status }}">{{ appt.status }}</div>
+  </div>
+  {% else %}
+  <div class="tl-slot tl-empty">
+    <div class="tl-time">{{ slot }}</div>
+    <div class="tl-dot tl-dot-empty"></div>
+    <div style="flex:1;font-size:.78rem;color:rgba(196,181,253,.25);font-weight:500;">boş</div>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+
+{% if not appointments %}
+<div class="empty-state mt-4">
+  <div class="empty-state-icon">📅</div>
+  <div style="font-size:.95rem;font-weight:700;">{{ sel_date }} için randevu yok</div>
+  <div style="font-size:.8rem;margin-top:4px;">Başka bir tarih seçmek için yukarıdaki takvimi kullanın.</div>
+</div>
+{% endif %}
+
+{% endblock %}
