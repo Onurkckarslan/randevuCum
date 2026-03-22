@@ -1,27 +1,22 @@
-import smtplib
+import requests
 import os
 import logging
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from base64 import b64encode
 
 logger = logging.getLogger(__name__)
 
-SMTP_SERVER = "smtp.mailgun.org"
-SMTP_PORT = 587
-SENDER_EMAIL = "postmaster@www.randevucum.com"
-SENDER_PASSWORD = "Askay6464"  # Mailgun SMTP Password
+# Mailgun API configuration
+MAILGUN_DOMAIN = "sandboxa56be4d562be4870ab94fce84e9bac9a.mailgun.org"
+MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
+MAILGUN_API_URL = f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages"
+SENDER_EMAIL = "noreply@randevucum.com"
 
 def send_password_reset_email(to_email: str, reset_link: str):
-    """Şifre sıfırlama emaili gönder"""
+    """Şifre sıfırlama emaili gönder (Mailgun API ile)"""
     try:
-        logger.info(f"[EMAIL] Başlıyor... {to_email} adresine")
+        logger.info(f"[EMAIL] Mailgun API ile başlıyor... {to_email} adresine")
 
-        message = MIMEMultipart()
-        message["From"] = SENDER_EMAIL
-        message["To"] = to_email
-        message["Subject"] = "RandevuCum - Şifre Sıfırlama"
-
-        body = f"""
+        body_html = f"""
         <html>
             <body style="font-family: Arial, sans-serif; direction: rtl;">
                 <h2 style="color: #7c3aed;">Şifre Sıfırlama Talebi</h2>
@@ -41,21 +36,24 @@ def send_password_reset_email(to_email: str, reset_link: str):
         </html>
         """
 
-        message.attach(MIMEText(body, "html", "utf-8"))
+        # Mailgun API isteği
+        auth = ("api", MAILGUN_API_KEY)
+        data = {
+            "from": SENDER_EMAIL,
+            "to": to_email,
+            "subject": "RandevuCum - Şifre Sıfırlama",
+            "html": body_html
+        }
 
-        # Gmail'e bağlan ve gönder
-        logger.info(f"[EMAIL] SMTP bağlantısı kuruluyor: {SMTP_SERVER}:{SMTP_PORT}")
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10)
-        logger.info(f"[EMAIL] TLS başlatılıyor")
-        server.starttls()
-        logger.info(f"[EMAIL] {SENDER_EMAIL} ile giriş yapılıyor")
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        logger.info(f"[EMAIL] Email gönderiliyor")
-        server.send_message(message)
-        server.quit()
-        logger.info(f"[EMAIL] ✅ Başarılı: {to_email}")
+        response = requests.post(MAILGUN_API_URL, auth=auth, data=data, timeout=10)
 
-        return True
+        if response.status_code == 200:
+            logger.info(f"[EMAIL] ✅ Başarılı: {to_email}")
+            return True
+        else:
+            logger.error(f"[EMAIL] ❌ Mailgun hatası: {response.status_code} - {response.text}")
+            return False
+
     except Exception as e:
         logger.error(f"[EMAIL] ❌ HATA: {type(e).__name__}: {e}", exc_info=True)
         return False
