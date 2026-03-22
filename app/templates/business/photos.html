@@ -164,13 +164,20 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
         location.reload();
       }, 500);
     } else {
-      alert('Yükleme başarısız oldu');
+      let errorMsg = 'Yükleme başarısız oldu';
+      try {
+        const json = JSON.parse(xhr.responseText);
+        if (json.detail) {
+          errorMsg = json.detail;
+        }
+      } catch (e) {}
+      alert(errorMsg);
       resetUpload();
     }
   });
 
   xhr.addEventListener('error', function() {
-    alert('Yükleme sırasında hata oluştu');
+    alert('Yükleme sırasında hata oluştu (ağ sorunu)');
     resetUpload();
   });
 

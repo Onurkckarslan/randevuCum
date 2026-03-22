@@ -23,12 +23,24 @@ def upload_photo_to_s3(file_content: bytes, filename: str) -> str:
     Returns: S3 URL of the uploaded file
     """
     try:
+        if not AWS_ACCESS_KEY or not AWS_SECRET_KEY or not S3_BUCKET:
+            error_msg = f"AWS config eksik: KEY={bool(AWS_ACCESS_KEY)}, SECRET={bool(AWS_SECRET_KEY)}, BUCKET={S3_BUCKET}"
+            print(f"[S3] {error_msg}")
+            return None
+
+        # Determine content type based on file extension
+        content_type = "image/jpeg"
+        if filename.lower().endswith(".png"):
+            content_type = "image/png"
+        elif filename.lower().endswith(".webp"):
+            content_type = "image/webp"
+
         # Upload to S3
         s3_client.put_object(
             Bucket=S3_BUCKET,
             Key=f"photos/{filename}",
             Body=file_content,
-            ContentType="image/jpeg"
+            ContentType=content_type
         )
 
         # Return S3 URL
@@ -36,6 +48,9 @@ def upload_photo_to_s3(file_content: bytes, filename: str) -> str:
         return s3_url
     except ClientError as e:
         print(f"[S3] Upload hatası: {e}")
+        return None
+    except Exception as e:
+        print(f"[S3] Beklenmeyen hata: {type(e).__name__}: {e}")
         return None
 
 

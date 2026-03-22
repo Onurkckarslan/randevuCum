@@ -482,15 +482,25 @@ async def upload_photo(request: Request, file: UploadFile = File(...), db: Sessi
     # S3'e yükle
     fname = f"{uuid.uuid4().hex}{ext}"
     file_content = await file.read()
-    s3_url = upload_photo_to_s3(file_content, fname)
+
+    try:
+        s3_url = upload_photo_to_s3(file_content, fname)
+    except Exception as e:
+        print(f"[UPLOAD] S3 yükleme hatası: {e}")
+        raise HTTPException(status_code=500, detail=f"S3 yükleme hatası: {str(e)[:100]}")
 
     if not s3_url:
-        raise HTTPException(status_code=500, detail="Fotoğraf yüklenemedi")
+        raise HTTPException(status_code=500, detail="AWS ayarlarını kontrol edin (KEY, SECRET, BUCKET)")
 
     # DB'ye S3 URL'sini kaydet
-    is_cover = not db.query(BusinessPhoto).filter(BusinessPhoto.business_id == biz.id).first()
-    db.add(BusinessPhoto(business_id=biz.id, filename=fname, s3_url=s3_url, is_cover=is_cover))
-    db.commit()
+    try:
+        is_cover = not db.query(BusinessPhoto).filter(BusinessPhoto.business_id == biz.id).first()
+        db.add(BusinessPhoto(business_id=biz.id, filename=fname, s3_url=s3_url, is_cover=is_cover))
+        db.commit()
+    except Exception as e:
+        print(f"[UPLOAD] DB hatası: {e}")
+        raise HTTPException(status_code=500, detail="Veritabanı hatası")
+
     return RedirectResponse("/panel/fotolar", status_code=302)
 
 
@@ -499,10 +509,16 @@ async def delete_photo(photo_id: int, request: Request, db: Session = Depends(ge
     biz = get_biz(request, db)
     photo = db.query(BusinessPhoto).filter(BusinessPhoto.id == photo_id, BusinessPhoto.business_id == biz.id).first()
     if photo:
-        # S3'den sil
-        delete_photo_from_s3(photo.filename)
+        # S3'den sil (başarısız olsa da devam et)
+        try:
+            delete_photo_from_s3(photo.filename)
+        except Exception as e:
+            print(f"[S3] Delete hatası (devam ediliyor): {e}")
+
+        # DB'den sil
         db.delete(photo)
         db.commit()
+
         # Eğer kapak fotoğrafıysa bir sonrakini kapak yap
         if photo.is_cover:
             next_photo = db.query(BusinessPhoto).filter(BusinessPhoto.business_id == biz.id).first()
