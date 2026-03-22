@@ -2,8 +2,9 @@ from ..templates_config import templates
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from ..database import get_db
-from ..models import Staff, Appointment
+from ..models import Staff, Appointment, Service
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, date
 import os
@@ -80,6 +81,63 @@ async def staff_logout():
     resp = RedirectResponse("/personel/giris", status_code=302)
     resp.delete_cookie(COOKIE_NAME)
     return resp
+
+
+# ── İSTATİSTİK/DASHBOARD ──────────────────────────────────────────────
+@router.get("/istatistik", response_class=HTMLResponse)
+async def staff_statistics(request: Request, db: Session = Depends(get_db)):
+    staff = get_current_staff(request, db)
+    if not staff:
+        return RedirectResponse("/personel/giris", status_code=302)
+
+    today = date.today().isoformat()
+    month_start = date(today.split("-")[0], today.split("-")[1], 1)
+
+    # Bugünün randevuları
+    today_appts = db.query(Appointment).filter(
+        Appointment.staff_id == staff.id,
+        Appointment.date == today,
+        Appointment.status != "iptal"
+    ).all()
+
+    # Bu ay randevuları
+    month_appts = db.query(Appointment).filter(
+        Appointment.staff_id == staff.id,
+        Appointment.date >= month_start.isoformat(),
+        Appointment.status != "iptal"
+    ).all()
+
+    # Bugünün geliri
+    today_income = sum(appt.service.price for appt in today_appts if appt.service)
+
+    # Bu ayın geliri
+    month_income = sum(appt.service.price for appt in month_appts if appt.service)
+
+    # Tüm zamanın geliri
+    all_appts = db.query(Appointment).filter(
+        Appointment.staff_id == staff.id,
+        Appointment.status != "iptal"
+    ).all()
+    total_income = sum(appt.service.price for appt in all_appts if appt.service)
+
+    # Hizmet bazlı gelir
+    service_income = {}
+    for appt in all_appts:
+        if appt.service:
+            svc_name = appt.service.name
+            service_income[svc_name] = service_income.get(svc_name, 0) + appt.service.price
+
+    return templates.TemplateResponse("personel/istatistik.html", {
+        "request": request,
+        "staff": staff,
+        "biz": staff.business,
+        "today_appts": today_appts,
+        "today_income": today_income,
+        "month_income": month_income,
+        "total_income": total_income,
+        "month_appts_count": len(month_appts),
+        "service_income": service_income,
+    })
 
 
 # ── PERSONEL PANELİ ──────────────────────────────────────────────────

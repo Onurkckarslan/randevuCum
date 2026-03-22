@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}İstatistikler — {{ staff.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+.stat-header {
+  background: rgba(255,255,255,.04); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 18px;
+  padding: 18px 20px; margin-bottom: 24px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+}
+
+.stat-title { font-size: 1.1rem; font-weight: 800; color: #f1f0f5; }
+.stat-name { font-size: .82rem; color: rgba(196,181,253,.6); }
+
+.stat-logout {
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.2);
+  color: #fca5a5; border-radius: 10px; padding: 7px 16px;
+  font-size: .78rem; font-weight: 700; text-decoration: none; transition: background .15s;
+}
+.stat-logout:hover { background: rgba(239,68,68,.22); }
+
+.stat-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+
+.stat-card {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 14px; padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+
+.stat-card-icon { font-size: 2rem; margin-bottom: 8px; }
+.stat-card-label { font-size: .85rem; color: rgba(196,181,253,.6); font-weight: 600; }
+.stat-card-value { font-size: 1.8rem; font-weight: 900; color: #f1f0f5; margin-top: 4px; }
+
+.stat-card.highlight {
+  background: linear-gradient(135deg, rgba(124,58,237,.15), rgba(236,72,153,.1));
+  border-color: rgba(124,58,237,.25);
+}
+
+.stat-section-title {
+  font-size: 1rem; font-weight: 800; color: #e9d5ff;
+  margin-bottom: 12px; margin-top: 24px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.stat-service-row {
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px; padding: 12px 16px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.stat-service-name { font-weight: 600; color: #f1f0f5; }
+.stat-service-income { font-weight: 800; color: #10b981; }
+
+.stat-empty {
+  text-align: center; padding: 40px 20px;
+  background: rgba(255,255,255,.025); border: 1px dashed rgba(255,255,255,.07);
+  border-radius: 14px; color: rgba(196,181,253,.4);
+}
+
+.stat-back-btn {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  color: #c4b5fd; border-radius: 8px; padding: 10px 20px;
+  font-size: .85rem; font-weight: 600; text-decoration: none; transition: all .15s;
+  display: inline-block;
+}
+.stat-back-btn:hover { background: rgba(255,255,255,.15); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="stat-header">
+  <div>
+    <div class="stat-title">📊 {{ staff.name }} — İstatistikler</div>
+    <div class="stat-name">{{ biz.name }}</div>
+  </div>
+  <div style="display: flex; gap: 10px;">
+    <a href="/personel/panel" class="stat-back-btn">← Randevularım</a>
+    <a href="/personel/cikis" class="stat-logout">Çıkış</a>
+  </div>
+</div>
+
+<!-- Özet Kartları -->
+<div class="stat-grid">
+  <div class="stat-card highlight">
+    <div class="stat-card-icon">💰</div>
+    <div class="stat-card-label">Bugünün Geliri</div>
+    <div class="stat-card-value">{{ today_income }} TL</div>
+  </div>
+
+  <div class="stat-card highlight">
+    <div class="stat-card-icon">📅</div>
+    <div class="stat-card-label">Bugünün Randevuları</div>
+    <div class="stat-card-value">{{ today_appts|length }}</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-icon">📈</div>
+    <div class="stat-card-label">Bu Ayın Geliri</div>
+    <div class="stat-card-value">{{ month_income }} TL</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-icon">📊</div>
+    <div class="stat-card-label">Bu Ayın Randevuları</div>
+    <div class="stat-card-value">{{ month_appts_count }}</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-icon">⭐</div>
+    <div class="stat-card-label">Toplam Gelir (Tüm Zamanlar)</div>
+    <div class="stat-card-value">{{ total_income }} TL</div>
+  </div>
+</div>
+
+<!-- Bugünün Randevuları -->
+<div style="margin-top: 32px;">
+  <div class="stat-section-title">📋 Bugünün Randevuları</div>
+  {% if today_appts %}
+  {% for appt in today_appts|sort(attribute='time') %}
+  <div class="stat-service-row">
+    <div>
+      <div style="font-weight: 600; color: #f1f0f5;">{{ appt.time }} — {{ appt.customer_name }}</div>
+      <div style="font-size: .8rem; color: rgba(196,181,253,.5); margin-top: 4px;">
+        {{ appt.service.name if appt.service else '—' }}
+      </div>
+    </div>
+    <div style="text-align: right;">
+      <div class="stat-service-income">{{ appt.service.price if appt.service else 0 }} TL</div>
+      <div style="font-size: .75rem; color: rgba(196,181,253,.4); margin-top: 2px;">
+        {% if appt.status == "bekliyor" %}
+        <span style="color: #fbbf24;">⏳ Bekleniyor</span>
+        {% elif appt.status == "onaylandi" %}
+        <span style="color: #34d399;">✓ Onaylandı</span>
+        {% else %}
+        <span style="color: #fca5a5;">✗ İptal</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="stat-empty">
+    <div style="font-size: 2rem; margin-bottom: 8px;">📭</div>
+    <div>Bugün randevu yok</div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Hizmet Bazlı Gelir -->
+{% if service_income %}
+<div style="margin-top: 32px;">
+  <div class="stat-section-title">💼 Hizmet Bazlı Gelir (Tüm Zamanlar)</div>
+  {% for service, income in service_income.items()|sort(attribute='1', reverse=True) %}
+  <div class="stat-service-row">
+    <div class="stat-service-name">{{ service }}</div>
+    <div class="stat-service-income">{{ income }} TL</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
