@@ -494,9 +494,11 @@ async def upload_photo(request: Request, file: UploadFile = File(...), db: Sessi
 
     # DB'ye S3 URL'sini kaydet
     try:
+        print(f"[UPLOAD] S3 URL: {s3_url}")
         is_cover = not db.query(BusinessPhoto).filter(BusinessPhoto.business_id == biz.id).first()
         db.add(BusinessPhoto(business_id=biz.id, filename=fname, s3_url=s3_url, is_cover=is_cover))
         db.commit()
+        print(f"[UPLOAD] Database'e kaydedildi")
     except Exception as e:
         print(f"[UPLOAD] DB hatası: {e}")
         raise HTTPException(status_code=500, detail="Veritabanı hatası")
