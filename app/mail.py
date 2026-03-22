@@ -6,10 +6,10 @@ from base64 import b64encode
 logger = logging.getLogger(__name__)
 
 # Mailgun API configuration
-MAILGUN_DOMAIN = "sandboxa56be4d562be4870ab94fce84e9bac9a.mailgun.org"
+MAILGUN_DOMAIN = "www.randevucum.com"
 MAILGUN_API_KEY = os.getenv("MAILGUN_API_KEY")
 MAILGUN_API_URL = f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages"
-SENDER_EMAIL = "noreply@randevucum.com"
+SENDER_EMAIL = "noreply@www.randevucum.com"
 
 def send_password_reset_email(to_email: str, reset_link: str):
     """Şifre sıfırlama emaili gönder (Mailgun API ile)"""
