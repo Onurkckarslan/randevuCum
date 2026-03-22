@@ -16,6 +16,21 @@ _BASE = Path(__file__).parent.parent
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     models.Base.metadata.create_all(bind=engine)
+
+    # S3 column migration
+    from sqlalchemy import text
+    db = SessionLocal()
+    try:
+        db.execute(text("""
+            ALTER TABLE business_photos
+            ADD COLUMN IF NOT EXISTS s3_url VARCHAR(500)
+        """))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+    finally:
+        db.close()
+
     asyncio.create_task(scheduler_loop())
     yield
 
