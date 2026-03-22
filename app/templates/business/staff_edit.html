@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Personel Düzenle — {{ staff.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── PANEL DARK THEME — staff edit ── */
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+
+.panel-card {
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 18px;
+  padding: 28px;
+}
+.panel-page-title { font-size: 1.25rem; font-weight: 800; color: #f1f0f5; }
+.panel-back-btn {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: #c4b5fd; border-radius: 10px; padding: 7px 16px;
+  font-size: .82rem; font-weight: 600; text-decoration: none; transition: background .15s;
+}
+.panel-back-btn:hover { background: rgba(255,255,255,.13); color: #e9d5ff; }
+
+.panel-input {
+  background: rgba(0,0,0,.35) !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  border-radius: 12px !important;
+  color: #f1f0f5 !important;
+  font-size: .88rem !important;
+  padding: 10px 14px !important;
+  transition: border-color .15s, box-shadow .15s;
+  width: 100%;
+}
+.panel-input:focus {
+  box-shadow: 0 0 0 3px rgba(124,58,237,.18) !important;
+  border-color: rgba(124,58,237,.5) !important;
+  outline: none !important;
+}
+.panel-input::placeholder { color: rgba(196,181,253,.35) !important; }
+
+.btn-panel-save {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  border: none; color: white; border-radius: 12px;
+  padding: 10px 24px; font-size: .88rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+  transition: opacity .15s, transform .15s;
+}
+.btn-panel-save:hover { opacity: .88; transform: translateY(-1px); }
+
+.info-section {
+  background: rgba(124,58,237,.08);
+  border: 1px solid rgba(124,58,237,.2);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+  font-size: .85rem;
+  color: rgba(196,181,253,.8);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="panel-page-title mb-0">✏️ {{ staff.name }} — Düzenle</h5>
+  <a href="/panel/personel" class="panel-back-btn">← Geri</a>
+</div>
+
+<!-- Edit Form -->
+<div class="panel-card mb-4">
+  <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.55);margin-bottom:18px;">
+    ✏️ PERSONEL BİLGİLERİ
+  </div>
+
+  <div class="info-section">
+    💡 E-posta ve PIN alanları isteğe bağlıdır. Personelin giriş yapması için her ikisinin de doldurulması gerekir.
+  </div>
+
+  <form method="post" action="/panel/personel-duzenle/{{ staff.id }}">
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label style="font-size: .8rem; color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;">Personel Adı *</label>
+        <input type="text" name="name" class="panel-input"
+               value="{{ staff.name }}" required>
+      </div>
+      <div class="col-md-4">
+        <label style="font-size: .8rem; color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;">E-posta</label>
+        <input type="email" name="email" class="panel-input"
+               value="{{ staff.email or '' }}" placeholder="E-posta (opsiyonel)">
+      </div>
+      <div class="col-md-4">
+        <label style="font-size: .8rem; color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;">PIN</label>
+        <input type="text" name="pin" class="panel-input"
+               value="{{ staff.pin or '' }}" placeholder="PIN (opsiyonel)">
+      </div>
+    </div>
+    <button type="submit" class="btn-panel-save">Değişiklikleri Kaydet</button>
+  </form>
+</div>
+
+{% endblock %}

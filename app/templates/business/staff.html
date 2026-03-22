@@ -47,6 +47,16 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 }
 .btn-panel-add:hover { opacity: .88; transform: translateY(-1px); }
 
+.btn-panel-edit {
+  background: transparent; border: 1px solid rgba(124,58,237,.4);
+  color: rgba(124,58,237,.85); border-radius: 8px; padding: 5px 14px;
+  font-size: .8rem; font-weight: 600; text-decoration: none; transition: all .15s;
+  display: inline-block;
+}
+.btn-panel-edit:hover {
+  background: rgba(124,58,237,.1); border-color: rgba(124,58,237,.7); color: #c4b5fd;
+}
+
 .btn-panel-del {
   background: transparent; border: 1px solid rgba(239,68,68,.4);
   color: rgba(239,68,68,.85); border-radius: 8px; padding: 5px 14px;
@@ -95,11 +105,11 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
       </div>
       <div class="col-md-4">
         <input type="email" name="email" class="panel-input"
-               placeholder="E-posta (örn: ahmet@email.com)" required>
+               placeholder="E-posta (opsiyonel)">
       </div>
       <div class="col-md-4">
         <input type="text" name="pin" class="panel-input"
-               placeholder="PIN (6 haneli, örn: 123456)" required>
+               placeholder="PIN (opsiyonel)">
       </div>
     </div>
     <button type="submit" class="btn-panel-add">Personeli Kaydet</button>
@@ -121,9 +131,12 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
         <div style="font-size: .75rem; color: rgba(196,181,253,.5);">{{ s.email if s.email else '(Email yok)' }}</div>
       </div>
     </div>
-    <form method="post" action="/panel/personel-sil/{{ s.id }}">
-      <button class="btn-panel-del" type="submit">Sil</button>
-    </form>
+    <div style="display: flex; gap: 8px;">
+      <a href="/panel/personel-duzenle/{{ s.id }}" class="btn-panel-edit">Düzenle</a>
+      <form method="post" action="/panel/personel-sil/{{ s.id }}" style="margin: 0;">
+        <button class="btn-panel-del" type="submit">Sil</button>
+      </form>
+    </div>
   </div>
   {% endfor %}
 </div>
