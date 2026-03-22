@@ -43,6 +43,12 @@ async def for_businesses(request: Request):
 
 @router.get("/{slug}", response_class=HTMLResponse)
 async def business_page(slug: str, request: Request, db: Session = Depends(get_db)):
+    # Reserved routes — don't try to match as business slugs
+    reserved = {"giris", "kayit", "cikis", "sifremi-unuttum", "sifremi-sifirla",
+                "admin", "panel", "personel", "isletmeler-icin", "api"}
+    if slug.lower() in reserved:
+        raise HTTPException(status_code=404, detail="Sayfa bulunamadı")
+
     biz = db.query(Business).filter(Business.slug == slug, Business.is_active == True).first()
     if not biz:
         raise HTTPException(status_code=404, detail="İşletme bulunamadı")
