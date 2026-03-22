@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import re
 import secrets
 import os
+import urllib.parse
 
 router = APIRouter()
 
@@ -21,9 +22,27 @@ def slugify(text: str) -> str:
     return text
 
 
+def safe_redirect(location: str, request: Request) -> RedirectResponse:
+    """Redirect loop'u engelle - referrer'ı kontrol et"""
+    referrer = request.headers.get("referer", "")
+
+    # Eğer aynı yere redirect yapmaya çalışıyorsak, ana sayfaya gönder
+    if location in referrer:
+        location = "/"
+
+    response = RedirectResponse(location, status_code=302)
+    # Cache'i devre dışı bırak - eski versiyonu serve etmesin
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
+
 @router.get("/kayit", response_class=HTMLResponse)
 async def register_page(request: Request):
-    return templates.TemplateResponse("business/register.html", {"request": request, "error": None})
+    response = templates.TemplateResponse("business/register.html", {"request": request, "error": None})
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @router.post("/kayit", response_class=HTMLResponse)
@@ -62,14 +81,18 @@ async def register(
     db.commit()
     db.refresh(biz)
 
-    response = RedirectResponse("/panel", status_code=302)
+    response = safe_redirect("/panel", request)
     response.set_cookie("token", create_token(biz.id), max_age=60*60*24*30, httponly=True, secure=False, samesite="lax")
     return response
 
 
 @router.get("/giris", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("business/login.html", {"request": request, "error": None})
+    response = templates.TemplateResponse("business/login.html", {"request": request, "error": None})
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @router.post("/giris", response_class=HTMLResponse)
@@ -85,14 +108,14 @@ async def login(
             "request": request, "error": "E-posta veya şifre hatalı."
         })
 
-    response = RedirectResponse("/panel", status_code=302)
+    response = safe_redirect("/panel", request)
     response.set_cookie("token", create_token(biz.id), max_age=60*60*24*30, httponly=True, secure=False, samesite="lax")
     return response
 
 
 @router.get("/cikis")
-async def logout():
-    response = RedirectResponse("/", status_code=302)
+async def logout(request: Request):
+    response = safe_redirect("/", request)
     response.delete_cookie("token")
     return response
 

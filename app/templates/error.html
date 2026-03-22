@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Hata — RandevuCum{% endblock %}
+
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; }
+.error-wrap {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+.error-card {
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 24px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5);
+}
+.error-icon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+}
+.error-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #f1f0f5;
+  margin-bottom: 12px;
+}
+.error-text {
+  font-size: .9rem;
+  color: rgba(196,181,253,.7);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.error-steps {
+  background: rgba(239,68,68,.08);
+  border: 1px solid rgba(239,68,68,.15);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+.error-step {
+  font-size: .85rem;
+  color: rgba(196,181,253,.7);
+  margin-bottom: 8px;
+  padding-left: 24px;
+  position: relative;
+}
+.error-step:last-child { margin-bottom: 0; }
+.error-step::before {
+  content: attr(data-num);
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background: rgba(124,58,237,.3);
+  border: 1px solid rgba(124,58,237,.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  font-weight: 800;
+  color: #e9d5ff;
+}
+.error-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-size: .9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity .15s;
+  margin-right: 10px;
+}
+.error-btn:hover { opacity: .88; }
+.error-btn-sec {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  color: #c4b5fd;
+}
+.error-btn-sec:hover {
+  opacity: 1;
+  background: rgba(255,255,255,.13);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-wrap">
+  <div class="error-card">
+    <div class="error-icon">⚠️</div>
+    <div class="error-title">{{ title or 'Bir Hata Oluştu' }}</div>
+    <div class="error-text">
+      {{ message or 'Sayfaya erişirken bir sorun yaşandı. Lütfen aşağıdaki adımları deneyin.' }}
+    </div>
+
+    <div class="error-steps">
+      <div class="error-step" data-num="1">Tarayıcı cache'ini temizleyin (Ctrl+Shift+Delete)</div>
+      <div class="error-step" data-num="2">Tüm çerezleri silin</div>
+      <div class="error-step" data-num="3">Sayfayı yenileyin (F5)</div>
+      <div class="error-step" data-num="4">Incognito/Private mod ile deneyin</div>
+    </div>
+
+    <div>
+      <a href="/" class="error-btn">← Ana Sayfaya Dön</a>
+      <a href="javascript:location.reload()" class="error-btn error-btn-sec">🔄 Sayfayı Yenile</a>
+    </div>
+
+    <div style="margin-top: 24px; font-size: .8rem; color: rgba(196,181,253,.4);">
+      Sorun devam ederse: <a href="mailto:support@randevucum.com" style="color: #a78bfa;">support@randevucum.com</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
