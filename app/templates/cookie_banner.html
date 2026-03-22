@@ -1,0 +1,109 @@
+<!-- Cookie Consent Banner -->
+<div id="cookie-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.95); border-top: 1px solid rgba(255,255,255,.1); padding: 16px 20px; z-index: 9999; backdrop-filter: blur(20px);">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+
+    <div style="flex: 1; min-width: 250px;">
+      <div style="font-size: .9rem; color: #f1f0f5; font-weight: 600; margin-bottom: 4px;">
+        🍪 Çerezleri Kullanıyoruz
+      </div>
+      <div style="font-size: .8rem; color: rgba(196,181,253,.7); line-height: 1.4;">
+        Bu sitede size en iyi deneyimi sunmak için çerezleri kullanıyoruz. Devam ederek çerez politikasını kabul etmiş olursunuz.
+        <a href="/cerez-politikasi" style="color: #a78bfa; text-decoration: underline;">Daha fazla bilgi</a>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0;">
+      <button id="cookie-accept" style="background: linear-gradient(135deg, #7c3aed, #ec4899); border: none; color: white; border-radius: 8px; padding: 10px 20px; font-size: .85rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: opacity .15s;">
+        Kabul Et
+      </button>
+      <button id="cookie-reject" style="background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #c4b5fd; border-radius: 8px; padding: 10px 20px; font-size: .85rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all .15s;">
+        İptal Et
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Cookie Consent Logic
+document.addEventListener('DOMContentLoaded', function() {
+  const banner = document.getElementById('cookie-banner');
+  const acceptBtn = document.getElementById('cookie-accept');
+  const rejectBtn = document.getElementById('cookie-reject');
+
+  // Kontrol et: user daha önce tercih yapmış mı?
+  const consent = localStorage.getItem('cookie-consent');
+
+  if (!consent) {
+    // Banner'ı göster
+    setTimeout(() => {
+      banner.style.display = 'flex';
+      banner.style.animation = 'slideUp 0.3s ease-out';
+    }, 1000);
+  }
+
+  // Kabul Et butonuna basılırsa
+  acceptBtn.addEventListener('click', function() {
+    localStorage.setItem('cookie-consent', 'accepted');
+    // Google Analytics vs. uygulamak istersen burada yapabilirsin
+    banner.style.animation = 'slideDown 0.3s ease-out';
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 300);
+  });
+
+  // İptal Et butonuna basılırsa
+  rejectBtn.addEventListener('click', function() {
+    localStorage.setItem('cookie-consent', 'rejected');
+    banner.style.animation = 'slideDown 0.3s ease-out';
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 300);
+  });
+});
+</script>
+
+<style>
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+#cookie-accept:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+#cookie-reject:hover {
+  background: rgba(255,255,255,.15);
+  border-color: rgba(255,255,255,.3);
+}
+
+@media (max-width: 768px) {
+  #cookie-banner {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  #cookie-banner > div:last-child {
+    width: 100%;
+    justify-content: flex-start !important;
+  }
+}
+</style>

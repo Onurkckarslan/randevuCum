@@ -41,6 +41,11 @@ async def for_businesses(request: Request):
     return templates.TemplateResponse("isletmeler.html", {"request": request})
 
 
+@router.get("/cerez-politikasi", response_class=HTMLResponse)
+async def cookie_policy(request: Request):
+    return templates.TemplateResponse("cookie_policy.html", {"request": request})
+
+
 @router.get("/{slug}", response_class=HTMLResponse)
 async def business_page(slug: str, request: Request, db: Session = Depends(get_db)):
     # Reserved routes — don't try to match as business slugs

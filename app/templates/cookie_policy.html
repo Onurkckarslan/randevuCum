@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Çerez Politikası — RandevuCum{% endblock %}
+
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+.policy-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+.policy-header { margin-bottom: 36px; }
+.policy-title { font-size: 2rem; font-weight: 900; margin-bottom: 8px; }
+.policy-subtitle { font-size: .95rem; color: rgba(196,181,253,.6); }
+.policy-section { margin-bottom: 32px; }
+.policy-section-title { font-size: 1.2rem; font-weight: 800; color: #e9d5ff; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.policy-section-title::before { content: "📌"; font-size: 1.4rem; }
+.policy-text { font-size: .9rem; color: rgba(196,181,253,.7); line-height: 1.8; margin-bottom: 12px; }
+.policy-list { font-size: .9rem; color: rgba(196,181,253,.7); line-height: 1.8; margin-left: 20px; margin-bottom: 12px; }
+.policy-list li { margin-bottom: 8px; }
+.policy-box { background: rgba(124,58,237,.1); border: 1px solid rgba(124,58,237,.2); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.policy-box-text { font-size: .85rem; color: rgba(196,181,253,.8); line-height: 1.6; }
+.back-btn {
+  display: inline-block;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #c4b5fd;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: .85rem;
+  font-weight: 600;
+  margin-top: 24px;
+  transition: all .15s;
+}
+.back-btn:hover { background: rgba(255,255,255,.15); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-container">
+  <div class="policy-header">
+    <h1 class="policy-title">🍪 Çerez Politikası</h1>
+    <p class="policy-subtitle">Son güncelleme: Mart 2026</p>
+  </div>
+
+  <div class="policy-section">
+    <h2 class="policy-section-title" style="flex: none;">Çerezler Nedir?</h2>
+    <p class="policy-text">
+      Çerezler, web tarayıcınız tarafından cihazınıza kaydedilen küçük metin dosyalarıdır. RandevuCum, kullanıcı deneyimini iyileştirmek ve hizmetlerimizi daha etkili bir şekilde sunmak için çerezleri kullanır.
+    </p>
+  </div>
+
+  <div class="policy-section">
+    <h2 class="policy-section-title" style="flex: none;">Kullandığımız Çerezler</h2>
+    <ul class="policy-list">
+      <li><strong>Oturum Çerezleri (token):</strong> İşletme sahibi giriş bilgilerini saklayarak devam eden oturumlar için</li>
+      <li><strong>Personel Çerezleri (staff_token):</strong> Personel giriş bilgilerini saklayarak hizmet verilmesi için</li>
+      <li><strong>Admin Çerezleri (rc_admin_session):</strong> Yönetici paneli erişimi için</li>
+      <li><strong>Çerez Onayı (cookie-consent):</strong> Çerez politikasını kabul ettiğinizi hatırlamak için</li>
+    </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2 class="policy-section-title" style="flex: none;">Çerezleri Kontrol Etme</h2>
+    <p class="policy-text">
+      Çoğu web tarayıcısı çerezleri kontrol etmenizi sağlar. Tarayıcı ayarlarından şunları yapabilirsiniz:
+    </p>
+    <ul class="policy-list">
+      <li>Çerezleri kabul etmek veya reddetmek</li>
+      <li>Belirli çerezleri silmek</li>
+      <li>Çerez bildirimini ayarlamak</li>
+    </ul>
+    <p class="policy-text">
+      Çerezleri devre dışı bırakırsanız, RandevuCum'un bazı özellikleri (giriş, oturum yönetimi) düzgün çalışmayabilir.
+    </p>
+  </div>
+
+  <div class="policy-section">
+    <h2 class="policy-section-title" style="flex: none;">Verileriniz</h2>
+    <div class="policy-box">
+      <div class="policy-box-text">
+        ✅ RandevuCum tarafından tutulan verileriniz SSL/TLS şifreleme ile korunmaktadır.<br>
+        ✅ Verileriniz hiçbir üçüncü tarafa satılmaz veya paylaşılmaz.<br>
+        ✅ İsteniz halinde verilerinizi silebilirsiniz.
+      </div>
+    </div>
+  </div>
+
+  <div class="policy-section">
+    <h2 class="policy-section-title" style="flex: none;">Sorularınız Varsa</h2>
+    <p class="policy-text">
+      Bu çerez politikası hakkında sorularınız varsa, lütfen bizimle iletişime geçin:
+    </p>
+    <p class="policy-text">
+      📧 <a href="mailto:info@randevucum.com" style="color: #a78bfa;">info@randevucum.com</a>
+    </p>
+  </div>
+
+  <a href="/" class="back-btn">← Ana Sayfaya Dön</a>
+</div>
+{% endblock %}
