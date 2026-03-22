@@ -49,9 +49,9 @@ def _patched_response(name, context, *args, **kwargs):
 
 templates.TemplateResponse = _patched_response
 
-app.include_router(admin.router)       # EN ÖNCE — /{slug} çakışmasını önler
-app.include_router(auth.router)
+app.include_router(auth.router)         # EN ÖNCE — /giris, /kayit vb.
+app.include_router(admin.router)        # Sonra admin
 app.include_router(panel.router)
 app.include_router(categories.router)
-app.include_router(booking.router)
+app.include_router(booking.router)      # SON — catch-all /{slug}
 app.include_router(staff_portal.router)
