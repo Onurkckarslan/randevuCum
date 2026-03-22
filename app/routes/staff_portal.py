@@ -84,6 +84,7 @@ async def staff_logout():
 
 # ── PERSONEL PANELİ ──────────────────────────────────────────────────
 @router.get("/panel", response_class=HTMLResponse)
+@router.get("/defterim", response_class=HTMLResponse)
 async def staff_panel(request: Request, d: str = None, db: Session = Depends(get_db)):
     staff = get_current_staff(request, db)
     if not staff:
