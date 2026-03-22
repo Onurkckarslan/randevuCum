@@ -6,10 +6,10 @@ from email.mime.multipart import MIMEMultipart
 
 logger = logging.getLogger(__name__)
 
-SMTP_SERVER = "smtp.gmail.com"
+SMTP_SERVER = "smtp.mailgun.org"
 SMTP_PORT = 587
-SENDER_EMAIL = "randevucum.noreply@gmail.com"
-SENDER_PASSWORD = "smqw ivad fhpv xwmj"  # App Password
+SENDER_EMAIL = "postmaster@www.randevucum.com"
+SENDER_PASSWORD = "Askay6464"  # Mailgun SMTP Password
 
 def send_password_reset_email(to_email: str, reset_link: str):
     """Şifre sıfırlama emaili gönder"""
