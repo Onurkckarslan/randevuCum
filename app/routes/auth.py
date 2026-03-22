@@ -12,6 +12,9 @@ import secrets
 import os
 import urllib.parse
 import threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -132,8 +135,10 @@ async def forgot_password(
     email: str = Form(...),
     db: Session = Depends(get_db)
 ):
+    logger.info(f"[AUTH] Şifre sıfırlama talebi: {email}")
     biz = db.query(Business).filter(Business.email == email).first()
     if not biz:
+        logger.warning(f"[AUTH] Email bulunamadı: {email}")
         return templates.TemplateResponse("business/forgot_password.html", {
             "request": request, "message": "Eğer bu e-posta sistemde kayıtlıysa, reset linki gönderilmiştir."
         })
@@ -155,7 +160,9 @@ async def forgot_password(
     reset_link = f"https://www.randevucum.com/sifremi-sifirla/{token}"
 
     # Email gönder (arka planda - request'i block etme)
+    logger.info(f"[AUTH] Email thread'i başlatılıyor: {email}")
     threading.Thread(target=send_password_reset_email, args=(email, reset_link), daemon=True).start()
+    logger.info(f"[AUTH] Email thread'i başlatıldı")
 
     return templates.TemplateResponse("business/forgot_password.html", {
         "request": request, "message": "Eğer bu e-posta sistemde kayıtlıysa, reset linki gönderilmiştir."
