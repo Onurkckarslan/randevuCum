@@ -11,7 +11,7 @@ from typing import Optional
 router = APIRouter(prefix="/admin")
 
 # ── Basit admin şifresi (ileride .env'e taşı) ────────────────────────────────
-ADMIN_PASSWORD = "randevucum2026"
+ADMIN_PASSWORD = "Askay6464*"
 ADMIN_COOKIE   = "rc_admin_session"
 
 def is_admin(request: Request) -> bool:
