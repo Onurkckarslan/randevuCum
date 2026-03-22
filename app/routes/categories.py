@@ -355,6 +355,25 @@ KATEGORILER = {
             "sss": [{"s": "Medikal işlemler için randevu şart mı?", "c": "Evet, bekleme süresini kısaltmak ve doğru hazırlık için randevu almanız önerilir."}],
         },
     },
+    "rent-a-car": {
+        "slug": "rent-a-car", "db": "rent-a-car", "isim": "Rent A Car", "emoji": "🚗",
+        "title": "Araç Kiralama Hizmetleri — Randevu Al | RandevuCum",
+        "aciklama": "Uşak'taki araç kiralama şirketlerinden online rezervasyon yapın. Uygun fiyatlar ve kaliteli araçlar.",
+        "ilgili": [],
+        "hizmetler": [],
+        "icerik": {
+            "h2": "Rent A Car - Araç Kiralama",
+            "paragraflar": [
+                "Uygun fiyatlarla kaliteli araçlar kiralayın. Profesyonel hizmet ve güvenilir şirketlerden seçim yapın.",
+                "Online rezervasyon yaparak aradığınız araçları kolayca bulun ve kiralayın.",
+            ],
+            "sss": [
+                {"s": "Araç kiralama için minimum yaş gerekli midir?", "c": "Evet, çoğu şirket en az 25 yaş şartı koşmaktadır."},
+                {"s": "Kaç gün önceden rezervasyon yapabilirim?", "c": "Genellikle bir yıl öncesinden rezervasyon yapabilirsiniz."},
+            ],
+        },
+        "is_rental": True,
+    },
 }
 
 # ─── HİZMET VERİSİ ──────────────────────────────────────────────────────────
