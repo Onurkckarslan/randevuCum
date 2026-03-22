@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SENDER_EMAIL = "randevucum.noreply@gmail.com"
-SENDER_PASSWORD = "qqma mznw djud hrrh"  # App Password
+SENDER_PASSWORD = "smqw ivad fhpv xwmj"  # App Password
 
 def send_password_reset_email(to_email: str, reset_link: str):
     """Şifre sıfırlama emaili gönder"""
