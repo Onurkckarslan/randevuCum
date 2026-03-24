@@ -137,8 +137,13 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 }
 
 /* ── PERSONEL ── */
-.staff-grid { display: flex; gap: 12px; flex-wrap: wrap; }
-.staff-item { text-align: center; }
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 16px 12px;
+  justify-items: center;
+}
+.staff-item { text-align: center; min-width: 80px; }
 .staff-avatar {
   width: 64px; height: 64px; border-radius: 50%;
   background: linear-gradient(135deg, #7c3aed, #ec4899);
@@ -146,8 +151,9 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   font-size: 1.4rem; font-weight: 900; color: white;
   margin: 0 auto 6px;
   box-shadow: 0 4px 16px rgba(124,58,237,.4);
+  flex-shrink: 0;
 }
-.staff-name { font-size: .78rem; font-weight: 700; color: #c4b5fd; }
+.staff-name { font-size: .78rem; font-weight: 700; color: #c4b5fd; white-space: normal; word-break: break-word; }
 
 /* ── RANDEVU FORMU (step-card) ── */
 .step-card {
@@ -375,7 +381,7 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
             {% if services %}
             <div>
                 {% for svc in services %}
-                <div class="svc-row reveal reveal-right" style="transition-delay:{{ loop.index0 * 50 }}ms;">
+                <div class="svc-row" style="opacity:1;visibility:visible;">
                     <div style="flex:1;">
                         <div class="svc-name">{{ svc.name }}</div>
                         <div class="svc-dur"><i class="bi bi-clock me-1"></i>{{ svc.duration }} dakika</div>
@@ -388,7 +394,7 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
                 {% endfor %}
             </div>
             {% else %}
-            <p class="text-muted small mb-0">Henüz hizmet eklenmemiş.</p>
+            <p class="text-muted small mb-0" style="padding:12px 0;">Henüz hizmet eklenmemiş.</p>
             {% endif %}
         </div>
 
@@ -524,7 +530,7 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
             <div><div class="fw-bold">Hizmet Seçin</div></div>
         </div>
         {% for svc in services %}
-        <div class="svc-row reveal reveal-right" style="transition-delay:{{ loop.index0 * 50 }}ms;">
+        <div class="svc-row" style="opacity:1;visibility:visible;">
             <div style="flex:1;">
                 <div class="svc-name">{{ svc.name }}</div>
                 <div class="svc-dur">{{ svc.duration }} dk</div>
