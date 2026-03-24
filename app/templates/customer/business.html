@@ -383,6 +383,7 @@ function startBooking(id, name, duration, price) {
             bookModal.style.visibility = "visible";
             document.body.style.overflow = "hidden";
             console.log("Mobile modal opened");
+            attachEventListeners("m");
             console.log("About to call loadSlots('m') — today:", today);
             loadSlots("m");
             console.log("After loadSlots('m')");
@@ -406,6 +407,7 @@ function startBooking(id, name, duration, price) {
             setTimeout(() => {
                 dStep2.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }, 100);
+            attachEventListeners("d");
             console.log("About to call loadSlots('d') — today:", today);
             loadSlots("d");
             console.log("After loadSlots('d')");
@@ -581,30 +583,28 @@ function checkStaff(prefix) {
     return true;
 }
 
-// Event listeners for date/staff changes
-["m", "d"].forEach(prefix => {
+// Attach event listeners when needed (called from startBooking)
+function attachEventListeners(prefix) {
     const datePicker = document.getElementById(prefix + "-datePicker");
-    if (datePicker) {
+    if (datePicker && !datePicker._listener_attached) {
         datePicker.addEventListener("change", () => {
             console.log("Date changed for " + prefix);
             loadSlots(prefix);
         });
+        datePicker._listener_attached = true;
         console.log(`Date listener attached for ${prefix}`);
-    } else {
-        console.log(`⚠️ Date picker NOT FOUND for ${prefix}`);
     }
 
     const staffSel = document.getElementById(prefix + "-staffSelect");
-    if (staffSel) {
+    if (staffSel && !staffSel._listener_attached) {
         staffSel.addEventListener("change", () => {
             console.log("Staff changed for " + prefix + ", value: " + staffSel.value);
             loadSlots(prefix);
         });
+        staffSel._listener_attached = true;
         console.log(`Staff listener attached for ${prefix}`);
-    } else {
-        console.log(`⚠️ Staff select NOT FOUND for ${prefix}`);
     }
-});
+}
 
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
