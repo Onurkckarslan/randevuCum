@@ -419,15 +419,20 @@ async function loadSlots(prefix) {
     const slotsWrapper = document.getElementById(prefix + "-slotsWrapper");
     const slotsContainer = document.getElementById(prefix + "-slots");
     const staffSel = document.getElementById(prefix + "-staffSelect");
+    const dateWarn = document.getElementById(prefix + "-date-warn");
 
     // Show wrapper
     if (slotsWrapper) slotsWrapper.classList.add("visible");
 
     // Check date first - ALWAYS show if no date selected
     if (!date) {
+        if (dateWarn) dateWarn.style.display = "block";
         if (slotsContainer) slotsContainer.innerHTML = '<div style="color:#fbbf24;font-weight:700;font-size:.95rem;padding:12px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen tarih seçiniz</div>';
         return;
     }
+    // Hide date warning if date is selected
+    if (dateWarn) dateWarn.style.display = "none";
+
     // Then check staff if exists
     if (staffSel && !staffSel.value) {
         if (slotsContainer) slotsContainer.innerHTML = '<div style="color:#ef4444;font-weight:700;font-size:.95rem;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen Personel Seçiniz</div>';
@@ -797,6 +802,7 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
             <button type="button" class="date-shortcut" onclick="setDate('d','today')">Bugün</button>
             <button type="button" class="date-shortcut" onclick="setDate('d','tomorrow')">Yarın</button>
         </div>
+        <div id="d-date-warn" style="display:none;color:#ef4444;font-size:.85rem;font-weight:600;margin-bottom:12px;padding:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:6px;">⚠️ Lütfen tarih seçiniz</div>
         {% if staff %}
         <label class="form-label fw-semibold">Personel <span class="text-danger">*</span></label>
         <select id="d-staffSelect" class="staff-select-premium form-select mb-3">
@@ -871,6 +877,7 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
                 <button type="button" class="date-shortcut" onclick="setDate('m','today')">Bugün</button>
                 <button type="button" class="date-shortcut" onclick="setDate('m','tomorrow')">Yarın</button>
             </div>
+            <div id="m-date-warn" style="display:none;color:#ef4444;font-size:.85rem;font-weight:600;margin-bottom:12px;padding:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:6px;">⚠️ Lütfen tarih seçiniz</div>
             {% if staff %}
             <label class="form-label fw-semibold">Personel <span class="text-danger">*</span></label>
             <select id="m-staffSelect" class="staff-select-premium form-select mb-3">
