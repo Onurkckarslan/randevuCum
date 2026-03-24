@@ -383,7 +383,9 @@ function startBooking(id, name, duration, price) {
             bookModal.style.visibility = "visible";
             document.body.style.overflow = "hidden";
             console.log("Mobile modal opened");
+            console.log("About to call loadSlots('m') — today:", today);
             loadSlots("m");
+            console.log("After loadSlots('m')");
         } else {
             const dSvcLabel = document.getElementById("d-svc-label");
             const dDatePicker = document.getElementById("d-datePicker");
@@ -404,7 +406,9 @@ function startBooking(id, name, duration, price) {
             setTimeout(() => {
                 dStep2.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }, 100);
+            console.log("About to call loadSlots('d') — today:", today);
             loadSlots("d");
+            console.log("After loadSlots('d')");
         }
         console.log("Booking initiated successfully");
     } catch (error) {
