@@ -421,6 +421,8 @@ async function loadSlots(prefix) {
     const staffSel = document.getElementById(prefix + "-staffSelect");
     const dateWarn = document.getElementById(prefix + "-date-warn");
 
+    console.log(`loadSlots(${prefix}):`, {date, staffSelExists: !!staffSel, staffValue: staffSel?.value});
+
     // Show wrapper
     if (slotsWrapper) slotsWrapper.classList.add("visible");
 
@@ -428,22 +430,27 @@ async function loadSlots(prefix) {
     const isDateEmpty = !date;
     const isStaffEmpty = staffSel && !staffSel.value;
 
+    console.log(`loadSlots(${prefix}) validation:`, {isDateEmpty, isStaffEmpty});
+
     // Show/hide date warning div
     if (isDateEmpty) {
         if (dateWarn) {
             dateWarn.style.display = "block";
             dateWarn.style.visibility = "visible";
+            console.log(`loadSlots(${prefix}): Showing dateWarn`);
         }
     } else {
         if (dateWarn) {
             dateWarn.style.display = "none";
             dateWarn.style.visibility = "hidden";
+            console.log(`loadSlots(${prefix}): Hiding dateWarn`);
         }
     }
 
     // Show appropriate warning in slots container
     if (isDateEmpty) {
         // Date is missing
+        console.log(`loadSlots(${prefix}): Showing date warning in slots`);
         if (slotsContainer) {
             slotsContainer.innerHTML = '<div style="color:#fbbf24;font-weight:700;font-size:.95rem;padding:12px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen tarih seçiniz</div>';
         }
@@ -452,6 +459,7 @@ async function loadSlots(prefix) {
 
     if (isStaffEmpty) {
         // Date is selected but staff is missing
+        console.log(`loadSlots(${prefix}): Showing staff warning in slots`);
         if (slotsContainer) {
             slotsContainer.innerHTML = '<div style="color:#ef4444;font-weight:700;font-size:.95rem;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen Personel Seçiniz</div>';
         }
