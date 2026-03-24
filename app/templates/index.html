@@ -1009,51 +1009,54 @@ body::before {
     <h2 style="font-size:2.5rem;font-weight:800;letter-spacing:-1.5px;color:var(--text);">Bütün Hizmetler <span class="grad-text">Tek Yerde.</span></h2>
   </div>
 
-  <!-- FEATURE SHOWCASE IMAGE -->
-  <div style="margin:60px auto 60px;padding:0 16px;max-w-7xl;text-align:center;">
+  <!-- ════════════════════════════════════════
+       DESKTOP: j8.png (Yatay mockup) + j9.png (Kota Yok kartı)
+       MOBILE: c2.png + c3.png (Dikey görseller)
+       ════════════════════════════════════════ -->
+
+  <!-- DESKTOP IMAGES (md+) -->
+  <div style="display:none;margin:60px auto 60px;padding:0 16px;max-width:100%;text-align:center;" class="d-md-block">
     <img src="/static/images/j8.png"
          alt="RandevuCum Dashboard"
-         style="width:100%;max-width:1400px;height:auto;
-                 aspect-ratio:16/9;
-                 object-fit:contain;
-                 border-radius:20px;
-                 box-shadow:0 20px 50px rgba(168, 85, 247, 0.25), 0 10px 20px rgba(0, 0, 0, 0.1);
-                 display:block;margin:0 auto;
-                 z-index:10;position:relative;
-                 animation:fadeInUp .8s .4s both;">
+         style="width:100%;max-width:1400px;height:auto;aspect-ratio:16/9;object-fit:contain;
+                 border-radius:20px;box-shadow:0 20px 50px rgba(168, 85, 247, 0.25), 0 10px 20px rgba(0, 0, 0, 0.1);
+                 display:block;margin:0 auto;z-index:10;position:relative;animation:fadeInUp .8s .4s both;">
+    </img>
   </div>
 
-  <!-- ═══ KOTA YOK PREMIUM KARTı ═══ -->
-  <div style="padding:60px 16px;position:relative;z-index:1;">
+  <!-- MOBILE IMAGES (xs-sm) - Dikey görseller -->
+  <div style="display:block;margin:40px auto;padding:0 16px;max-width:100%;text-align:center;" class="d-md-none">
+    <div style="display:flex;flex-direction:column;gap:24px;align-items:center;">
+      <img src="/static/images/c2.png"
+           alt="RandevuCum Mobil Özellikleri"
+           style="width:100%;height:auto;max-width:360px;border-radius:20px;
+                   box-shadow:0 20px 50px rgba(168, 85, 247, 0.25), 0 10px 20px rgba(0, 0, 0, 0.1);
+                   display:block;z-index:10;position:relative;animation:fadeInUp .8s .4s both;">
+      </img>
+      <img src="/static/images/c3.png"
+           alt="RandevuCum Hizmetleri"
+           style="width:100%;height:auto;max-width:360px;border-radius:20px;
+                   box-shadow:0 20px 50px rgba(168, 85, 247, 0.25), 0 10px 20px rgba(0, 0, 0, 0.1);
+                   display:block;z-index:10;position:relative;animation:fadeInUp .8s .6s both;">
+      </img>
+    </div>
+  </div>
+
+  <!-- ═══ KOTA YOK PREMIUM KARTı (DESKTOP) ═══ -->
+  <div style="display:none;padding:60px 16px;position:relative;z-index:1;" class="d-md-block">
     <div style="max-width:1200px;margin:0 auto;">
-      <!-- Outer glow wrapper -->
-      <div style="position:relative;
-                  border-radius:24px;
-                  overflow:hidden;
-                  background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(236,72,153,.08));
-                  padding:8px;
-                  box-shadow:0 0 80px rgba(124,58,237,.2),
-                            0 0 0 1px rgba(255,255,255,.08),
-                            inset 0 1px 0 rgba(255,255,255,.1);
-                  transition:all .4s ease;
-                  animation:pulseGlow 3s ease-in-out infinite;">
-        <!-- Inner image container -->
-        <div style="position:relative;
-                    border-radius:20px;
-                    overflow:hidden;
-                    background:rgba(19,19,26,.9);">
+      <div style="position:relative;border-radius:24px;overflow:hidden;
+                  background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(236,72,153,.08));padding:8px;
+                  box-shadow:0 0 80px rgba(124,58,237,.2),0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.1);
+                  transition:all .4s ease;animation:pulseGlow 3s ease-in-out infinite;">
+        <div style="position:relative;border-radius:20px;overflow:hidden;background:rgba(19,19,26,.9);">
           <img src="/static/images/j9.png"
                alt="Kota Yok - Sınır Yok! Premium Özellikler"
-               style="width:100%;
-                       height:auto;
-                       aspect-ratio:16/9;
-                       object-fit:contain;
-                       display:block;
-                       border-radius:20px;
-                       transition:all .5s cubic-bezier(.16,1,.3,1);
-                       filter:brightness(1) saturate(1);"
+               style="width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;display:block;border-radius:20px;
+                       transition:all .5s cubic-bezier(.16,1,.3,1);filter:brightness(1) saturate(1);"
                onmouseover="this.style.transform='scale(1.02)';this.style.filter='brightness(1.1) saturate(1.15)';"
                onmouseout="this.style.transform='scale(1)';this.style.filter='brightness(1) saturate(1)';">
+          </img>
         </div>
       </div>
     </div>
