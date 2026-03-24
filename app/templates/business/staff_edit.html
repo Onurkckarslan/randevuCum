@@ -73,25 +73,32 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   </div>
 
   <div class="info-section">
-    💡 E-posta ve PIN alanları isteğe bağlıdır. Personelin giriş yapması için her ikisinin de doldurulması gerekir.
+    💡 Giriş ID ve PIN alanları isteğe bağlıdır. Personelin giriş yapması için her ikisinin de doldurulması gerekir. Admin yetkili personel /panel'e erişebilir.
   </div>
 
   <form method="post" action="/panel/personel-duzenle/{{ staff.id }}">
     <div class="row g-3 mb-3">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <label style="font-size: .8rem; color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;">Personel Adı *</label>
         <input type="text" name="name" class="panel-input"
                value="{{ staff.name }}" required>
       </div>
-      <div class="col-md-4">
-        <label style="font-size: .8rem; color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;">E-posta</label>
-        <input type="email" name="email" class="panel-input"
-               value="{{ staff.email or '' }}" placeholder="E-posta (opsiyonel)">
+      <div class="col-md-3">
+        <label style="font-size: .8rem; color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;">Giriş ID</label>
+        <input type="text" name="staff_login_id" class="panel-input"
+               value="{{ staff.staff_login_id or '' }}" placeholder="Giriş ID (örn: 1234)">
       </div>
-      <div class="col-md-4">
+      <div class="col-md-2">
         <label style="font-size: .8rem; color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;">PIN</label>
         <input type="text" name="pin" class="panel-input"
-               value="{{ staff.pin or '' }}" placeholder="PIN (opsiyonel)">
+               value="{{ staff.pin or '' }}" placeholder="PIN (min 4 hane)">
+      </div>
+      <div class="col-md-2">
+        <label style="font-size: .8rem; color: rgba(196,181,253,.7); margin-bottom: 6px; display: block;">Yetki</label>
+        <select name="role" class="panel-input" style="cursor: pointer;">
+          <option value="personel" {% if staff.role == "personel" %}selected{% endif %}>Personel</option>
+          <option value="admin" {% if staff.role == "admin" %}selected{% endif %}>Admin</option>
+        </select>
       </div>
     </div>
     <button type="submit" class="btn-panel-save">Değişiklikleri Kaydet</button>

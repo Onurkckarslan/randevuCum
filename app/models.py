@@ -50,13 +50,15 @@ class Staff(Base):
     """Personel"""
     __tablename__ = "staff"
 
-    id          = Column(Integer, primary_key=True, index=True)
-    business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False)
-    name        = Column(String(100), nullable=False)
-    email       = Column(String(120), nullable=True, index=True)
-    phone       = Column(String(20), nullable=True)
-    pin         = Column(String(10), nullable=True)
-    is_active   = Column(Boolean, default=True)
+    id              = Column(Integer, primary_key=True, index=True)
+    business_id     = Column(Integer, ForeignKey("businesses.id"), nullable=False)
+    name            = Column(String(100), nullable=False)
+    email           = Column(String(120), nullable=True, index=True)
+    phone           = Column(String(20), nullable=True)
+    pin             = Column(String(10), nullable=True)
+    staff_login_id  = Column(String(50), nullable=True, index=True)
+    role            = Column(String(20), default="personel")
+    is_active       = Column(Boolean, default=True)
 
     business    = relationship("Business", back_populates="staff")
 

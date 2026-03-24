@@ -52,14 +52,14 @@ async def staff_login_page(request: Request, db: Session = Depends(get_db)):
 @router.post("/giris")
 async def staff_login(
     request: Request,
-    email: str = Form(...),
+    staff_login_id: str = Form(...),
     pin: str   = Form(...),
     db: Session = Depends(get_db)
 ):
-    email = email.strip().lower()
+    staff_login_id = staff_login_id.strip()
     pin   = pin.strip()
     staff = db.query(Staff).filter(
-        Staff.email == email,
+        Staff.staff_login_id == staff_login_id,
         Staff.pin   == pin,
         Staff.is_active == True
     ).first()
@@ -67,11 +67,13 @@ async def staff_login(
     if not staff:
         return templates.TemplateResponse("personel/giris.html", {
             "request": request,
-            "error": "E-posta veya PIN hatalı."
+            "error": "Personel ID veya PIN hatalı."
         }, status_code=401)
 
     token = create_staff_token(staff.id)
-    resp  = RedirectResponse("/personel/defterim", status_code=302)
+    # Admin staff /panel'e, normal staff /personel/defterim'e
+    redirect_url = "/panel" if staff.role == "admin" else "/personel/defterim"
+    resp  = RedirectResponse(redirect_url, status_code=302)
     resp.set_cookie(
         COOKIE_NAME,
         token,

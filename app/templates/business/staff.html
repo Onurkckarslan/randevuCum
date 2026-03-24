@@ -99,17 +99,23 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   </div>
   <form method="post" action="/panel/personel-ekle">
     <div class="row g-3 mb-3">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <input type="text" name="name" class="panel-input"
                placeholder="Personel adı (örn: Ahmet Usta)" required>
       </div>
-      <div class="col-md-4">
-        <input type="email" name="email" class="panel-input"
-               placeholder="E-posta (opsiyonel)">
+      <div class="col-md-3">
+        <input type="text" name="staff_login_id" class="panel-input"
+               placeholder="Giriş ID (örn: 1234)">
       </div>
-      <div class="col-md-4">
+      <div class="col-md-2">
         <input type="text" name="pin" class="panel-input"
-               placeholder="PIN (opsiyonel)">
+               placeholder="PIN (min 4 hane)">
+      </div>
+      <div class="col-md-2">
+        <select name="role" class="panel-input" style="cursor: pointer;">
+          <option value="personel">Personel</option>
+          <option value="admin">Admin</option>
+        </select>
       </div>
     </div>
     <button type="submit" class="btn-panel-add">Personeli Kaydet</button>
@@ -128,7 +134,13 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
       <div class="staff-avatar">👤</div>
       <div>
         <div class="staff-name">{{ s.name }}</div>
-        <div style="font-size: .75rem; color: rgba(196,181,253,.5);">{{ s.email if s.email else '(Email yok)' }}</div>
+        <div style="font-size: .75rem; color: rgba(196,181,253,.5);">
+          {% if s.staff_login_id %}ID: {{ s.staff_login_id }}{% else %}(ID yok){% endif %}
+          <span style="margin-left: 10px; padding: 2px 8px; border-radius: 6px; font-size: .7rem; font-weight: 700;
+            {% if s.role == 'admin' %}background: rgba(124,58,237,.3); color: #a78bfa;{% else %}background: rgba(155,155,155,.2); color: #9ca3af;{% endif %}">
+            {{ "ADMIN" if s.role == "admin" else "PERSONEL" }}
+          </span>
+        </div>
       </div>
     </div>
     <div style="display: flex; gap: 8px;">

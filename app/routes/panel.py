@@ -12,6 +12,7 @@ UPLOAD_DIR = Path(__file__).parent.parent / "static" / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 from ..auth import get_current_business_id
 from datetime import date, datetime
+from .staff_portal import get_current_staff_id
 
 router = APIRouter()
 
@@ -19,13 +20,23 @@ DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "P
 
 
 def get_biz(request: Request, db: Session) -> Business:
+    # Business owner check
     biz_id = get_current_business_id(request)
-    if not biz_id:
-        raise HTTPException(status_code=303, headers={"Location": "/giris"})
-    biz = db.query(Business).filter(Business.id == biz_id).first()
-    if not biz:
-        raise HTTPException(status_code=303, headers={"Location": "/giris"})
-    return biz
+    if biz_id:
+        biz = db.query(Business).filter(Business.id == biz_id).first()
+        if biz:
+            return biz
+
+    # Admin staff check
+    staff_id = get_current_staff_id(request)
+    if staff_id:
+        staff = db.query(Staff).filter(Staff.id == staff_id, Staff.role == "admin", Staff.is_active == True).first()
+        if staff:
+            biz = db.query(Business).filter(Business.id == staff.business_id).first()
+            if biz:
+                return biz
+
+    raise HTTPException(status_code=303, headers={"Location": "/giris"})
 
 
 @router.get("/panel/randevu-defteri", response_class=HTMLResponse)
@@ -298,22 +309,19 @@ async def staff_page(request: Request, db: Session = Depends(get_db)):
 async def add_staff(
     request: Request,
     name: str = Form(...),
-    email: str = Form(""),
+    staff_login_id: str = Form(""),
     pin: str = Form(""),
+    role: str = Form("personel"),
     db: Session = Depends(get_db)
 ):
     biz = get_biz(request, db)
 
-    # Email zaten var mı kontrol et (sadece doldurulduysa)
-    if email and db.query(Staff).filter(Staff.email == email).first():
-        # Hata: Email zaten kullanılıyor (şimdi sadece ekleme yapıyoruz, error handling eklememiyor)
-        pass
-
     staff = Staff(
         business_id=biz.id,
         name=name,
-        email=email if email else None,
-        pin=pin if pin else None
+        staff_login_id=staff_login_id if staff_login_id else None,
+        pin=pin if pin else None,
+        role=role if role in ("personel", "admin") else "personel"
     )
     db.add(staff)
     db.commit()
@@ -346,8 +354,9 @@ async def update_staff(
     staff_id: int,
     request: Request,
     name: str = Form(...),
-    email: str = Form(""),
+    staff_login_id: str = Form(""),
     pin: str = Form(""),
+    role: str = Form("personel"),
     db: Session = Depends(get_db)
 ):
     biz = get_biz(request, db)
@@ -355,16 +364,10 @@ async def update_staff(
     if not staff:
         return RedirectResponse("/panel/personel", status_code=302)
 
-    # Email zaten başkası tarafından kullanılıyor mı kontrol et
-    if email and email != staff.email:
-        existing = db.query(Staff).filter(Staff.email == email, Staff.id != staff_id).first()
-        if existing:
-            # Email already used, but continue anyway for now
-            pass
-
     staff.name = name
-    staff.email = email if email else None
+    staff.staff_login_id = staff_login_id if staff_login_id else None
     staff.pin = pin if pin else None
+    staff.role = role if role in ("personel", "admin") else "personel"
     db.commit()
     return RedirectResponse("/panel/personel", status_code=302)
 
