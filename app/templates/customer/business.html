@@ -461,6 +461,12 @@ async function loadSlots(prefix) {
 }
 
 function selectSlot(time, date, prefix, el) {
+    // Tarih doğrulaması
+    if (!date) {
+        alert("⚠️ Lütfen Tarih Seçiniz!");
+        return;
+    }
+
     const staffSel = document.getElementById(prefix + "-staffSelect");
     if (staffSel && !staffSel.value) {
         staffSel.style.border = "2px solid #ef4444";
@@ -497,6 +503,14 @@ function closeModal() {
 }
 
 function checkStaff(prefix) {
+    // Tarih doğrulaması
+    const datePicker = document.getElementById(prefix + "-datePicker");
+    if (!datePicker || !datePicker.value) {
+        alert("⚠️ Lütfen Tarih Seçiniz!");
+        if (datePicker) datePicker.focus();
+        return false;
+    }
+
     const staffSel = document.getElementById(prefix + "-staffSelect");
     if (staffSel && !staffSel.value) {
         staffSel.style.border = "2px solid #ef4444";
