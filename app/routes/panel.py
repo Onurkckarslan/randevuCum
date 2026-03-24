@@ -12,7 +12,6 @@ UPLOAD_DIR = Path(__file__).parent.parent / "static" / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 from ..auth import get_current_business_id
 from datetime import date, datetime
-from .staff_portal import get_current_staff_id
 
 router = APIRouter()
 
@@ -28,6 +27,7 @@ def get_biz(request: Request, db: Session) -> Business:
             return biz
 
     # Admin staff check
+    from .staff_portal import get_current_staff_id
     staff_id = get_current_staff_id(request)
     if staff_id:
         staff = db.query(Staff).filter(Staff.id == staff_id, Staff.role == "admin", Staff.is_active == True).first()
