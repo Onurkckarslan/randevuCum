@@ -29,6 +29,7 @@ class Business(Base):
     appointments  = relationship("Appointment", back_populates="business", cascade="all, delete")
     work_hours    = relationship("WorkHour", back_populates="business", cascade="all, delete")
     photos        = relationship("BusinessPhoto", back_populates="business", cascade="all, delete")
+    products      = relationship("Product", back_populates="business", cascade="all, delete")
 
 
 class Service(Base):
@@ -114,6 +115,22 @@ class BusinessPhoto(Base):
     created_at  = Column(DateTime, default=datetime.utcnow)
 
     business    = relationship("Business", back_populates="photos")
+
+
+class Product(Base):
+    """Ürün/Stok"""
+    __tablename__ = "products"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False)
+    name        = Column(String(100), nullable=False)
+    price       = Column(Integer, default=0)           # TL
+    stock       = Column(Integer, default=0)           # Stok adedi
+    unit        = Column(String(20), default="adet")   # adet, ml, g, vb.
+    is_active   = Column(Boolean, default=True)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+    business    = relationship("Business", back_populates="products")
 
 
 class PasswordResetToken(Base):

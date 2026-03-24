@@ -266,6 +266,47 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
   .desktop-hide { display: none; }
   .container { padding-left: 20px !important; padding-right: 20px !important; }
 }
+
+/* ══════ STAFF SELECT PREMIUM STYLE ══════ */
+.staff-select-premium {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(124,58,237,.1);
+  border: 2px solid rgba(124,58,237,.35);
+  border-radius: 12px;
+  color: #f1f0f5;
+  font-size: .98rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.staff-select-premium:hover {
+  border-color: rgba(124,58,237,.5);
+  background: rgba(124,58,237,.15);
+}
+
+.staff-select-premium:focus {
+  border-color: #7c3aed;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124,58,237,.2);
+  background: rgba(124,58,237,.15);
+}
+
+/* ══════ SLOTS WRAPPER — FADE IN ══════ */
+.slots-wrapper {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity .4s ease, max-height .4s ease, margin-top .4s ease;
+  margin-top: 0;
+}
+
+.slots-wrapper.visible {
+  opacity: 1;
+  max-height: 500px;
+  margin-top: 16px;
+}
 </style>
 {% endblock %}
 
@@ -507,14 +548,16 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
         </div>
         {% if staff %}
         <label class="form-label fw-semibold">Personel <span class="text-danger">*</span></label>
-        <select id="d-staffSelect" class="form-select mb-3" style="max-width:220px;">
+        <select id="d-staffSelect" class="staff-select-premium form-select mb-3">
             <option value="">— Personel seçiniz —</option>
             {% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
         </select>
         {% endif %}
         {% if biz.category != "rent-a-car" %}
-        <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
-        <div id="d-slots" class="d-flex flex-wrap gap-2 mb-2"><small class="text-muted">Tarih seçin...</small></div>
+        <div class="slots-wrapper" id="d-slotsWrapper">
+          <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
+          <div id="d-slots" class="d-flex flex-wrap gap-2 mb-2"><small class="text-muted">Tarih seçin...</small></div>
+        </div>
         {% endif %}
     </div>
 
@@ -562,13 +605,15 @@ select option { background: #1a0a3e !important; color: #f1f0f5 !important; }
             </div>
             {% if staff %}
             <label class="form-label fw-semibold">Personel <span class="text-danger">*</span></label>
-            <select id="m-staffSelect" class="form-select mb-3">
+            <select id="m-staffSelect" class="staff-select-premium form-select mb-3">
                 <option value="">— Personel seçiniz —</option>
                 {% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
             </select>
             {% endif %}
-            <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
-            <div id="m-slots" class="d-flex flex-wrap gap-2 mb-3"><small class="text-muted">Tarih seçin...</small></div>
+            <div class="slots-wrapper" id="m-slotsWrapper">
+              <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
+              <div id="m-slots" class="d-flex flex-wrap gap-2 mb-3"><small class="text-muted">Tarih seçin...</small></div>
+            </div>
         </div>
         <!-- Adım 3 -->
         <div id="m-step3" style="display:none;">
@@ -657,12 +702,31 @@ function startBooking(id, name, duration, price) {
     // Personel değişince slotları yenile
     const staffSel = document.getElementById(prefix + "-staffSelect");
     if (staffSel) staffSel.addEventListener("change", () => loadSlots(prefix));
+
+    // Sayfanın ilk yüklemesinde müsaitlik saatleri wrapper'ını gizle
+    const slotsWrapper = document.getElementById(prefix + "-slotsWrapper");
+    if (slotsWrapper) {
+        slotsWrapper.classList.remove("visible"); // Başta hidden
+    }
 });
 
 async function loadSlots(prefix) {
     if (!selSvc) return;
     const date = document.getElementById(prefix + "-datePicker").value;
     if (!date) return;
+
+    // Müsaitlik saatleri wrapper'ı kontrol et — personel seçilmişse göster
+    const slotsWrapper = document.getElementById(prefix + "-slotsWrapper");
+    const staffSel = document.getElementById(prefix + "-staffSelect");
+
+    if (staffSel && !staffSel.value) {
+        // Personel seçilmemiş → wrapper gizli bırak
+        if (slotsWrapper) slotsWrapper.classList.remove("visible");
+        return;
+    }
+
+    // Personel seçilmiş → wrapper'ı göster
+    if (slotsWrapper) slotsWrapper.classList.add("visible");
 
     // Rent A Car kategorisi için otomatik saat seç
     const isRental = "{{ biz.category }}" === "rent-a-car";

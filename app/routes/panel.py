@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, Form, Depends, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto
+from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product
 import shutil, os, uuid
 from pathlib import Path
 from ..s3_upload import upload_photo_to_s3, delete_photo_from_s3
@@ -539,4 +539,118 @@ async def set_cover(photo_id: int, request: Request, db: Session = Depends(get_d
         photo.is_cover = True
         db.commit()
     return RedirectResponse("/panel/fotolar", status_code=302)
+
+
+# ═══ ÜRÜN/STOK TAKIBI ═══
+
+@router.get("/panel/urun-stok", response_class=HTMLResponse)
+async def products_page(request: Request, db: Session = Depends(get_db)):
+    biz = get_biz(request, db)
+    products = db.query(Product).filter(Product.business_id == biz.id).order_by(Product.created_at.desc()).all()
+    return templates.TemplateResponse("business/products.html", {
+        "request": request,
+        "biz": biz,
+        "products": products
+    })
+
+
+@router.post("/panel/urun-ekle", response_class=HTMLResponse)
+async def add_product(
+    request: Request,
+    name: str = Form(...),
+    price: int = Form(default=0),
+    stock: int = Form(default=0),
+    unit: str = Form(default="adet"),
+    db: Session = Depends(get_db)
+):
+    try:
+        biz = get_biz(request, db)
+
+        # Validation
+        name = name.strip()
+        if not name or len(name) < 2:
+            return templates.TemplateResponse("business/products.html", {
+                "request": request,
+                "biz": biz,
+                "products": db.query(Product).filter(Product.business_id == biz.id).all(),
+                "error": "Ürün adı en az 2 karakter olmalı."
+            })
+
+        if price < 0:
+            price = 0
+        if stock < 0:
+            stock = 0
+
+        unit = unit.strip() or "adet"
+
+        product = Product(
+            business_id=biz.id,
+            name=name,
+            price=price,
+            stock=stock,
+            unit=unit
+        )
+        db.add(product)
+        db.commit()
+
+        return RedirectResponse("/panel/urun-stok", status_code=302)
+    except Exception as e:
+        return templates.TemplateResponse("business/products.html", {
+            "request": request,
+            "biz": get_biz(request, db),
+            "products": db.query(Product).filter(Product.business_id == get_biz(request, db).id).all(),
+            "error": f"Hata: {str(e)}"
+        })
+
+
+@router.post("/panel/urun-duzenle/{product_id}", response_class=HTMLResponse)
+async def edit_product(
+    product_id: int,
+    request: Request,
+    name: str = Form(...),
+    price: int = Form(default=0),
+    unit: str = Form(default="adet"),
+    db: Session = Depends(get_db)
+):
+    biz = get_biz(request, db)
+    product = db.query(Product).filter(Product.id == product_id, Product.business_id == biz.id).first()
+
+    if not product:
+        return RedirectResponse("/panel/urun-stok", status_code=302)
+
+    product.name = name.strip() or product.name
+    product.price = max(0, price)
+    product.unit = unit.strip() or "adet"
+    db.commit()
+
+    return RedirectResponse("/panel/urun-stok", status_code=302)
+
+
+@router.post("/panel/urun-sil/{product_id}", response_class=HTMLResponse)
+async def delete_product(product_id: int, request: Request, db: Session = Depends(get_db)):
+    biz = get_biz(request, db)
+    product = db.query(Product).filter(Product.id == product_id, Product.business_id == biz.id).first()
+
+    if product:
+        db.delete(product)
+        db.commit()
+
+    return RedirectResponse("/panel/urun-stok", status_code=302)
+
+
+@router.post("/panel/stok-guncelle/{product_id}", response_class=HTMLResponse)
+async def update_stock(
+    product_id: int,
+    request: Request,
+    delta: int = Form(...),
+    db: Session = Depends(get_db)
+):
+    biz = get_biz(request, db)
+    product = db.query(Product).filter(Product.id == product_id, Product.business_id == biz.id).first()
+
+    if product:
+        product.stock = max(0, product.stock + delta)
+        db.commit()
+
+    return RedirectResponse("/panel/urun-stok", status_code=302)
 
