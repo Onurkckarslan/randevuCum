@@ -589,13 +589,20 @@ function checkStaff(prefix) {
             console.log("Date changed for " + prefix);
             loadSlots(prefix);
         });
+        console.log(`Date listener attached for ${prefix}`);
+    } else {
+        console.log(`⚠️ Date picker NOT FOUND for ${prefix}`);
     }
+
     const staffSel = document.getElementById(prefix + "-staffSelect");
     if (staffSel) {
         staffSel.addEventListener("change", () => {
             console.log("Staff changed for " + prefix + ", value: " + staffSel.value);
             loadSlots(prefix);
         });
+        console.log(`Staff listener attached for ${prefix}`);
+    } else {
+        console.log(`⚠️ Staff select NOT FOUND for ${prefix}`);
     }
 });
 
