@@ -343,10 +343,10 @@ async def reset_password(
         except:
             pass
 
-        return templates.TemplateResponse("business/reset_password.html", {
-            "request": request, "error": "Şifreniz başarıyla sıfırlanmıştır. Giriş yapmak için lütfen yeni şifrenizi kullanın.",
-            "token": None, "success": True
-        })
+        # Redirect to login with success message
+        response = RedirectResponse("/giris", status_code=302)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        return response
 
     except Exception as e:
         logger.error(f"[RESET] Unexpected error: {str(e)}", exc_info=True)
