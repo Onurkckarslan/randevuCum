@@ -687,25 +687,60 @@ function showTab(id, btn) {
 
 // RANDEVU BAŞLAT
 function startBooking(id, name, duration, price) {
-    selSvc = { id, name, duration, price };
-    const isMobile = window.innerWidth < 992;
-    if (isMobile) {
-        document.getElementById("m-title").textContent = name + (price ? " — " + price + " TL" : "");
-        document.getElementById("m-datePicker").min = today;
-        document.getElementById("m-datePicker").value = today;
-        document.getElementById("m-step2").style.display = "block";
-        document.getElementById("m-step3").style.display = "none";
-        document.getElementById("bookModal").style.display = "block";
-        document.body.style.overflow = "hidden";
-        loadSlots("m");
-    } else {
-        document.getElementById("d-svc-label").textContent = name + (price ? " · " + price + " TL" : "") + " · " + duration + " dk";
-        document.getElementById("d-datePicker").min = today;
-        document.getElementById("d-datePicker").value = today;
-        document.getElementById("d-step2").style.display = "block";
-        document.getElementById("d-step3").style.display = "none";
-        document.getElementById("d-step2").scrollIntoView({ behavior: "smooth", block: "nearest" });
-        loadSlots("d");
+    try {
+        console.log("startBooking called with:", { id, name, duration, price });
+        selSvc = { id, name, duration, price };
+        const isMobile = window.innerWidth < 992;
+
+        if (isMobile) {
+            const mTitle = document.getElementById("m-title");
+            const mDatePicker = document.getElementById("m-datePicker");
+            const mStep2 = document.getElementById("m-step2");
+            const mStep3 = document.getElementById("m-step3");
+            const bookModal = document.getElementById("bookModal");
+
+            if (!mTitle || !mDatePicker || !mStep2 || !bookModal) {
+                console.error("Mobile elements missing:", { mTitle, mDatePicker, mStep2, bookModal });
+                return;
+            }
+
+            mTitle.textContent = name + (price ? " — " + price + " TL" : "");
+            mDatePicker.min = today;
+            mDatePicker.value = today;
+            mStep2.style.display = "block";
+            if (mStep3) mStep3.style.display = "none";
+            bookModal.style.display = "block";
+            bookModal.style.opacity = "1";
+            bookModal.style.visibility = "visible";
+            document.body.style.overflow = "hidden";
+            console.log("Mobile modal opened");
+            loadSlots("m");
+        } else {
+            const dSvcLabel = document.getElementById("d-svc-label");
+            const dDatePicker = document.getElementById("d-datePicker");
+            const dStep2 = document.getElementById("d-step2");
+            const dStep3 = document.getElementById("d-step3");
+
+            if (!dSvcLabel || !dDatePicker || !dStep2) {
+                console.error("Desktop elements missing:", { dSvcLabel, dDatePicker, dStep2 });
+                return;
+            }
+
+            dSvcLabel.textContent = name + (price ? " · " + price + " TL" : "") + " · " + duration + " dk";
+            dDatePicker.min = today;
+            dDatePicker.value = today;
+            dStep2.style.display = "block";
+            if (dStep3) dStep3.style.display = "none";
+            console.log("Desktop step-2 opened");
+            setTimeout(() => {
+                dStep2.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }, 100);
+            loadSlots("d");
+        }
+        console.log("Booking initiated successfully");
+    } catch (error) {
+        console.error("ERROR in startBooking:", error);
+        alert("Randevu başlatırken bir hata oluştu. Lütfen sayfayı yenile.");
     }
 }
 
