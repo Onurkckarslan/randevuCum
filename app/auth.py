@@ -7,6 +7,7 @@ import os
 SECRET_KEY = os.getenv("SECRET_KEY", "RandevuCum-secret-change-in-prod")
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_DAYS = 30
+IS_PRODUCTION = os.getenv("ENVIRONMENT") == "production"
 
 
 def hash_password(password: str) -> str:

@@ -15,6 +15,7 @@ SECRET_KEY   = os.getenv("SECRET_KEY", "RandevuCum-secret-change-in-prod")
 ALGORITHM    = "HS256"
 COOKIE_NAME  = "staff_token"
 EXPIRE_DAYS  = 30
+IS_PRODUCTION = os.getenv("ENVIRONMENT") == "production"
 
 
 def create_staff_token(staff_id: int) -> str:
@@ -71,7 +72,14 @@ async def staff_login(
 
     token = create_staff_token(staff.id)
     resp  = RedirectResponse("/personel/defterim", status_code=302)
-    resp.set_cookie(COOKIE_NAME, token, httponly=True, max_age=60*60*24*EXPIRE_DAYS)
+    resp.set_cookie(
+        COOKIE_NAME,
+        token,
+        httponly=True,
+        secure=IS_PRODUCTION,  # HTTPS only in production
+        samesite="strict",      # Stricter CSRF protection
+        max_age=60*60*24*EXPIRE_DAYS
+    )
     return resp
 
 

@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Business, PasswordResetToken
-from ..auth import hash_password, verify_password, create_token, get_current_business_id
+from ..auth import hash_password, verify_password, create_token, get_current_business_id, IS_PRODUCTION
 from ..mail import send_password_reset_email
 from datetime import datetime, timedelta
 import re
@@ -135,7 +135,14 @@ async def register(
         logger.info(f"[REGISTER] SUCCESS: {email} (ID: {biz.id}, name: {name})")
 
         response = safe_redirect("/panel", request)
-        response.set_cookie("token", create_token(biz.id), max_age=60*60*24*30, httponly=True, secure=False, samesite="lax")
+        response.set_cookie(
+            "token",
+            create_token(biz.id),
+            max_age=60*60*24*30,
+            httponly=True,
+            secure=IS_PRODUCTION,  # HTTPS only in production
+            samesite="strict"       # Stricter CSRF protection
+        )
         return response
 
     except Exception as e:
@@ -190,7 +197,14 @@ async def login(
 
         logger.info(f"[LOGIN] SUCCESS: {email} (ID: {biz.id})")
         response = safe_redirect("/panel", request)
-        response.set_cookie("token", create_token(biz.id), max_age=60*60*24*30, httponly=True, secure=False, samesite="lax")
+        response.set_cookie(
+            "token",
+            create_token(biz.id),
+            max_age=60*60*24*30,
+            httponly=True,
+            secure=IS_PRODUCTION,  # HTTPS only in production
+            samesite="strict"       # Stricter CSRF protection
+        )
         return response
 
     except Exception as e:
