@@ -689,6 +689,7 @@ function showTab(id, btn) {
 function startBooking(id, name, duration, price) {
     try {
         console.log("startBooking called with:", { id, name, duration, price });
+        alert("✓ Randevu başlatılıyor: " + name);
         selSvc = { id, name, duration, price };
         const isMobile = window.innerWidth < 992;
 
