@@ -18,12 +18,21 @@ async def lifespan(app: FastAPI):
     models.Base.metadata.create_all(bind=engine)
 
     # S3 column migration
+    # Staff authorization migration
     from sqlalchemy import text
     db = SessionLocal()
     try:
         db.execute(text("""
             ALTER TABLE business_photos
             ADD COLUMN IF NOT EXISTS s3_url VARCHAR(500)
+        """))
+        db.execute(text("""
+            ALTER TABLE staff
+            ADD COLUMN IF NOT EXISTS staff_login_id VARCHAR(50)
+        """))
+        db.execute(text("""
+            ALTER TABLE staff
+            ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'personel'
         """))
         db.commit()
     except Exception as e:
