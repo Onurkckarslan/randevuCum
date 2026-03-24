@@ -424,18 +424,31 @@ async function loadSlots(prefix) {
     // Show wrapper
     if (slotsWrapper) slotsWrapper.classList.add("visible");
 
-    // Check date first - ALWAYS show if no date selected
+    // ===== CHECK DATE FIRST =====
     if (!date) {
-        if (dateWarn) dateWarn.style.display = "block";
-        if (slotsContainer) slotsContainer.innerHTML = '<div style="color:#fbbf24;font-weight:700;font-size:.95rem;padding:12px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen tarih seçiniz</div>';
+        // Date is empty - show date warning
+        if (dateWarn) {
+            dateWarn.style.display = "block";
+            dateWarn.style.visibility = "visible";
+        }
+        if (slotsContainer) {
+            slotsContainer.innerHTML = '<div style="color:#fbbf24;font-weight:700;font-size:.95rem;padding:12px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen tarih seçiniz</div>';
+        }
         return;
     }
-    // Hide date warning if date is selected
-    if (dateWarn) dateWarn.style.display = "none";
 
-    // Then check staff if exists
+    // Date is selected - hide date warning
+    if (dateWarn) {
+        dateWarn.style.display = "none";
+        dateWarn.style.visibility = "hidden";
+    }
+
+    // ===== CHECK STAFF (if staff select exists) =====
     if (staffSel && !staffSel.value) {
-        if (slotsContainer) slotsContainer.innerHTML = '<div style="color:#ef4444;font-weight:700;font-size:.95rem;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen Personel Seçiniz</div>';
+        // Staff select exists but no staff selected
+        if (slotsContainer) {
+            slotsContainer.innerHTML = '<div style="color:#ef4444;font-weight:700;font-size:.95rem;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen Personel Seçiniz</div>';
+        }
         return;
     }
     const isRental = "{{ biz.category }}" === "rent-a-car";
