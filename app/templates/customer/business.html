@@ -414,14 +414,26 @@ function startBooking(id, name, duration, price) {
 }
 
 async function loadSlots(prefix) {
-    if (!selSvc) return;
-    const date = document.getElementById(prefix + "-datePicker").value;
-    const slotsWrapper = document.getElementById(prefix + "-slotsWrapper");
-    const slotsContainer = document.getElementById(prefix + "-slots");
-    const staffSel = document.getElementById(prefix + "-staffSelect");
-    const dateWarn = document.getElementById(prefix + "-date-warn");
+    try {
+        console.log(`loadSlots(${prefix}) STARTING`);
+        if (!selSvc) {
+            console.log(`loadSlots(${prefix}): selSvc missing, returning`);
+            return;
+        }
 
-    console.log(`loadSlots(${prefix}):`, {date, staffSelExists: !!staffSel, staffValue: staffSel?.value});
+        const datePicker = document.getElementById(prefix + "-datePicker");
+        if (!datePicker) {
+            console.error(`loadSlots(${prefix}): datePicker element NOT FOUND!`);
+            return;
+        }
+
+        const date = datePicker.value;
+        const slotsWrapper = document.getElementById(prefix + "-slotsWrapper");
+        const slotsContainer = document.getElementById(prefix + "-slots");
+        const staffSel = document.getElementById(prefix + "-staffSelect");
+        const dateWarn = document.getElementById(prefix + "-date-warn");
+
+        console.log(`loadSlots(${prefix}):`, {date, staffSelExists: !!staffSel, staffValue: staffSel?.value});
 
     // Show wrapper
     if (slotsWrapper) slotsWrapper.classList.add("visible");
@@ -491,6 +503,9 @@ async function loadSlots(prefix) {
         const avail = (typeof s === "object") ? s.available : true;
         return avail ? `<button type="button" class="slot-btn slot-available" onclick="selectSlot('${t}','${date}','${prefix}',this)">${t}</button>` : `<button type="button" class="slot-btn slot-booked" disabled>${t}<br><span style="font-size:.65rem;">Dolu</span></button>`;
     }).join("");
+    } catch (error) {
+        console.error(`loadSlots(${prefix}) ERROR:`, error);
+    }
 }
 
 function selectSlot(time, date, prefix, el) {
