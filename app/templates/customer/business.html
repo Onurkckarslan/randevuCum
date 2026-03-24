@@ -416,14 +416,22 @@ function startBooking(id, name, duration, price) {
 async function loadSlots(prefix) {
     if (!selSvc) return;
     const date = document.getElementById(prefix + "-datePicker").value;
-    if (!date) return;
     const slotsWrapper = document.getElementById(prefix + "-slotsWrapper");
+    const slotsContainer = document.getElementById(prefix + "-slots");
     const staffSel = document.getElementById(prefix + "-staffSelect");
-    if (staffSel && !staffSel.value) {
-        if (slotsWrapper) slotsWrapper.classList.remove("visible");
+
+    // Show wrapper
+    if (slotsWrapper) slotsWrapper.classList.add("visible");
+
+    // Check for required selections
+    if (!date) {
+        if (slotsContainer) slotsContainer.innerHTML = '<small class="text-warning" style="font-weight:600;"><i class="bi bi-exclamation-circle me-1"></i>Lütfen tarih seçiniz</small>';
         return;
     }
-    if (slotsWrapper) slotsWrapper.classList.add("visible");
+    if (staffSel && !staffSel.value) {
+        if (slotsContainer) slotsContainer.innerHTML = '<small class="text-warning" style="font-weight:600;"><i class="bi bi-exclamation-circle me-1"></i>Lütfen Personel Seçiniz</small>';
+        return;
+    }
     const isRental = "{{ biz.category }}" === "rent-a-car";
     if (isRental) {
         const staffSel = document.getElementById(prefix + "-staffSelect");
