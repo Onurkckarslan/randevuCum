@@ -507,6 +507,14 @@ function checkStaff(prefix) {
     return true;
 }
 
+// Event listeners for date/staff changes
+["m", "d"].forEach(prefix => {
+    const datePicker = document.getElementById(prefix + "-datePicker");
+    if (datePicker) datePicker.addEventListener("change", () => loadSlots(prefix));
+    const staffSel = document.getElementById(prefix + "-staffSelect");
+    if (staffSel) staffSel.addEventListener("change", () => loadSlots(prefix));
+});
+
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if(e.isIntersecting) {
@@ -585,14 +593,6 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
 
     <!-- TAB: FİYATLAR -->
     <div class="tab-content active" id="tab-fiyatlar">
-        <!-- MOBİL: GÖRSEL SHOWCASE (c2.png + c3.png) -->
-        <div class="d-md-none mb-3" style="display:flex;flex-direction:column;gap:12px;">
-            <img src="/static/images/c2.png" alt="Hizmetler Görseli 1"
-                 style="width:100%;height:auto;border-radius:14px;box-shadow:0 4px 12px rgba(124,58,237,.2);">
-            <img src="/static/images/c3.png" alt="Hizmetler Görseli 2"
-                 style="width:100%;height:auto;border-radius:14px;box-shadow:0 4px 12px rgba(124,58,237,.2);">
-        </div>
-
         <!-- HİZMETLER -->
         <div class="card p-3 mb-3">
             <h6 class="fw-bold mb-3">✂️ Hizmetler & Fiyatlar</h6>
