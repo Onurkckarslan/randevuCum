@@ -14,7 +14,12 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return bcrypt.checkpw(plain.encode(), hashed.encode())
+    try:
+        # hashed parametresi veritabanından geldiği için string'dir
+        # bcrypt.checkpw() plain text'i bytes'a, hash'i de bytes'a dönüştürmeyi gerektirir
+        return bcrypt.checkpw(plain.encode('utf-8'), hashed.encode('utf-8'))
+    except Exception:
+        return False
 
 
 def create_token(business_id: int) -> str:

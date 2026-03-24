@@ -61,33 +61,92 @@ async def register(
     district: str = Form(""),
     db: Session = Depends(get_db)
 ):
-    if db.query(Business).filter(Business.email == email).first():
+    try:
+        # Input validation
+        email = email.strip().lower()
+        name = name.strip()
+        password = password.strip()
+        phone = phone.strip()
+
+        # Validate inputs
+        if not name or len(name) < 2:
+            logger.warning(f"[REGISTER] Invalid name: {name}")
+            return templates.TemplateResponse("business/register.html", {
+                "request": request, "error": "İşletme adı en az 2 karakter olmalı."
+            })
+
+        if not email or "@" not in email or "." not in email:
+            logger.warning(f"[REGISTER] Invalid email format: {email}")
+            return templates.TemplateResponse("business/register.html", {
+                "request": request, "error": "Geçerli bir e-posta adresi girin."
+            })
+
+        if not password or len(password) < 6:
+            logger.warning(f"[REGISTER] Password too short for: {email}")
+            return templates.TemplateResponse("business/register.html", {
+                "request": request, "error": "Şifre en az 6 karakter olmalı."
+            })
+
+        if not phone or len(phone) < 10:
+            logger.warning(f"[REGISTER] Invalid phone: {phone}")
+            return templates.TemplateResponse("business/register.html", {
+                "request": request, "error": "Geçerli bir telefon numarası girin."
+            })
+
+        # Check if email already exists
+        existing = db.query(Business).filter(Business.email == email).first()
+        if existing:
+            logger.warning(f"[REGISTER] Email already exists: {email}")
+            return templates.TemplateResponse("business/register.html", {
+                "request": request, "error": "Bu e-posta zaten kayıtlı."
+            })
+
+        # Generate unique slug
+        slug_base = slugify(name)
+        slug = slug_base
+        count = 1
+        while db.query(Business).filter(Business.slug == slug).first():
+            slug = f"{slug_base}-{count}"
+            count += 1
+
+        # Hash password
+        try:
+            password_hash = hash_password(password)
+        except Exception as e:
+            logger.error(f"[REGISTER] Password hashing failed for {email}: {str(e)}")
+            return templates.TemplateResponse("business/register.html", {
+                "request": request, "error": "Şifre işlenirken hata oluştu. Lütfen tekrar deneyin."
+            })
+
+        # Create business
+        biz = Business(
+            name=name, slug=slug, category=category,
+            phone=phone, email=email,
+            password_hash=password_hash,
+            address=address, district=district, city="Uşak",
+            plan="temel",
+            plan_expires_at=datetime.utcnow() + timedelta(days=30)
+        )
+
+        db.add(biz)
+        db.commit()
+        db.refresh(biz)
+
+        logger.info(f"[REGISTER] SUCCESS: {email} (ID: {biz.id}, name: {name})")
+
+        response = safe_redirect("/panel", request)
+        response.set_cookie("token", create_token(biz.id), max_age=60*60*24*30, httponly=True, secure=False, samesite="lax")
+        return response
+
+    except Exception as e:
+        logger.error(f"[REGISTER] Unexpected error: {str(e)}", exc_info=True)
+        try:
+            db.rollback()
+        except:
+            pass
         return templates.TemplateResponse("business/register.html", {
-            "request": request, "error": "Bu e-posta zaten kayıtlı."
+            "request": request, "error": "Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin."
         })
-
-    slug_base = slugify(name)
-    slug = slug_base
-    count = 1
-    while db.query(Business).filter(Business.slug == slug).first():
-        slug = f"{slug_base}-{count}"
-        count += 1
-
-    biz = Business(
-        name=name, slug=slug, category=category,
-        phone=phone, email=email,
-        password_hash=hash_password(password),
-        address=address, district=district, city="Uşak",
-        plan="temel",
-        plan_expires_at=datetime.utcnow() + timedelta(days=30)  # 30 gün ücretsiz
-    )
-    db.add(biz)
-    db.commit()
-    db.refresh(biz)
-
-    response = safe_redirect("/panel", request)
-    response.set_cookie("token", create_token(biz.id), max_age=60*60*24*30, httponly=True, secure=False, samesite="lax")
-    return response
 
 
 @router.get("/giris", response_class=HTMLResponse)
@@ -106,15 +165,39 @@ async def login(
     password: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    biz = db.query(Business).filter(Business.email == email).first()
-    if not biz or not verify_password(password, biz.password_hash):
-        return templates.TemplateResponse("business/login.html", {
-            "request": request, "error": "E-posta veya şifre hatalı."
-        })
+    try:
+        email = email.strip().lower()
+        password = password.strip()
 
-    response = safe_redirect("/panel", request)
-    response.set_cookie("token", create_token(biz.id), max_age=60*60*24*30, httponly=True, secure=False, samesite="lax")
-    return response
+        if not email or not password:
+            logger.warning(f"[LOGIN] Empty email or password attempt")
+            return templates.TemplateResponse("business/login.html", {
+                "request": request, "error": "E-posta ve şifre gerekli."
+            })
+
+        biz = db.query(Business).filter(Business.email == email).first()
+        if not biz:
+            logger.warning(f"[LOGIN] Business not found: {email}")
+            return templates.TemplateResponse("business/login.html", {
+                "request": request, "error": "E-posta veya şifre hatalı."
+            })
+
+        if not verify_password(password, biz.password_hash):
+            logger.warning(f"[LOGIN] Wrong password for: {email}")
+            return templates.TemplateResponse("business/login.html", {
+                "request": request, "error": "E-posta veya şifre hatalı."
+            })
+
+        logger.info(f"[LOGIN] SUCCESS: {email} (ID: {biz.id})")
+        response = safe_redirect("/panel", request)
+        response.set_cookie("token", create_token(biz.id), max_age=60*60*24*30, httponly=True, secure=False, samesite="lax")
+        return response
+
+    except Exception as e:
+        logger.error(f"[LOGIN] Unexpected error: {str(e)}", exc_info=True)
+        return templates.TemplateResponse("business/login.html", {
+            "request": request, "error": "Giriş sırasında bir hata oluştu. Lütfen tekrar deneyin."
+        })
 
 
 @router.get("/cikis")
@@ -194,33 +277,70 @@ async def reset_password(
     password_confirm: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    if password != password_confirm:
+    try:
+        password = password.strip()
+        password_confirm = password_confirm.strip()
+
+        # Validate new password
+        if not password or len(password) < 6:
+            return templates.TemplateResponse("business/reset_password.html", {
+                "request": request, "error": "Yeni şifre en az 6 karakter olmalı.", "token": token
+            })
+
+        if password != password_confirm:
+            return templates.TemplateResponse("business/reset_password.html", {
+                "request": request, "error": "Şifreler eşleşmiyor.", "token": token
+            })
+
+        reset_token = db.query(PasswordResetToken).filter(
+            PasswordResetToken.token == token,
+            PasswordResetToken.expires_at > datetime.utcnow()
+        ).first()
+
+        if not reset_token:
+            logger.warning(f"[RESET] Invalid or expired token: {token}")
+            return templates.TemplateResponse("business/reset_password.html", {
+                "request": request, "error": "Geçersiz veya süresi dolmuş reset linki.", "token": None
+            })
+
+        # Update password
+        biz = db.query(Business).filter(Business.email == reset_token.email).first()
+        if not biz:
+            logger.error(f"[RESET] Business not found for email: {reset_token.email}")
+            return templates.TemplateResponse("business/reset_password.html", {
+                "request": request, "error": "Bir hata oluştu. Lütfen tekrar deneyin.", "token": None
+            })
+
+        try:
+            biz.password_hash = hash_password(password)
+            db.commit()
+            logger.info(f"[RESET] Password reset successful for: {reset_token.email}")
+        except Exception as e:
+            logger.error(f"[RESET] Failed to hash password: {str(e)}")
+            db.rollback()
+            return templates.TemplateResponse("business/reset_password.html", {
+                "request": request, "error": "Şifre güncellenirken hata oluştu.", "token": token
+            })
+
+        # Delete used token
+        try:
+            db.delete(reset_token)
+            db.commit()
+        except:
+            pass
+
         return templates.TemplateResponse("business/reset_password.html", {
-            "request": request, "error": "Şifreler eşleşmiyor.", "token": token
+            "request": request, "error": "Şifreniz başarıyla sıfırlanmıştır. Giriş yapmak için lütfen yeni şifrenizi kullanın.",
+            "token": None, "success": True
         })
 
-    reset_token = db.query(PasswordResetToken).filter(
-        PasswordResetToken.token == token,
-        PasswordResetToken.expires_at > datetime.utcnow()
-    ).first()
-
-    if not reset_token:
+    except Exception as e:
+        logger.error(f"[RESET] Unexpected error: {str(e)}", exc_info=True)
+        try:
+            db.rollback()
+        except:
+            pass
         return templates.TemplateResponse("business/reset_password.html", {
-            "request": request, "error": "Geçersiz veya süresi dolmuş reset linki.", "token": None
+            "request": request, "error": "Şifre sıfırlama sırasında bir hata oluştu.", "token": token
         })
-
-    # Şifreyi güncelle
-    biz = db.query(Business).filter(Business.email == reset_token.email).first()
-    if biz:
-        biz.password_hash = hash_password(password)
-        db.commit()
-
-    # Token'ı sil
-    db.delete(reset_token)
-    db.commit()
-
-    return templates.TemplateResponse("business/reset_password.html", {
-        "request": request, "error": "Şifreniz başarıyla sıfırlanmıştır. Giriş yapmak için lütfen yeni şifrenizi kullanın.",
-        "token": None, "success": True
-    })
 
