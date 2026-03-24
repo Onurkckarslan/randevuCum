@@ -424,28 +424,34 @@ async function loadSlots(prefix) {
     // Show wrapper
     if (slotsWrapper) slotsWrapper.classList.add("visible");
 
-    // ===== CHECK DATE FIRST =====
-    if (!date) {
-        // Date is empty - show date warning
+    // ===== VALIDATE BOTH DATE AND STAFF =====
+    const isDateEmpty = !date;
+    const isStaffEmpty = staffSel && !staffSel.value;
+
+    // Show/hide date warning div
+    if (isDateEmpty) {
         if (dateWarn) {
             dateWarn.style.display = "block";
             dateWarn.style.visibility = "visible";
         }
+    } else {
+        if (dateWarn) {
+            dateWarn.style.display = "none";
+            dateWarn.style.visibility = "hidden";
+        }
+    }
+
+    // Show appropriate warning in slots container
+    if (isDateEmpty) {
+        // Date is missing
         if (slotsContainer) {
             slotsContainer.innerHTML = '<div style="color:#fbbf24;font-weight:700;font-size:.95rem;padding:12px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen tarih seçiniz</div>';
         }
         return;
     }
 
-    // Date is selected - hide date warning
-    if (dateWarn) {
-        dateWarn.style.display = "none";
-        dateWarn.style.visibility = "hidden";
-    }
-
-    // ===== CHECK STAFF (if staff select exists) =====
-    if (staffSel && !staffSel.value) {
-        // Staff select exists but no staff selected
+    if (isStaffEmpty) {
+        // Date is selected but staff is missing
         if (slotsContainer) {
             slotsContainer.innerHTML = '<div style="color:#ef4444;font-weight:700;font-size:.95rem;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen Personel Seçiniz</div>';
         }
@@ -552,12 +558,18 @@ function checkStaff(prefix) {
 ["m", "d"].forEach(prefix => {
     const datePicker = document.getElementById(prefix + "-datePicker");
     if (datePicker) {
-        datePicker.addEventListener("change", () => loadSlots(prefix));
-        // İlk yüklemede tarih uyarısını göster
-        loadSlots(prefix);
+        datePicker.addEventListener("change", () => {
+            console.log("Date changed for " + prefix);
+            loadSlots(prefix);
+        });
     }
     const staffSel = document.getElementById(prefix + "-staffSelect");
-    if (staffSel) staffSel.addEventListener("change", () => loadSlots(prefix));
+    if (staffSel) {
+        staffSel.addEventListener("change", () => {
+            console.log("Staff changed for " + prefix + ", value: " + staffSel.value);
+            loadSlots(prefix);
+        });
+    }
 });
 
 const observer = new IntersectionObserver(entries => {
