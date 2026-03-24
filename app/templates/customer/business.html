@@ -837,6 +837,12 @@ const observer = new IntersectionObserver(entries => {
   threshold: 0.12,
   rootMargin: '0px 0px -50px 0px'
 });
-document.querySelectorAll('[class*="reveal"]').forEach(el => observer.observe(el));
+document.querySelectorAll('[class*="reveal"]').forEach(el => {
+  observer.observe(el);
+  // Immediately show if already in viewport on page load
+  if(el.getBoundingClientRect().top < window.innerHeight) {
+    el.classList.add('visible');
+  }
+});
 </script>
 {% endblock %}
