@@ -62,10 +62,11 @@ async def business_page(slug: str, request: Request, db: Session = Depends(get_d
     staff       = db.query(Staff).filter(Staff.business_id == biz.id, Staff.is_active == True).all()
     work_hours  = db.query(WorkHour).filter(WorkHour.business_id == biz.id).order_by(WorkHour.day_of_week).all()
     photos      = db.query(BusinessPhoto).filter(BusinessPhoto.business_id == biz.id).all()
+    products    = db.query(Product).filter(Product.business_id == biz.id, Product.is_active == True).all()
 
     return templates.TemplateResponse("customer/business.html", {
         "request": request, "biz": biz, "services": services,
-        "staff": staff, "work_hours": work_hours, "photos": photos,
+        "staff": staff, "work_hours": work_hours, "photos": photos, "products": products,
     })
 
 
