@@ -532,7 +532,11 @@ function checkStaff(prefix) {
 // Event listeners for date/staff changes
 ["m", "d"].forEach(prefix => {
     const datePicker = document.getElementById(prefix + "-datePicker");
-    if (datePicker) datePicker.addEventListener("change", () => loadSlots(prefix));
+    if (datePicker) {
+        datePicker.addEventListener("change", () => loadSlots(prefix));
+        // İlk yüklemede tarih uyarısını göster
+        loadSlots(prefix);
+    }
     const staffSel = document.getElementById(prefix + "-staffSelect");
     if (staffSel) staffSel.addEventListener("change", () => loadSlots(prefix));
 });
