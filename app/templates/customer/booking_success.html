@@ -59,6 +59,51 @@ body { background: #0d0d16 !important; }
   transition: opacity .15s;
 }
 .btn-home:hover { opacity: .88; color: white; }
+
+/* ── Ürün Seçimi ── */
+.product-section {
+  background: rgba(124,58,237,.08);
+  border: 1px solid rgba(124,58,237,.2);
+  border-radius: 16px; padding: 18px;
+  margin-bottom: 18px;
+}
+.product-section-title { font-size: 1.1rem; font-weight: 800; color: #f1f0f5; margin-bottom: 4px; }
+.product-section-sub { font-size: .8rem; color: rgba(196,181,253,.5); margin-bottom: 14px; }
+
+.product-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.product-item {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(0,0,0,.2); padding: 11px 12px; border-radius: 10px;
+  transition: all .2s;
+}
+.product-item:hover { background: rgba(124,58,237,.15); }
+.product-item input[type="checkbox"] {
+  width: 18px; height: 18px; cursor: pointer;
+}
+.product-item input[type="checkbox"]:disabled {
+  opacity: 0.4; cursor: not-allowed;
+}
+.product-item label { flex: 1; cursor: pointer; margin: 0; display: flex; align-items: center; gap: 8px; }
+.product-item label.disabled { opacity: 0.5; cursor: not-allowed; }
+.product-name { flex: 1; color: #f1f0f5; font-weight: 600; font-size: .9rem; }
+.product-price { color: #a78bfa; font-weight: 700; font-size: .88rem; white-space: nowrap; margin-right: 6px; }
+.product-stock-tag { background: rgba(239,68,68,.2); color: #fca5a5; padding: 2px 8px; border-radius: 6px; font-size: .75rem; font-weight: 700; }
+
+.btn-product-submit {
+  display: block; width: 100%; padding: 12px;
+  background: rgba(16,185,129,.2); border: 1px solid rgba(16,185,129,.3);
+  border-radius: 10px; color: #6ee7b7; font-weight: 700; font-size: .9rem;
+  cursor: pointer; transition: all .2s;
+}
+.btn-product-submit:hover { background: rgba(16,185,129,.35); }
+
+.btn-skip {
+  display: block; width: 100%; padding: 10px;
+  background: transparent; border: 1px solid rgba(196,181,253,.3);
+  border-radius: 10px; color: #c4b5fd; font-weight: 600; font-size: .85rem;
+  cursor: pointer; transition: all .2s; margin-top: 8px;
+}
+.btn-skip:hover { border-color: rgba(196,181,253,.5); color: #e9d5ff; }
 </style>
 {% endblock %}
 
@@ -101,7 +146,36 @@ body { background: #0d0d16 !important; }
     <span>Randevudan <strong>1 gün önce</strong> ve <strong>2 saat önce</strong> SMS hatırlatma alacaksınız.</span>
   </div>
 
+  <!-- Ürün Seçimi (products_saved değilse ve ürün varsa) -->
+  {% if products and not products_saved %}
+  <div class="product-section">
+    <div class="product-section-title">🛍️ Ürün Ekle</div>
+    <div class="product-section-sub">Randevunuza eklemek istediğiniz ürünleri seçebilirsiniz (opsiyonel)</div>
+
+    <form method="post" action="/{{ biz.slug }}/randevu-urun-sec/{{ apt.id }}" class="product-form">
+      <div class="product-list">
+        {% for p in products %}
+        <div class="product-item">
+          <input type="checkbox" name="product_ids" value="{{ p.id }}" id="prod_{{ p.id }}"
+                 {% if p.stock <= 0 %}disabled{% endif %}>
+          <label for="prod_{{ p.id }}" {% if p.stock <= 0 %}class="disabled"{% endif %}>
+            <span class="product-name">{{ p.name }}</span>
+            <span class="product-price">{{ p.price }} TL</span>
+            {% if p.stock <= 0 %}
+            <span class="product-stock-tag">Tükendi</span>
+            {% endif %}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn-product-submit">✓ Ürünleri Ekle & Randevuyu Tamamla</button>
+      <button type="button" class="btn-skip" onclick="document.location.href='/'">Ürün Almadan Devam Et</button>
+    </form>
+  </div>
+  {% else %}
   <!-- Geri dön -->
   <a href="/" class="btn-home">Ana Sayfaya Dön</a>
+  {% endif %}
 </div>
 {% endblock %}

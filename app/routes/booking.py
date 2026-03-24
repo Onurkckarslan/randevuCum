@@ -3,9 +3,9 @@ from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto
+from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, AppointmentProduct
 from sqlalchemy.orm import joinedload
-from ..sms import send_appointment_confirm
+from ..sms import send_appointment_confirm, send_booking_with_products_customer, send_booking_with_products_business
 from datetime import date, datetime, timedelta
 from typing import Optional
 import asyncio
@@ -177,11 +177,15 @@ async def book_appointment(
             selected_date, selected_time
         ))
 
+        # Get active products for this business
+        products = db.query(Product).filter_by(business_id=biz.id, is_active=True).all()
+
         return templates.TemplateResponse("customer/booking_success.html", {
             "request": request,
             "biz": biz,
             "apt": apt,
             "service": svc,
+            "products": products,
         })
     except HTTPException:
         raise
@@ -190,4 +194,76 @@ async def book_appointment(
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Booking error: {str(e)}")
+
+
+@router.post("/{slug}/randevu-urun-sec/{apt_id}", response_class=HTMLResponse)
+async def select_products(
+    slug: str,
+    apt_id: int,
+    request: Request,
+    product_ids: Optional[list[int]] = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Müşteri randevu sonrası ürün seçer"""
+    try:
+        # Get appointment & business
+        apt = db.query(Appointment).filter_by(id=apt_id).first()
+        if not apt:
+            raise HTTPException(status_code=404, detail="Randevu bulunamadı")
+
+        biz = db.query(Business).filter_by(id=apt.business_id, slug=slug).first()
+        if not biz:
+            raise HTTPException(status_code=404, detail="İşletme bulunamadı")
+
+        svc = db.query(Service).filter_by(id=apt.service_id).first()
+
+        # Save selected products if any
+        selected_products = []
+        if product_ids:
+            for pid in product_ids:
+                prod = db.query(Product).filter_by(id=pid, business_id=biz.id).first()
+                if prod:
+                    app_prod = AppointmentProduct(
+                        appointment_id=apt_id,
+                        product_id=pid,
+                        quantity=1
+                    )
+                    db.add(app_prod)
+                    selected_products.append(app_prod)
+            db.commit()
+
+        # Refresh to load relationships
+        db.refresh(apt)
+        apt_products = db.query(AppointmentProduct).filter_by(appointment_id=apt_id).all()
+
+        # Send SMS to customer and business owner
+        asyncio.create_task(send_booking_with_products_customer(
+            apt.customer_phone, apt.customer_name,
+            biz.name, svc.name,
+            apt.date, apt.time, apt_products
+        ))
+
+        if biz.phone:
+            asyncio.create_task(send_booking_with_products_business(
+                biz.phone, apt.customer_name,
+                svc.name, apt.date, apt.time, apt_products
+            ))
+
+        # Redirect to success page with flag
+        products = db.query(Product).filter_by(business_id=biz.id, is_active=True).all()
+        return templates.TemplateResponse("customer/booking_success.html", {
+            "request": request,
+            "biz": biz,
+            "apt": apt,
+            "service": svc,
+            "products": products,
+            "products_saved": True,
+        })
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[PRODUCT SELECT ERROR] {slug}/{apt_id}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Product selection error: {str(e)}")
 

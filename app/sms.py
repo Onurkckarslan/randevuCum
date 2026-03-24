@@ -75,3 +75,34 @@ async def send_2h_reminder(customer_name: str, phone: str,
     )
     return await send_sms(phone, msg)
 
+
+async def send_booking_with_products_customer(customer_phone: str, customer_name: str,
+                                              business_name: str, service_name: str,
+                                              date: str, time: str, products: list) -> bool:
+    """Müşteriye randevu + ürün bilgisi ile SMS gönder"""
+    product_line = ""
+    if products:
+        product_names = [f"{p.product.name} x{p.quantity}" for p in products]
+        product_line = " | Urunler: " + ", ".join(product_names)
+
+    msg = (
+        f"Merhaba {customer_name}, {business_name} icin {date} {time} "
+        f"tarihli {service_name} randevunuz olusturuldu.{product_line}"
+    )
+    return await send_sms(customer_phone, msg)
+
+
+async def send_booking_with_products_business(business_phone: str, customer_name: str,
+                                              service_name: str, date: str, time: str,
+                                              products: list) -> bool:
+    """İşletme sahibine yeni randevu + ürün bilgisi ile SMS gönder"""
+    product_line = ""
+    if products:
+        product_names = [f"{p.product.name} x{p.quantity}" for p in products]
+        product_line = " | Urunler: " + ", ".join(product_names)
+
+    msg = (
+        f"Yeni randevu: {customer_name} - {service_name} - {date} saat {time}{product_line}"
+    )
+    return await send_sms(business_phone, msg)
+

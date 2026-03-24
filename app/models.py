@@ -101,6 +101,20 @@ class Appointment(Base):
     business  = relationship("Business", back_populates="appointments")
     service   = relationship("Service")
     staff     = relationship("Staff")
+    apt_products = relationship("AppointmentProduct", cascade="all, delete-orphan")
+
+
+class AppointmentProduct(Base):
+    """Randevu ile seçilen ürünler"""
+    __tablename__ = "appointment_products"
+
+    id             = Column(Integer, primary_key=True, index=True)
+    appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=False)
+    product_id     = Column(Integer, ForeignKey("products.id"), nullable=False)
+    quantity       = Column(Integer, default=1)
+    created_at     = Column(DateTime, default=datetime.utcnow)
+
+    product        = relationship("Product")
 
 
 class BusinessPhoto(Base):
