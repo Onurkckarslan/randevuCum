@@ -423,11 +423,12 @@ async function loadSlots(prefix) {
     // Show wrapper
     if (slotsWrapper) slotsWrapper.classList.add("visible");
 
-    // Check for required selections
+    // Check date first - ALWAYS show if no date selected
     if (!date) {
         if (slotsContainer) slotsContainer.innerHTML = '<div style="color:#fbbf24;font-weight:700;font-size:.95rem;padding:12px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen tarih seçiniz</div>';
         return;
     }
+    // Then check staff if exists
     if (staffSel && !staffSel.value) {
         if (slotsContainer) slotsContainer.innerHTML = '<div style="color:#ef4444;font-weight:700;font-size:.95rem;padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;"><i class="bi bi-exclamation-circle me-2"></i>⚠️ Lütfen Personel Seçiniz</div>';
         return;
