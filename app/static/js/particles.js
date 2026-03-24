@@ -14,9 +14,9 @@ const ParticlesEffect = (() => {
   let particlePool = [];
 
   const DEFAULT_CONFIG = {
-    particleCount: 15,
-    speed: 0.1,
-    opacity: 0.15,
+    particleCount: 10,
+    speed: 0.08,
+    opacity: 0.10,
     rotation: true,
     shapes: ['star', 'dot', 'dash', 'circle'],
     colors: ['#7c3aed', '#ec4899', '#06b6d4']
@@ -173,8 +173,8 @@ const ParticlesEffect = (() => {
   const animate = () => {
     if (!isRunning) return;
 
-    // Semi-transparent fade trail (motion blur effect)
-    ctx.fillStyle = 'rgba(18, 18, 18, 0.02)';
+    // Semi-transparent fade trail (motion blur effect) — faster fade
+    ctx.fillStyle = 'rgba(18, 18, 18, 0.08)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Update and draw all particles
@@ -330,18 +330,18 @@ const ParticlesEffect = (() => {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     ParticlesEffect.init({
-      particleCount: 16,
-      speed: 0.13,
-      opacity: 0.24,
+      particleCount: 10,
+      speed: 0.08,
+      opacity: 0.10,
       rotation: true
     });
   });
 } else {
   // Already loaded
   ParticlesEffect.init({
-    particleCount: 15,
-    speed: 0.1,
-    opacity: 0.15,
+    particleCount: 10,
+    speed: 0.08,
+    opacity: 0.10,
     rotation: true
   });
 }
