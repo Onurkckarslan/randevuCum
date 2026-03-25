@@ -93,6 +93,22 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 .customers-table tbody tr { transition: all .2s; }
 .customers-table tbody tr:hover { background: rgba(124,58,237,.12); transform: scale(1.001); }
 
+/* Seviye Badges */
+.level-badge { display: inline-flex; align-items: center; gap: 4px; font-size: .75rem; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+.level-platin { background: linear-gradient(135deg, #06b6d4, #3b82f6); color: white; }
+.level-sadik  { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1a00; }
+.level-duzenli { background: rgba(156,163,175,.2); color: #d1d5db; }
+.level-baslangic { background: rgba(107,114,128,.15); color: #9ca3af; }
+
+/* Hatırlatma Kartı */
+.reminder-card { background: rgba(245,158,11,.06); border: 1px solid rgba(245,158,11,.2); border-radius: 14px; padding: 20px; margin-bottom: 24px; }
+.reminder-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.05); flex-wrap: wrap; gap: 12px; }
+.reminder-row:last-child { border-bottom: none; }
+.reminder-name { font-weight: 700; color: #f1f0f5; font-size: .95rem; }
+.reminder-days { font-size: .8rem; color: #fbbf24; font-weight: 600; margin-top: 2px; }
+.btn-remind { display: inline-flex; align-items: center; gap: 6px; background: #25d366; color: white; border: none; border-radius: 8px; padding: 7px 14px; font-size: .82rem; font-weight: 700; text-decoration: none; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn-remind:hover { background: #20b95a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,211,102,.3); }
+
 /* Modal untuk Notes */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1000; backdrop-filter: blur(4px); }
 .modal-overlay.active { display: flex; align-items: center; justify-content: center; }
@@ -129,18 +145,41 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
     <div class="feature-card">
       <div class="feature-icon">📲</div>
       <div class="feature-title">Akıllı Hatırlatmalar</div>
-      <div class="feature-desc">Kampanya mesajı gönderin veya "Randevunuzu özledik" diyerek haberdar olun.</div>
-      <div class="feature-status feature-soon">🔜 Yakında</div>
+      <div class="feature-desc">30+ gün gelmeyen müşterileri otomatik tespit et. Tek tıkla WhatsApp mesajı gönder.</div>
+      <div class="feature-status">✅ Aktif</div>
     </div>
 
     <!-- Sadakat Programı -->
     <div class="feature-card">
       <div class="feature-icon">🎯</div>
       <div class="feature-title">Sadakat Programı</div>
-      <div class="feature-desc">Puan sistemi veya kampanya yönetimi tamamen isteğe bağlı, açıp kapatılabilir.</div>
-      <div class="feature-status feature-soon">🔜 Yakında</div>
+      <div class="feature-desc">Ziyaret sayısına göre otomatik seviye: 🥉 Başlangıç → 🥈 Düzenli → 🥇 Sadık → 💎 Platin</div>
+      <div class="feature-status">✅ Aktif</div>
     </div>
   </div>
+
+  <!-- HATIRLATMA BÖLÜMÜ -->
+  {% if reminder_customers %}
+  <div class="reminder-card">
+    <div class="section-title" style="color:#fbbf24; margin-bottom: 12px;">
+      ⏰ Hatırlatma Gereken Müşteriler
+      <span style="font-size:.75rem; font-weight:600; color:rgba(251,191,36,.6); margin-left:8px;">30+ gün gelmedi</span>
+    </div>
+    {% for c in reminder_customers %}
+    <div class="reminder-row">
+      <div>
+        <div class="reminder-name">{{ c.name or "—" }}</div>
+        <div class="reminder-days">{{ c.days_absent }} gün önce geldi • {{ c.phone }}</div>
+      </div>
+      <a href="https://wa.me/{{ c.phone }}?text={{ ('Merhaba ' + (c.name or '') + ', sizi çok özledik! Yeni randevunuz için: https://www.randevucum.com/' + biz.slug) | urlencode }}"
+         target="_blank" class="btn-remind">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+        WhatsApp Gönder
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <!-- MÜŞTERI LİSTESİ -->
   <div class="section-title">👥 Müşteri Listesi</div>
@@ -156,6 +195,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
         <th>İsim & Durum</th>
         <th>Telefon</th>
         <th>Ziyaret</th>
+        <th>Seviye</th>
         <th>Son Ziyaret</th>
         <th>İşlemler</th>
       </tr>
@@ -183,6 +223,10 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
           <span style="margin-left: 8px;">{{ customer.phone }}</span>
         </td>
         <td style="text-align: center; font-weight: 600; color: #a78bfa;">{{ customer.get("visit_count", 0) }}</td>
+        <td>
+          {% set emoji, label = customer.level %}
+          <span class="level-badge level-{{ label.lower() | replace('ı','i') }}">{{ emoji }} {{ label }}</span>
+        </td>
         <td>
           {% if customer.get("last_visit") %}
             {{ customer.last_visit | date_tr }}

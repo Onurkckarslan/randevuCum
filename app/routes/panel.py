@@ -837,10 +837,43 @@ async def loyalty_dashboard(request: Request, db: Session = Depends(get_db)):
 
     customers = sorted(phone_to_customer.values(), key=lambda x: x.get("visit_count", 0), reverse=True)
 
+    # ── SEVİYE VE GÜN HESAPLA ──
+    today = date.today()
+    for c in customers:
+        # Seviye: ziyaret sayısına göre
+        v = c.get("visit_count", 0)
+        if v >= 10:
+            c["level"] = ("💎", "Platin")
+        elif v >= 5:
+            c["level"] = ("🥇", "Sadık")
+        elif v >= 2:
+            c["level"] = ("🥈", "Düzenli")
+        else:
+            c["level"] = ("🥉", "Başlangıç")
+
+        # Son ziyaretten bu yana geçen gün
+        lv = c.get("last_visit")
+        if lv:
+            if isinstance(lv, str):
+                lv = date.fromisoformat(lv)
+            elif hasattr(lv, 'date'):
+                lv = lv.date()
+            c["days_absent"] = (today - lv).days
+        else:
+            c["days_absent"] = None
+
+    # 30+ gün gelmeyen müşteriler
+    reminder_customers = [
+        c for c in customers
+        if c.get("days_absent") is not None and c["days_absent"] >= 30
+    ]
+    reminder_customers.sort(key=lambda x: x["days_absent"], reverse=True)
+
     return templates.TemplateResponse("business/loyalty.html", {
         "request": request,
         "biz": biz,
-        "customers": customers
+        "customers": customers,
+        "reminder_customers": reminder_customers
     })
 
 
