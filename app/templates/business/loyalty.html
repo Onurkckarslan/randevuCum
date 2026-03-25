@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Müşteri Sadakati — Panel | RandevuCum{% endblock %}
+
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+.panel-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+.page-header { margin-bottom: 28px; }
+.page-title { font-size: 1.8rem; font-weight: 900; color: #f1f0f5; margin-bottom: 4px; }
+.page-subtitle { font-size: .9rem; color: rgba(196,181,253,.5); }
+
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.feature-card {
+  background: rgba(255,255,255,.04); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 16px;
+  padding: 20px; text-align: center;
+}
+.feature-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.feature-title { font-size: 1.1rem; font-weight: 700; color: #f1f0f5; margin-bottom: 8px; }
+.feature-desc { font-size: .9rem; color: rgba(196,181,253,.5); line-height: 1.5; }
+.feature-status { font-size: .8rem; font-weight: 600; color: #10b981; margin-top: 8px; }
+.feature-soon { color: #fbbf24; }
+
+.section-title { font-size: 1rem; font-weight: 800; letter-spacing: .08em; color: rgba(196,181,253,.5); text-transform: uppercase; margin-bottom: 16px; }
+
+.search-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+.search-bar input { flex: 1; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; color: #f1f0f5; padding: 10px 14px; font-size: .95rem; }
+.search-bar input::placeholder { color: rgba(196,181,253,.3); }
+.search-bar input:focus { outline: none; border-color: rgba(124,58,237,.5); box-shadow: 0 0 0 3px rgba(124,58,237,.18); }
+
+.btn-add { background: linear-gradient(135deg, #7c3aed, #ec4899); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; font-size: .9rem; }
+.btn-add:hover { opacity: .9; transform: translateY(-1px); }
+
+.customers-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; }
+.customers-table thead { background: rgba(255,255,255,.05); }
+.customers-table th { padding: 14px 16px; text-align: left; font-size: .9rem; font-weight: 700; color: rgba(196,181,253,.7); border-bottom: 1px solid rgba(255,255,255,.08); }
+.customers-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .9rem; }
+.customers-table tr:hover { background: rgba(124,58,237,.08); }
+.customers-table a { color: #a78bfa; text-decoration: none; font-weight: 600; }
+.customers-table a:hover { color: #c4b5fd; text-decoration: underline; }
+
+.badge-vip { display: inline-block; background: #7c3aed; color: white; font-size: .75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+.badge-active { display: inline-block; background: rgba(16,185,129,.2); color: #6ee7b7; font-size: .75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: rgba(196,181,253,.5); }
+.empty-state-icon { font-size: 3rem; margin-bottom: 12px; opacity: .5; }
+
+.btn-detail { background: rgba(124,58,237,.15); color: #a78bfa; border: 1px solid rgba(124,58,237,.3); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: .85rem; display: inline-block; transition: all .2s; }
+.btn-detail:hover { background: rgba(124,58,237,.25); color: #c4b5fd; border-color: rgba(124,58,237,.5); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="panel-container">
+  <!-- BAŞLIK -->
+  <div class="page-header">
+    <h1 class="page-title">Kendi Kurallarınızla Müşteri Sadakati</h1>
+    <p class="page-subtitle">Tüm özellikler isteğe bağlıdır, işletme tarzınıza göre özelleştirilebilir.</p>
+  </div>
+
+  <!-- 3 ÖZELLIK KARTI -->
+  <div class="features-grid">
+    <!-- Müşteri Kartları -->
+    <div class="feature-card">
+      <div class="feature-icon">👤</div>
+      <div class="feature-title">Kişiselleştirilmiş Müşteri Kartları</div>
+      <div class="feature-desc">VIP hizmet notları, tercihler ve alerjiler. Müşteri ilişkisini derinleştirin.</div>
+      <div class="feature-status">✅ Aktif</div>
+    </div>
+
+    <!-- Akıllı Hatırlatmalar -->
+    <div class="feature-card">
+      <div class="feature-icon">📲</div>
+      <div class="feature-title">Akıllı Hatırlatmalar</div>
+      <div class="feature-desc">Kampanya mesajı gönderin veya "Randevunuzu özledik" diyerek haberdar olun.</div>
+      <div class="feature-status feature-soon">🔜 Yakında</div>
+    </div>
+
+    <!-- Sadakat Programı -->
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Sadakat Programı</div>
+      <div class="feature-desc">Puan sistemi veya kampanya yönetimi tamamen isteğe bağlı, açıp kapatılabilir.</div>
+      <div class="feature-status feature-soon">🔜 Yakında</div>
+    </div>
+  </div>
+
+  <!-- MÜŞTERI LİSTESİ -->
+  <div class="section-title">👥 Müşteri Listesi</div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Müşteri adı veya telefon ara..." onkeyup="filterCustomers()">
+  </div>
+
+  {% if customers %}
+  <table class="customers-table" id="customersTable">
+    <thead>
+      <tr>
+        <th>İsim</th>
+        <th>Telefon</th>
+        <th>Ziyaret</th>
+        <th>Son Ziyaret</th>
+        <th>Durum</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for customer in customers %}
+      <tr>
+        <td>{{ customer.name or "—" }}</td>
+        <td>{{ customer.phone }}</td>
+        <td>{{ customer.get("visit_count", 0) }}</td>
+        <td>
+          {% if customer.get("last_visit") %}
+            {{ customer.last_visit.strftime("%d.%m.%Y") if customer.last_visit else "—" }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td>
+          {% if customer.get("vip") %}
+            <span class="badge-vip">⭐ VIP</span>
+          {% else %}
+            <span class="badge-active">Aktif</span>
+          {% endif %}
+        </td>
+        <td style="text-align: right;">
+          {% if customer.get("profile_id") %}
+            <a href="/panel/musteri-detay/{{ customer.profile_id }}" class="btn-detail">Detay →</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">👥</div>
+    <p>Henüz randevu yok. Müşteriler randevu aldıktan sonra burada görünecekler.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function filterCustomers() {
+  const input = document.getElementById("searchInput").value.toLowerCase();
+  const table = document.getElementById("customersTable");
+  if (!table) return;
+
+  const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+  for (let row of rows) {
+    const name = row.cells[0].textContent.toLowerCase();
+    const phone = row.cells[1].textContent.toLowerCase();
+    row.style.display = (name.includes(input) || phone.includes(input)) ? "" : "none";
+  }
+}
+</script>
+{% endblock %}

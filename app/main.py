@@ -34,6 +34,21 @@ async def lifespan(app: FastAPI):
             ALTER TABLE staff
             ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'personel'
         """))
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS customer_profiles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                business_id INTEGER NOT NULL,
+                name VARCHAR(100),
+                phone VARCHAR(20) NOT NULL,
+                notes TEXT,
+                preferences TEXT,
+                allergies TEXT,
+                vip_status BOOLEAN DEFAULT 0,
+                total_visits INTEGER DEFAULT 0,
+                last_visit DATETIME,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """))
         db.commit()
     except Exception as e:
         db.rollback()

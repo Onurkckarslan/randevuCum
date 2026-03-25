@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}{{ customer.name }} — Müşteri Detayı | RandevuCum{% endblock %}
+
+{% block extra_head %}
+<style>
+body { background: #0d0d16 !important; color: #f1f0f5 !important; }
+.panel-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+.back-btn { display: inline-flex; align-items: center; gap: 6px; color: #a78bfa; text-decoration: none; font-weight: 600; margin-bottom: 20px; font-size: .95rem; }
+.back-btn:hover { color: #c4b5fd; }
+
+.customer-header { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+.customer-name { font-size: 1.5rem; font-weight: 900; color: #f1f0f5; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+.badge-vip { background: #7c3aed; color: white; font-size: .8rem; font-weight: 700; padding: 6px 12px; border-radius: 6px; }
+.customer-meta { display: flex; gap: 20px; font-size: .95rem; color: rgba(196,181,253,.6); }
+.customer-meta span { display: flex; align-items: center; gap: 6px; }
+
+.form-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+.form-title { font-size: 1.1rem; font-weight: 800; color: #f1f0f5; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: .9rem; font-weight: 700; color: rgba(196,181,253,.7); margin-bottom: 8px; }
+.form-group textarea { width: 100%; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; color: #f1f0f5; padding: 12px 14px; font-family: inherit; font-size: .95rem; resize: vertical; min-height: 100px; }
+.form-group textarea:focus { outline: none; border-color: rgba(124,58,237,.5); box-shadow: 0 0 0 3px rgba(124,58,237,.18); }
+.form-group textarea::placeholder { color: rgba(196,181,253,.3); }
+
+.form-group.inline { display: flex; align-items: center; gap: 12px; }
+.form-group.inline input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #7c3aed; }
+.form-group.inline label { margin: 0; flex: 1; }
+
+.btn-save { background: linear-gradient(135deg, #7c3aed, #ec4899); color: white; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 700; font-size: .95rem; cursor: pointer; }
+.btn-save:hover { opacity: .9; transform: translateY(-1px); }
+
+.section-title { font-size: 1rem; font-weight: 800; letter-spacing: .08em; color: rgba(196,181,253,.5); text-transform: uppercase; margin: 32px 0 18px 0; }
+
+.appointments-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; }
+.appointments-table thead { background: rgba(255,255,255,.05); }
+.appointments-table th { padding: 12px 16px; text-align: left; font-size: .85rem; font-weight: 700; color: rgba(196,181,253,.7); border-bottom: 1px solid rgba(255,255,255,.08); }
+.appointments-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .9rem; }
+.appointments-table tr:hover { background: rgba(124,58,237,.08); }
+
+.badge-status { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: .8rem; font-weight: 700; }
+.badge-onaylandi { background: rgba(16,185,129,.2); color: #6ee7b7; }
+.badge-bekliyor { background: rgba(251,191,36,.2); color: #fbbf24; }
+.badge-iptal { background: rgba(239,68,68,.2); color: #fca5a5; }
+
+.empty-state { padding: 40px 20px; text-align: center; color: rgba(196,181,253,.5); }
+.empty-state-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="panel-container">
+  <!-- BACK BUTTON -->
+  <a href="/panel/musteri-sadakati" class="back-btn">← Müşteri Listesine Dön</a>
+
+  <!-- CUSTOMER HEADER -->
+  <div class="customer-header">
+    <div class="customer-name">
+      {{ customer.name or "Adı Belirlenmemiş" }}
+      {% if customer.vip_status %}<span class="badge-vip">⭐ VIP</span>{% endif %}
+    </div>
+    <div class="customer-meta">
+      <span>📞 {{ customer.phone }}</span>
+      <span>🗓️ {{ customer.total_visits }} Ziyaret</span>
+      {% if customer.last_visit %}
+        <span>📅 Son: {{ customer.last_visit.strftime("%d.%m.%Y") }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- PROFILE FORM -->
+  <form method="post" action="/panel/musteri-guncelle/{{ customer.id }}">
+    <div class="form-card">
+      <div class="form-title">📝 Müşteri Profili</div>
+
+      <div class="form-group">
+        <label>İsim Soyisim</label>
+        <input type="text" name="name" value="{{ customer.name or '' }}" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label>❤️ Tercihler</label>
+        <textarea name="preferences" placeholder="Örn: Sert kahve sever, kısa kesim, elektrik tıraş tercih eder...">{{ customer.preferences or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>⚠️ Alerjiler</label>
+        <textarea name="allergies" placeholder="Örn: Kimyasal X alerjisi, orijinal şampuan talep ediyor...">{{ customer.allergies or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>📝 Özel Notlar</label>
+        <textarea name="notes" placeholder="İşletmeniz için özel notlar, anılar, önemli bilgiler...">{{ customer.notes or '' }}</textarea>
+      </div>
+
+      <div class="form-group inline">
+        <input type="checkbox" id="vip_toggle" name="vip_status" value="on" {% if customer.vip_status %}checked{% endif %}>
+        <label for="vip_toggle">⭐ VIP Müşteri Olarak İşaretle</label>
+      </div>
+
+      <button type="submit" class="btn-save">💾 Kaydet</button>
+    </div>
+  </form>
+
+  <!-- APPOINTMENT HISTORY -->
+  <div class="section-title">📅 Randevu Geçmişi</div>
+
+  {% if appointments %}
+  <table class="appointments-table">
+    <thead>
+      <tr>
+        <th>Tarih</th>
+        <th>Saat</th>
+        <th>Hizmet</th>
+        <th>Personel</th>
+        <th>Durum</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for appt in appointments %}
+      <tr>
+        <td>{{ appt.date.strftime("%d.%m.%Y") }}</td>
+        <td>{{ appt.time or "—" }}</td>
+        <td>
+          {% if appt.service %}
+            {{ appt.service.name }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td>
+          {% if appt.staff %}
+            {{ appt.staff.name }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td>
+          {% if appt.status == "onaylandi" %}
+            <span class="badge-status badge-onaylandi">✅ Onaylandı</span>
+          {% elif appt.status == "bekliyor" %}
+            <span class="badge-status badge-bekliyor">⏳ Bekliyor</span>
+          {% elif appt.status == "iptal" %}
+            <span class="badge-status badge-iptal">❌ İptal</span>
+          {% else %}
+            {{ appt.status }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📅</div>
+    <p>Bu müşterinin henüz randevu kaydı yok.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

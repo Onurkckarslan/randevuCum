@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, Form, Depends, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product
+from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, CustomerProfile
 import shutil, os, uuid
 from pathlib import Path
 from ..s3_upload import upload_photo_to_s3, delete_photo_from_s3
@@ -656,4 +656,112 @@ async def update_stock(
         db.commit()
 
     return RedirectResponse("/panel/urun-stok", status_code=302)
+
+
+# ── MÜŞTERI SADAKATI ─────────────────────────────────────────────────────────
+@router.get("/panel/musteri-sadakati", response_class=HTMLResponse)
+async def loyalty_dashboard(request: Request, db: Session = Depends(get_db)):
+    biz = get_biz(request, db)
+
+    # Randevulardan müşteri listesi oluştur (phone bazlı, unique)
+    appointments = db.query(Appointment).filter(Appointment.business_id == biz.id).all()
+
+    phone_to_customer = {}
+    for appt in appointments:
+        if appt.customer_phone:
+            if appt.customer_phone not in phone_to_customer:
+                phone_to_customer[appt.customer_phone] = {
+                    "name": appt.customer_name,
+                    "phone": appt.customer_phone,
+                    "visit_count": 0,
+                    "last_visit": appt.date
+                }
+            phone_to_customer[appt.customer_phone]["visit_count"] += 1
+            if appt.date > phone_to_customer[appt.customer_phone]["last_visit"]:
+                phone_to_customer[appt.customer_phone]["last_visit"] = appt.date
+
+    # CustomerProfile ile merge et
+    profiles = db.query(CustomerProfile).filter(CustomerProfile.business_id == biz.id).all()
+    for profile in profiles:
+        if profile.phone in phone_to_customer:
+            phone_to_customer[profile.phone].update({
+                "name": profile.name or phone_to_customer[profile.phone]["name"],
+                "vip": profile.vip_status,
+                "profile_id": profile.id
+            })
+        else:
+            phone_to_customer[profile.phone] = {
+                "name": profile.name,
+                "phone": profile.phone,
+                "visit_count": profile.total_visits,
+                "last_visit": profile.last_visit,
+                "vip": profile.vip_status,
+                "profile_id": profile.id
+            }
+
+    customers = sorted(phone_to_customer.values(), key=lambda x: x.get("visit_count", 0), reverse=True)
+
+    return templates.TemplateResponse("business/loyalty.html", {
+        "request": request,
+        "biz": biz,
+        "customers": customers
+    })
+
+
+@router.get("/panel/musteri-detay/{customer_id}", response_class=HTMLResponse)
+async def customer_detail(customer_id: int, request: Request, db: Session = Depends(get_db)):
+    biz = get_biz(request, db)
+
+    customer = db.query(CustomerProfile).filter(
+        CustomerProfile.id == customer_id,
+        CustomerProfile.business_id == biz.id
+    ).first()
+
+    if not customer:
+        return RedirectResponse("/panel/musteri-sadakati", status_code=302)
+
+    # Randevu geçmişi
+    appointments = db.query(Appointment).filter(
+        Appointment.business_id == biz.id,
+        Appointment.customer_phone == customer.phone
+    ).order_by(Appointment.date.desc()).all()
+
+    return templates.TemplateResponse("business/customer_detail.html", {
+        "request": request,
+        "biz": biz,
+        "customer": customer,
+        "appointments": appointments
+    })
+
+
+@router.post("/panel/musteri-guncelle/{customer_id}", response_class=HTMLResponse)
+async def update_customer(
+    customer_id: int,
+    request: Request,
+    name: str = Form(...),
+    notes: str = Form(""),
+    preferences: str = Form(""),
+    allergies: str = Form(""),
+    vip_status: str = Form(""),
+    db: Session = Depends(get_db)
+):
+    biz = get_biz(request, db)
+
+    customer = db.query(CustomerProfile).filter(
+        CustomerProfile.id == customer_id,
+        CustomerProfile.business_id == biz.id
+    ).first()
+
+    if not customer:
+        return RedirectResponse("/panel/musteri-sadakati", status_code=302)
+
+    customer.name = name.strip() or customer.name
+    customer.notes = notes.strip() or None
+    customer.preferences = preferences.strip() or None
+    customer.allergies = allergies.strip() or None
+    customer.vip_status = bool(vip_status)
+
+    db.commit()
+
+    return RedirectResponse(f"/panel/musteri-detay/{customer_id}", status_code=302)
 

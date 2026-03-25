@@ -30,6 +30,7 @@ class Business(Base):
     work_hours    = relationship("WorkHour", back_populates="business", cascade="all, delete")
     photos        = relationship("BusinessPhoto", back_populates="business", cascade="all, delete")
     products      = relationship("Product", back_populates="business", cascade="all, delete")
+    customer_profiles = relationship("CustomerProfile", back_populates="business", cascade="all, delete")
 
 
 class Service(Base):
@@ -147,6 +148,25 @@ class Product(Base):
     created_at  = Column(DateTime, default=datetime.utcnow)
 
     business    = relationship("Business", back_populates="products")
+
+
+class CustomerProfile(Base):
+    """Müşteri Profili — tercihler, alerjiler, notlar"""
+    __tablename__ = "customer_profiles"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False)
+    name        = Column(String(100))
+    phone       = Column(String(20), nullable=False)
+    notes       = Column(Text, nullable=True)        # özel notlar
+    preferences = Column(Text, nullable=True)        # tercihler: "Sert kahve sever"
+    allergies   = Column(Text, nullable=True)        # alerjiler
+    vip_status  = Column(Boolean, default=False)
+    total_visits= Column(Integer, default=0)
+    last_visit  = Column(DateTime, nullable=True)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+    business    = relationship("Business", back_populates="customer_profiles")
 
 
 class PasswordResetToken(Base):
