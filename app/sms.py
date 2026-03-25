@@ -94,15 +94,19 @@ async def send_booking_with_products_customer(customer_phone: str, customer_name
 
 async def send_booking_with_products_business(business_phone: str, customer_name: str,
                                               service_name: str, date: str, time: str,
-                                              products: list) -> bool:
-    """İşletme sahibine yeni randevu + ürün bilgisi ile SMS gönder"""
+                                              products: list, customer_notes: str = "") -> bool:
+    """İşletme sahibine yeni randevu + ürün bilgisi + müşteri notları ile SMS gönder"""
     product_line = ""
     if products:
         product_names = [f"{p.product.name} x{p.quantity}" for p in products]
         product_line = " | Urunler: " + ", ".join(product_names)
 
+    notes_line = ""
+    if customer_notes and customer_notes.strip():
+        notes_line = f" | Notlar: {customer_notes[:100]}"
+
     msg = (
-        f"Yeni randevu: {customer_name} - {service_name} - {date} saat {time}{product_line}"
+        f"Yeni randevu: {customer_name} - {service_name} - {date} saat {time}{product_line}{notes_line}"
     )
     return await send_sms(business_phone, msg)
 

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, AppointmentProduct
+from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, AppointmentProduct, CustomerProfile
 from sqlalchemy.orm import joinedload
 from ..sms import send_appointment_confirm, send_booking_with_products_customer, send_booking_with_products_business
 from datetime import date, datetime, timedelta
@@ -171,12 +171,31 @@ async def book_appointment(
         db.commit()
         db.refresh(apt)
 
+        # Müşteri notlarını al (varsa)
+        customer_notes = ""
+        customer_profile = db.query(CustomerProfile).filter(
+            CustomerProfile.business_id == biz.id,
+            CustomerProfile.phone == customer_phone
+        ).first()
+        if customer_profile:
+            if customer_profile.notes:
+                customer_notes = customer_profile.notes
+            elif customer_profile.preferences:
+                customer_notes = f"Tercihler: {customer_profile.preferences}"
+
         # SMS gönder (async, hata olsa da devam et)
         asyncio.create_task(send_appointment_confirm(
             customer_name, customer_phone,
             biz.name, svc.name,
             selected_date, selected_time
         ))
+
+        # İşletme sahibine bildir
+        if biz.phone:
+            asyncio.create_task(send_booking_with_products_business(
+                biz.phone, customer_name,
+                svc.name, selected_date, selected_time, [], customer_notes
+            ))
 
         # Get active products for this business
         products = db.query(Product).filter_by(business_id=biz.id, is_active=True).all()
@@ -237,6 +256,18 @@ async def select_products(
         db.refresh(apt)
         apt_products = db.query(AppointmentProduct).filter_by(appointment_id=apt_id).all()
 
+        # Müşteri notlarını al (varsa)
+        customer_notes = ""
+        customer_profile = db.query(CustomerProfile).filter(
+            CustomerProfile.business_id == biz.id,
+            CustomerProfile.phone == apt.customer_phone
+        ).first()
+        if customer_profile:
+            if customer_profile.notes:
+                customer_notes = customer_profile.notes
+            elif customer_profile.preferences:
+                customer_notes = f"Tercihler: {customer_profile.preferences}"
+
         # Send SMS to customer and business owner
         asyncio.create_task(send_booking_with_products_customer(
             apt.customer_phone, apt.customer_name,
@@ -247,7 +278,7 @@ async def select_products(
         if biz.phone:
             asyncio.create_task(send_booking_with_products_business(
                 biz.phone, apt.customer_name,
-                svc.name, apt.date, apt.time, apt_products
+                svc.name, apt.date, apt.time, apt_products, customer_notes
             ))
 
         # Redirect to success page with flag
