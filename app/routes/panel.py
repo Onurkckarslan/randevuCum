@@ -194,6 +194,83 @@ async def statistics(
 
     staff_stats.sort(key=lambda x: x["month"], reverse=True)
 
+    # ── ÖZET KARTLAR ──
+    # Bu ay
+    days_in_month = calendar.monthrange(today.year, today.month)[1]
+    month_end = date(today.year, today.month, days_in_month).isoformat()
+    this_month = db.query(func.count(Appointment.id)).filter(
+        *base_filters,
+        Appointment.date >= month_start,
+        Appointment.date <= month_end
+    ).scalar() or 0
+
+    # Geçen ay
+    if today.month == 1:
+        prev_year, prev_month = today.year - 1, 12
+    else:
+        prev_year, prev_month = today.year, today.month - 1
+    prev_days = calendar.monthrange(prev_year, prev_month)[1]
+    prev_start = date(prev_year, prev_month, 1).isoformat()
+    prev_end = date(prev_year, prev_month, prev_days).isoformat()
+    last_month = db.query(func.count(Appointment.id)).filter(
+        *base_filters,
+        Appointment.date >= prev_start,
+        Appointment.date <= prev_end
+    ).scalar() or 0
+
+    # Büyüme %
+    if last_month > 0:
+        growth = round(((this_month - last_month) / last_month) * 100, 1)
+    else:
+        growth = 100 if this_month > 0 else 0
+
+    # ── EN YOĞUN GÜN (son 30 gün) ──
+    WEEKDAYS_TR = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
+    thirty_days_ago = (today - timedelta(days=30)).isoformat()
+    recent_appts = db.query(Appointment.date).filter(
+        *base_filters,
+        Appointment.date >= thirty_days_ago
+    ).all()
+    weekday_counts = [0] * 7
+    for row in recent_appts:
+        d = date.fromisoformat(row.date)
+        weekday_counts[d.weekday()] += 1
+    busiest_day = WEEKDAYS_TR[weekday_counts.index(max(weekday_counts))] if any(weekday_counts) else "—"
+
+    # ── EN ÇOK TERCİH EDİLEN HİZMET ──
+    from sqlalchemy import desc
+    top_service_row = db.query(
+        Service.name, func.count(Appointment.id).label("cnt")
+    ).join(Appointment, Appointment.service_id == Service.id).filter(
+        Appointment.business_id == biz.id,
+        Appointment.status != "iptal"
+    ).group_by(Service.name).order_by(desc("cnt")).first()
+    top_service = top_service_row[0] if top_service_row else "—"
+
+    # ── HAFTANIN GÜNLERİ DAĞILIMI (son 30 gün) ──
+    weekday_labels = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+
+    # ── SAATLİK YOĞUNLUK (son 30 gün) ──
+    hourly_data = []
+    hourly_labels = []
+    for h in range(9, 22):
+        hour_str = f"{h:02d}:"
+        count = db.query(func.count(Appointment.id)).filter(
+            *base_filters,
+            Appointment.date >= thirty_days_ago,
+            Appointment.time.like(f"{hour_str}%")
+        ).scalar() or 0
+        hourly_data.append(count)
+        hourly_labels.append(f"{h:02d}:00")
+
+    summary = {
+        "this_month": this_month,
+        "last_month": last_month,
+        "growth": growth,
+        "busiest_day": busiest_day,
+        "top_service": top_service,
+    }
+
     return templates.TemplateResponse("business/statistics.html", {
         "request": request,
         "biz": biz,
@@ -204,6 +281,11 @@ async def statistics(
         "staff_id": staff_id,
         "staff_list": staff_list,
         "staff_stats": staff_stats,
+        "summary": summary,
+        "weekday_labels": weekday_labels,
+        "weekday_data": weekday_counts,
+        "hourly_labels": hourly_labels,
+        "hourly_data": hourly_data,
     })
 
 

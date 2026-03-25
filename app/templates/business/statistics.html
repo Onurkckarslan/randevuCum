@@ -38,6 +38,23 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 
 .empty-state { text-align: center; padding: 40px 20px; color: rgba(196,181,253,.5); }
 .empty-state-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .5; }
+
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.summary-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px; }
+.summary-emoji { font-size: 1.4rem; margin-bottom: 8px; }
+.summary-value { font-size: 1.6rem; font-weight: 900; color: #f1f0f5; }
+.summary-label { font-size: .72rem; font-weight: 700; color: rgba(196,181,253,.5); margin-top: 4px; }
+.summary-badge { font-size: .72rem; font-weight: 700; margin-top: 6px; padding: 2px 8px; border-radius: 6px; display: inline-block; }
+.badge-up { background: rgba(16,185,129,.15); color: #34d399; }
+.badge-down { background: rgba(239,68,68,.1); color: #fca5a5; }
+
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.mini-chart { position: relative; height: 200px; }
+
+@media(max-width: 768px) {
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+}
 </style>
 {% endblock %}
 
@@ -47,6 +64,39 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   <div class="page-header">
     <h1 class="page-title">📊 İstatistikler</h1>
     <a href="/panel" class="back-btn">← Panel</a>
+  </div>
+
+  <!-- ÖZET KARTLAR -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-emoji">📅</div>
+      <div class="summary-value">{{ summary.this_month }}</div>
+      <div class="summary-label">Bu Ay Toplam</div>
+      <div class="summary-badge {% if summary.growth >= 0 %}badge-up{% else %}badge-down{% endif %}">
+        {% if summary.growth >= 0 %}📈 +{% endif %}{{ summary.growth }}%
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-emoji">📈</div>
+      <div class="summary-value">{{ summary.growth|int }}%</div>
+      <div class="summary-label">Büyüme</div>
+      <div class="summary-badge" style="font-size:.65rem;color:rgba(196,181,253,.6);">Geçen aya göre</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-emoji">🔥</div>
+      <div class="summary-value" style="font-size:1.1rem;">{{ summary.busiest_day }}</div>
+      <div class="summary-label">En Yoğun Gün</div>
+      <div class="summary-badge" style="font-size:.65rem;color:rgba(196,181,253,.6);">Son 30 gün</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-emoji">✂️</div>
+      <div class="summary-value" style="font-size:1.1rem;">{{ summary.top_service }}</div>
+      <div class="summary-label">Top Hizmet</div>
+      <div class="summary-badge" style="font-size:.65rem;color:rgba(196,181,253,.6);">Tercih edilen</div>
+    </div>
   </div>
 
   <!-- Filtre Kontrolleri -->
@@ -70,6 +120,22 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
     <div class="section-title">📈 {{ period_label }}</div>
     <div class="chart-container">
       <canvas id="dailyChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 2 Mini Grafik Yan Yana -->
+  <div class="charts-row">
+    <div class="stats-section">
+      <div class="section-title">📅 Haftanın Günleri (Son 30 Gün)</div>
+      <div class="mini-chart">
+        <canvas id="weekdayChart"></canvas>
+      </div>
+    </div>
+    <div class="stats-section">
+      <div class="section-title">⏰ Saatlik Yoğunluk (Son 30 Gün)</div>
+      <div class="mini-chart">
+        <canvas id="hourlyChart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -121,13 +187,13 @@ function updateStaffFilter(value) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // ── MAIN CHART (Period seçimine göre) ──
   const ctx = document.getElementById('dailyChart');
   if (ctx) {
     const rawLabels = {{ chart_labels | tojson }};
     const values = {{ chart_values | tojson }};
     const period = '{{ period }}';
 
-    // Hafta periyodunda labels ISO tarih → tr-TR format
     let labels = rawLabels;
     if (period === 'hafta') {
       labels = rawLabels.map(d => {
@@ -170,6 +236,76 @@ document.addEventListener('DOMContentLoaded', function() {
           x: {
             grid: { display: false },
             ticks: { color: 'rgba(196,181,253,.6)', font: { size: 12, weight: '600' } }
+          }
+        }
+      }
+    });
+  }
+
+  // ── HAFTANIN GÜNLERI CHART ──
+  const weekdayCtx = document.getElementById('weekdayChart');
+  if (weekdayCtx) {
+    new Chart(weekdayCtx, {
+      type: 'bar',
+      data: {
+        labels: {{ weekday_labels | tojson }},
+        datasets: [{
+          label: 'Randevu',
+          data: {{ weekday_data | tojson }},
+          backgroundColor: '#7c3aed',
+          borderColor: 'rgba(124,58,237,.5)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'x',
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,.08)' },
+            ticks: { color: 'rgba(196,181,253,.6)', font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: 'rgba(196,181,253,.6)', font: { size: 11 } }
+          }
+        }
+      }
+    });
+  }
+
+  // ── SAATLİK YOĞUNLUK CHART ──
+  const hourlyCtx = document.getElementById('hourlyChart');
+  if (hourlyCtx) {
+    new Chart(hourlyCtx, {
+      type: 'bar',
+      data: {
+        labels: {{ hourly_labels | tojson }},
+        datasets: [{
+          label: 'Randevu',
+          data: {{ hourly_data | tojson }},
+          backgroundColor: '#ec4899',
+          borderColor: 'rgba(236,72,153,.5)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'x',
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,.08)' },
+            ticks: { color: 'rgba(196,181,253,.6)', font: { size: 11 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: 'rgba(196,181,253,.6)', font: { size: 10 } }
           }
         }
       }
