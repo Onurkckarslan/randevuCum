@@ -153,6 +153,8 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
     </form>
   </div>
 
+  {% set ay_isimleri = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"] %}
+
   <!-- Add Receivable Form -->
   <div class="fin-section">
     <div class="section-title">⚡ Hızlı Alacak Ekle</div>
@@ -199,8 +201,9 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
         </thead>
         <tbody>
           {% for a in unpaid %}
+          {% set date_parts = a.date.split('-') %}
           <tr>
-            <td>{{ a.date }}</td>
+            <td>{{ date_parts[2] }} {{ ay_isimleri[date_parts[1]|int] }} {{ date_parts[0] }}</td>
             <td>{{ a.customer_name }}</td>
             <td>{{ a.service.name if a.service else "—" }}</td>
             <td style="text-align:right;color:#93c5fd;font-weight:700;">{{ a.service.price if a.service and a.service.price else 0 }} ₺</td>
@@ -241,8 +244,9 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
         </thead>
         <tbody>
           {% for e in expenses %}
+          {% set date_parts = e.date.split('-') %}
           <tr>
-            <td>{{ e.date }}</td>
+            <td>{{ date_parts[2] }} {{ ay_isimleri[date_parts[1]|int] }} {{ date_parts[0] }}</td>
             <td><span style="background:rgba(239,68,68,.15);color:#fca5a5;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;">{{ e.category }}</span></td>
             <td>{{ e.description or "—" }}</td>
             <td style="text-align:right;color:#fca5a5;font-weight:700;">{{ e.amount }} ₺</td>
@@ -309,8 +313,9 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
         </thead>
         <tbody>
           {% for a in appointments %}
+          {% set date_parts = a.date.split('-') %}
           <tr>
-            <td>{{ a.date }}</td>
+            <td>{{ date_parts[2] }} {{ ay_isimleri[date_parts[1]|int] }} {{ date_parts[0] }}</td>
             <td style="color:#a78bfa;font-weight:700;">{{ a.time }}</td>
             <td>{{ a.customer_name }}</td>
             <td>{{ a.service.name if a.service else "—" }}</td>
