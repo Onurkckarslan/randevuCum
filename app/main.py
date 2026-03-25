@@ -49,6 +49,18 @@ async def lifespan(app: FastAPI):
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """))
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                business_id INTEGER NOT NULL,
+                amount INTEGER NOT NULL,
+                category VARCHAR(50) DEFAULT 'Diğer',
+                description TEXT,
+                date VARCHAR(10) NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """))
+        db.execute(text("ALTER TABLE appointments ADD COLUMN IF NOT EXISTS is_paid BOOLEAN DEFAULT 0"))
         db.commit()
     except Exception as e:
         db.rollback()

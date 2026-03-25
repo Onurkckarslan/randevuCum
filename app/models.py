@@ -31,6 +31,7 @@ class Business(Base):
     photos        = relationship("BusinessPhoto", back_populates="business", cascade="all, delete")
     products      = relationship("Product", back_populates="business", cascade="all, delete")
     customer_profiles = relationship("CustomerProfile", back_populates="business", cascade="all, delete")
+    expenses      = relationship("Expense", back_populates="business", cascade="all, delete")
 
 
 class Service(Base):
@@ -97,6 +98,7 @@ class Appointment(Base):
     sms_confirm_sent   = Column(Boolean, default=False)
     sms_day_before_sent = Column(Boolean, default=False)
     sms_2h_before_sent  = Column(Boolean, default=False)
+    is_paid         = Column(Boolean, default=False)
 
     notes           = Column(Text)
     created_at      = Column(DateTime, default=datetime.utcnow)
@@ -178,4 +180,19 @@ class PasswordResetToken(Base):
     token       = Column(String(255), unique=True, nullable=False, index=True)
     expires_at  = Column(DateTime, nullable=False)
     created_at  = Column(DateTime, default=datetime.utcnow)
+
+
+class Expense(Base):
+    """İşletme Giderleri"""
+    __tablename__ = "expenses"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("businesses.id"), nullable=False)
+    amount      = Column(Integer, nullable=False)                    # TL
+    category    = Column(String(50), default="Diğer")                # Kira, Malzeme, Personel, Diğer
+    description = Column(Text, nullable=True)
+    date        = Column(String(10), nullable=False)                 # ISO: "2026-03-26"
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+    business    = relationship("Business", back_populates="expenses")
 

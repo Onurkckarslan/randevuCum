@@ -2,9 +2,9 @@
 from fastapi import APIRouter, Request, Form, Depends, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, desc
 from ..database import get_db
-from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, CustomerProfile
+from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, CustomerProfile, Expense
 import shutil, os, uuid
 from pathlib import Path
 from ..s3_upload import upload_photo_to_s3, delete_photo_from_s3
@@ -463,6 +463,25 @@ async def revenue_tracking(request: Request, ay: str = None, db: Session = Depen
     prev_revenue = sum(a.service.price for a in prev_appointments if a.service and a.service.price)
     prev_count = len(prev_appointments)
 
+    # ── GİDERLER ──
+    expenses = db.query(Expense).filter(
+        Expense.business_id == biz.id,
+        Expense.date >= month_start,
+        Expense.date <= month_end
+    ).order_by(Expense.date.desc()).all()
+    total_expenses = sum(e.amount for e in expenses)
+    net_profit = total_revenue - total_expenses
+
+    # ── ALACAKLAR (ödeme yapılmamış) ──
+    today_str = date.today().isoformat()
+    unpaid = db.query(Appointment).filter(
+        Appointment.business_id == biz.id,
+        Appointment.is_paid == False,
+        Appointment.status.in_(["tamamlandi", "onaylandi"]),
+        Appointment.date <= today_str
+    ).order_by(Appointment.date.desc()).all()
+    total_receivable = sum(a.service.price for a in unpaid if a.service and a.service.price)
+
     ay_isimleri = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
                    "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
 
@@ -478,7 +497,54 @@ async def revenue_tracking(request: Request, ay: str = None, db: Session = Depen
         "prev_revenue": prev_revenue,
         "prev_count": prev_count,
         "staff_list": staff_list,
+        "expenses": expenses,
+        "total_expenses": total_expenses,
+        "net_profit": net_profit,
+        "unpaid": unpaid,
+        "total_receivable": total_receivable,
     })
+
+
+@router.post("/panel/gider-ekle")
+async def add_expense(
+    request: Request,
+    amount: int = Form(...),
+    category: str = Form("Diğer"),
+    description: str = Form(""),
+    db: Session = Depends(get_db)
+):
+    biz = get_biz(request, db)
+    today_str = date.today().isoformat()
+
+    expense = Expense(
+        business_id=biz.id,
+        amount=amount,
+        category=category,
+        description=description,
+        date=today_str
+    )
+    db.add(expense)
+    db.commit()
+    return RedirectResponse("/panel/gelir-takibi", status_code=303)
+
+
+@router.post("/panel/odeme-al/{appointment_id}")
+async def mark_as_paid(
+    appointment_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    biz = get_biz(request, db)
+    appt = db.query(Appointment).filter(
+        Appointment.id == appointment_id,
+        Appointment.business_id == biz.id
+    ).first()
+
+    if appt:
+        appt.is_paid = True
+        db.commit()
+
+    return RedirectResponse("/panel/gelir-takibi", status_code=303)
 
 
 @router.get("/panel/hizmetler", response_class=HTMLResponse)
