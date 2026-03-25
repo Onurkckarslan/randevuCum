@@ -182,6 +182,11 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   font-size: .78rem; font-weight: 700; margin-bottom: 14px;
 }
 
+/* Smart customer badges */
+.badge-new { display: inline-block; background: rgba(59,130,246,.2); color: #60a5fa; font-size: .68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 4px; white-space: nowrap; }
+.badge-regular { display: inline-block; background: rgba(34,197,94,.2); color: #4ade80; font-size: .68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 4px; white-space: nowrap; }
+.badge-super-vip { display: inline-block; background: linear-gradient(135deg, #fbbf24, #f97316); color: white; font-size: .68rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 4px; white-space: nowrap; }
+
 /* Legend */
 .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
 .legend-item { display: flex; align-items: center; gap: 6px; font-size: .78rem; color: rgba(196,181,253,.6); }
@@ -247,7 +252,11 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
           <td class="slot-cell">
             {% if appt %}
             <div class="slot-dolu" onclick="showDetail('{{ appt.id }}','{{ appt.customer_name }}','{{ appt.customer_phone }}','{{ appt.service.name if appt.service else '—' }}','{{ slot }}','{{ s.name }}','{{ appt.status }}')">
-              <div class="slot-dolu-name">{{ appt.customer_name }}</div>
+              <div class="slot-dolu-name">
+                {{ appt.customer_name }}
+                {% set visit_count = customer_visits.get(appt.customer_phone, 0) %}
+                {% if visit_count == 1 %}<span class="badge-new">🔰</span>{% elif visit_count >= 2 and visit_count <= 3 %}<span class="badge-regular">⭐</span>{% elif visit_count >= 4 %}<span class="badge-super-vip">👑</span>{% endif %}
+              </div>
               <div class="slot-dolu-svc">{{ appt.service.name if appt.service else '—' }}</div>
             </div>
             {% else %}
@@ -261,7 +270,11 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
           <td class="slot-cell">
             {% if appt %}
             <div class="slot-dolu" onclick="showDetail('{{ appt.id }}','{{ appt.customer_name }}','{{ appt.customer_phone }}','{{ appt.service.name if appt.service else '—' }}','{{ slot }}','Genel','{{ appt.status }}')">
-              <div class="slot-dolu-name">{{ appt.customer_name }}</div>
+              <div class="slot-dolu-name">
+                {{ appt.customer_name }}
+                {% set visit_count = customer_visits.get(appt.customer_phone, 0) %}
+                {% if visit_count == 1 %}<span class="badge-new">🔰</span>{% elif visit_count >= 2 and visit_count <= 3 %}<span class="badge-regular">⭐</span>{% elif visit_count >= 4 %}<span class="badge-super-vip">👑</span>{% endif %}
+              </div>
               <div class="slot-dolu-svc">{{ appt.service.name if appt.service else '—' }}</div>
             </div>
             {% else %}

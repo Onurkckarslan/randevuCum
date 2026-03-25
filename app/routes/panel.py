@@ -63,11 +63,21 @@ async def ledger(request: Request, d: str = None, db: Session = Depends(get_db))
     for h in range(9, 21):
         slots.append(f"{h:02d}:00")
 
+    # Calculate visit counts for all customers
+    all_appointments = db.query(Appointment).filter(
+        Appointment.business_id == biz.id,
+        Appointment.status != "iptal"
+    ).all()
+    customer_visits = {}
+    for a in all_appointments:
+        customer_visits[a.customer_phone] = customer_visits.get(a.customer_phone, 0) + 1
+
     return templates.TemplateResponse("business/ledger.html", {
         "request": request, "biz": biz,
         "staff_list": staff_list, "services": services,
         "slot_map": slot_map, "slots": slots,
         "sel_date": sel_date,
+        "customer_visits": customer_visits,
     })
 
 @router.get("/panel", response_class=HTMLResponse)
