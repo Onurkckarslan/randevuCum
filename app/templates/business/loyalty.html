@@ -63,8 +63,24 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 .btn-detail { background: rgba(124,58,237,.15); color: #a78bfa; border: 1px solid rgba(124,58,237,.3); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: .85rem; display: inline-block; transition: all .2s; }
 .btn-detail:hover { background: rgba(124,58,237,.25); color: #c4b5fd; border-color: rgba(124,58,237,.5); }
 
-.whatsapp-icon { color: #25d366; text-decoration: none; font-size: 1.2rem; display: inline-block; transition: all .2s; }
-.whatsapp-icon:hover { transform: scale(1.2); }
+.whatsapp-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #25d366;
+  border-radius: 50%;
+  color: white;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: all .2s;
+  box-shadow: 0 4px 12px rgba(37,211,102,.3);
+}
+.whatsapp-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 20px rgba(37,211,102,.5);
+}
 
 .badge-super-vip { background: linear-gradient(135deg, #fbbf24, #f97316); color: white; font-size: .75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; display: inline-block; animation: glow-pulse 2s infinite; }
 @keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 8px rgba(251,191,36,.5); } 50% { box-shadow: 0 0 16px rgba(251,191,36,.8); } }
@@ -154,8 +170,8 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
           </div>
         </td>
         <td>
-          <a href="https://wa.me/{{ customer.phone }}" target="_blank" class="whatsapp-icon" title="WhatsApp'ta Aç">💬</a>
-          {{ customer.phone }}
+          <a href="https://wa.me/{{ customer.phone }}" target="_blank" class="whatsapp-icon" title="WhatsApp'ta Aç">📱</a>
+          <span style="margin-left: 8px;">{{ customer.phone }}</span>
         </td>
         <td style="text-align: center; font-weight: 600; color: #a78bfa;">{{ customer.get("visit_count", 0) }}</td>
         <td>
