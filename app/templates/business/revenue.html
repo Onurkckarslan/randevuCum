@@ -153,6 +153,35 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
     </form>
   </div>
 
+  <!-- Add Receivable Form -->
+  <div class="fin-section">
+    <div class="section-title">⚡ Hızlı Alacak Ekle</div>
+    <form method="post" action="/panel/alacak-ekle" class="expense-form" style="grid-template-columns: 1.2fr 1fr 1fr 1fr auto;">
+      <div class="form-group">
+        <label class="form-label">Müşteri Adı</label>
+        <input type="text" name="customer_name" class="form-input" placeholder="Müşteri adı" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefon</label>
+        <input type="text" name="customer_phone" class="form-input" placeholder="0555..." required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hizmet</label>
+        <select name="service_id" class="form-select" required>
+          <option value="">— Hizmet Seçin —</option>
+          {% for service in services %}
+          <option value="{{ service.id }}">{{ service.name }} ({{ service.price }}₺)</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tarih</label>
+        <input type="date" name="date" class="form-input" required>
+      </div>
+      <button type="submit" class="btn-add">Alacak Ekle</button>
+    </form>
+  </div>
+
   <!-- Unpaid Receivables -->
   {% if unpaid %}
   <div class="fin-section">
@@ -165,7 +194,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
             <th>Müşteri</th>
             <th>Hizmet</th>
             <th style="text-align:right;width:80px;">Tutar</th>
-            <th style="text-align:center;width:100px;">İşlem</th>
+            <th style="text-align:center;width:140px;">İşlem</th>
           </tr>
         </thead>
         <tbody>
@@ -207,6 +236,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
             <th>Kategori</th>
             <th>Açıklama</th>
             <th style="text-align:right;width:100px;">Tutar</th>
+            <th style="text-align:center;width:80px;">İşlem</th>
           </tr>
         </thead>
         <tbody>
@@ -216,6 +246,11 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
             <td><span style="background:rgba(239,68,68,.15);color:#fca5a5;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;">{{ e.category }}</span></td>
             <td>{{ e.description or "—" }}</td>
             <td style="text-align:right;color:#fca5a5;font-weight:700;">{{ e.amount }} ₺</td>
+            <td style="text-align:center;">
+              <form method="post" action="/panel/gider-sil/{{ e.id }}" style="display:inline;" onsubmit="return confirm('Silmek istediğine emin misin?');">
+                <button type="submit" class="btn-small" style="background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.3);">🗑️ Sil</button>
+              </form>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

@@ -485,6 +485,9 @@ async def revenue_tracking(request: Request, ay: str = None, db: Session = Depen
     ay_isimleri = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
                    "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
 
+    # Services for dropdown
+    services = db.query(Service).filter(Service.business_id == biz.id, Service.is_active == True).all()
+
     return templates.TemplateResponse("business/revenue.html", {
         "request": request, "biz": biz,
         "sel_year": sel_year, "sel_month": sel_month,
@@ -502,6 +505,7 @@ async def revenue_tracking(request: Request, ay: str = None, db: Session = Depen
         "net_profit": net_profit,
         "unpaid": unpaid,
         "total_receivable": total_receivable,
+        "services": services,
     })
 
 
@@ -543,6 +547,57 @@ async def mark_as_paid(
     if appt:
         appt.is_paid = True
         db.commit()
+
+    return RedirectResponse("/panel/gelir-takibi", status_code=303)
+
+
+@router.post("/panel/gider-sil/{expense_id}")
+async def delete_expense(
+    expense_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    biz = get_biz(request, db)
+    expense = db.query(Expense).filter(
+        Expense.id == expense_id,
+        Expense.business_id == biz.id
+    ).first()
+
+    if expense:
+        db.delete(expense)
+        db.commit()
+
+    return RedirectResponse("/panel/gelir-takibi", status_code=303)
+
+
+@router.post("/panel/alacak-ekle")
+async def add_receivable(
+    request: Request,
+    customer_name: str = Form(...),
+    customer_phone: str = Form(...),
+    service_id: int = Form(...),
+    date: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    biz = get_biz(request, db)
+    service = db.query(Service).filter(Service.id == service_id, Service.business_id == biz.id).first()
+
+    if not service:
+        return RedirectResponse("/panel/gelir-takibi", status_code=303)
+
+    # Create appointment without staff assignment
+    appointment = Appointment(
+        business_id=biz.id,
+        service_id=service_id,
+        customer_name=customer_name,
+        customer_phone=customer_phone,
+        date=date,
+        time="00:00",  # Placeholder time
+        status="onaylandi",
+        is_paid=False
+    )
+    db.add(appointment)
+    db.commit()
 
     return RedirectResponse("/panel/gelir-takibi", status_code=303)
 
