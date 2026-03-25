@@ -218,6 +218,7 @@ async def book_appointment(
             "apt": apt,
             "service": svc,
             "products": products,
+            "products_saved": False,
         })
     except HTTPException:
         raise
