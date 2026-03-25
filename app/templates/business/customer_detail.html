@@ -64,13 +64,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
       <span>📞 {{ customer.phone }}</span>
       <span>🗓️ {{ customer.total_visits }} Ziyaret</span>
       {% if customer.last_visit %}
-        <span>📅 Son:
-          {% if customer.last_visit is string %}
-            {{ customer.last_visit }}
-          {% else %}
-            {{ customer.last_visit.strftime("%d.%m.%Y") }}
-          {% endif %}
-        </span>
+        <span>📅 Son: {{ customer.last_visit | date_tr }}</span>
       {% endif %}
     </div>
   </div>
@@ -126,7 +120,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
     <tbody>
       {% for appt in appointments %}
       <tr>
-        <td>{{ appt.date.strftime("%d.%m.%Y") }}</td>
+        <td>{{ appt.date | date_tr }}</td>
         <td>{{ appt.time or "—" }}</td>
         <td>
           {% if appt.service %}

@@ -160,11 +160,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
         <td style="text-align: center; font-weight: 600; color: #a78bfa;">{{ customer.get("visit_count", 0) }}</td>
         <td>
           {% if customer.get("last_visit") %}
-            {% if customer.last_visit is string %}
-              {{ customer.last_visit }}
-            {% else %}
-              {{ customer.last_visit.strftime("%d.%m.%Y") }}
-            {% endif %}
+            {{ customer.last_visit | date_tr }}
           {% else %}
             —
           {% endif %}
