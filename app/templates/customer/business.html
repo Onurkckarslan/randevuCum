@@ -910,12 +910,12 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
             <input type="hidden" name="selected_time" id="d-f-time">
             <div class="mb-3"><label class="form-label">Ad Soyad</label><input type="text" name="customer_name" class="form-control" placeholder="Ayşe Yılmaz" required></div>
             <div class="mb-3"><label class="form-label">Telefon</label><input type="tel" name="customer_phone" class="form-control" placeholder="0555 123 45 67" required></div>
-            <div class="mb-3"><label class="form-label">Not <small class="text-muted">(opsiyonel)</small></label><textarea name="notes" class="form-control" rows="1" style="resize:none;"></textarea></div>
+            <div class="mb-3"><label class="form-label">Not <small class="text-muted">(isteğe bağlı)</small></label><textarea name="notes" class="form-control" rows="1" style="resize:none;"></textarea></div>
 
             <!-- Ürünler (Subtle) -->
             {% if products %}
             <div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:14px;margin-bottom:16px;">
-              <label style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:10px;display:block;">🛍️ İşletmenin Ürünlerinden Eklemek İster misin? <span style="font-weight:400;color:rgba(196,181,253,.5);">(opsiyonel)</span></label>
+              <label style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:10px;display:block;">🛍️ İşletmenin Ürünlerinden Eklemek İster misin? <span style="font-weight:400;color:rgba(196,181,253,.5);">(isteğe bağlı)</span></label>
               <div style="display:flex;flex-direction:column;gap:8px;">
                 {% for p in products %}
                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:8px;transition:all .2s;color:#c4b5fd;font-size:.9rem;{% if loop.index > 4 %}display:none;{% endif %}" class="d-product-item" onmouseover="this.style.background='rgba(124,58,237,.1)'" onmouseout="this.style.background='transparent'">
@@ -981,12 +981,12 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
                 <input type="hidden" name="selected_time" id="m-f-time">
                 <div class="mb-3"><label class="form-label">Ad Soyad</label><input type="text" name="customer_name" class="form-control" placeholder="Ayşe Yılmaz" required></div>
                 <div class="mb-3"><label class="form-label">Telefon</label><input type="tel" name="customer_phone" class="form-control" placeholder="0555 123 45 67" required></div>
-                <div class="mb-3"><label class="form-label">Not <small class="text-muted">(opsiyonel)</small></label><textarea name="notes" class="form-control" rows="1" style="resize:none;"></textarea></div>
+                <div class="mb-3"><label class="form-label">Not <small class="text-muted">(isteğe bağlı)</small></label><textarea name="notes" class="form-control" rows="1" style="resize:none;"></textarea></div>
 
                 <!-- Ürünler (Subtle) -->
                 {% if products %}
                 <div style="background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:14px;margin-bottom:16px;">
-                  <label style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:10px;display:block;">🛍️ İşletmenin Ürünlerinden Eklemek İster misin? <span style="font-weight:400;color:rgba(196,181,253,.5);">(opsiyonel)</span></label>
+                  <label style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:10px;display:block;">🛍️ İşletmenin Ürünlerinden Eklemek İster misin? <span style="font-weight:400;color:rgba(196,181,253,.5);">(isteğe bağlı)</span></label>
                   <div style="display:flex;flex-direction:column;gap:8px;">
                     {% for p in products %}
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:8px;transition:all .2s;color:#c4b5fd;font-size:.9rem;{% if loop.index > 4 %}display:none;{% endif %}" class="m-product-item" onmouseover="this.style.background='rgba(124,58,237,.1)'" onmouseout="this.style.background='transparent'">

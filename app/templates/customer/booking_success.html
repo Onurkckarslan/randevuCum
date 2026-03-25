@@ -150,7 +150,7 @@ body { background: #0d0d16 !important; }
   {% if products and not products_saved|default(False) %}
   <div class="product-section">
     <div class="product-section-title">🛍️ Ürün Ekle</div>
-    <div class="product-section-sub">Randevunuza eklemek istediğiniz ürünleri seçebilirsiniz (opsiyonel)</div>
+    <div class="product-section-sub">Randevunuza eklemek istediğiniz ürünleri seçebilirsiniz (isteğe bağlı)</div>
 
     <form method="post" action="/{{ biz.slug }}/randevu-urun-sec/{{ apt.id }}" class="product-form">
       <div class="product-list">
