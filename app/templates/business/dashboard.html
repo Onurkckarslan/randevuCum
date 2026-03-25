@@ -145,62 +145,6 @@ body { background: #0d0d16 !important; }
 </div>
 {% endblock %}
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
-<script>
-// Daily Chart
-document.addEventListener('DOMContentLoaded', function() {
-  const ctx = document.getElementById('dailyChart');
-  if (ctx) {
-    const dailyData = {{ daily_stats | tojson }};
-    const labels = Object.keys(dailyData).map(d => {
-      const parts = d.split('-');
-      const date = new Date(d);
-      return date.toLocaleDateString('tr-TR', { month: 'short', day: 'numeric' });
-    });
-    const values = Object.values(dailyData);
-
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Randevu',
-          data: values,
-          borderColor: '#7c3aed',
-          backgroundColor: 'rgba(124, 58, 237, 0.15)',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#ec4899',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 5,
-          pointHoverRadius: 7
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: 'rgba(255,255,255,.08)' },
-            ticks: { color: 'rgba(196,181,253,.6)', font: { size: 12, weight: '600' } }
-          },
-          x: {
-            grid: { display: false },
-            ticks: { color: 'rgba(196,181,253,.6)', font: { size: 12, weight: '600' } }
-          }
-        }
-      }
-    });
-  }
-
-</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
 <script>
 (function(){const slug="{{ biz.slug }}",bizUrl="https://www.randevucum.com/"+slug,c=document.getElementById("qrCodeContainer"),p=document.getElementById("qrPlaceholder");function addLogoToQR(){const canvas=c.querySelector("canvas");if(!canvas){console.log("Canvas bulunamadı");return}const ctx=canvas.getContext("2d"),img=new Image();img.crossOrigin="anonymous";img.onload=function(){try{console.log("Logo yüklendi, canvas:",canvas.width+"x"+canvas.height);const size=canvas.width*0.25,x=canvas.width/2-size/2,y=canvas.height/2-size/2;ctx.clearRect(x-2,y-2,size+4,size+4);ctx.drawImage(img,x,y,size,size);console.log("Logo çizildi")}catch(e){console.log("Logo çizme hatası:",e)}};img.onerror=function(){console.log("Logo yükleme hatası")};img.src="/static/qr-logo.png";console.log("Logo yükleniyor...")}function b(){if(p)p.remove();c.innerHTML="";new QRCode(c,{text:bizUrl,width:110,height:110,colorDark:"#000",colorLight:"#fff",correctLevel:QRCode.CorrectLevel.M});setTimeout(addLogoToQR,500)}if(typeof QRCode!=="undefined")b();else{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js";s.onload=b;document.head.appendChild(s)}function ct(t){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t);const a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;left:-9999px";document.body.appendChild(a);a.focus();a.select();document.execCommand("copy");document.body.removeChild(a);return Promise.resolve()}window.downloadQR=function(){const v=c.querySelector("canvas");if(v){const o=document.createElement("canvas");o.width=o.height=512;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,512,512);x.drawImage(v,0,0,512,512);const a=document.createElement("a");a.href=o.toDataURL("image/png");a.download=slug+"-qr.png";a.click()}};window.copyLink=function(btn,url){ct(url).then(()=>{btn.innerHTML='<i class="bi bi-check2 me-1"></i>Kopyalandı!';btn.classList.add("copied");setTimeout(()=>{btn.innerHTML='<i class="bi bi-copy me-1"></i>Kopyala';btn.classList.remove("copied")},2500)})};window.shareWhatsApp=function(){window.location.href="https://wa.me/?text="+encodeURIComponent("Randevu linkim: "+bizUrl)};window.shareNative=function(){if(navigator.share)navigator.share({title:"Randevu",text:"Online randevu: "+bizUrl,url:bizUrl}).catch(()=>ct(bizUrl));else ct(bizUrl)}})();
