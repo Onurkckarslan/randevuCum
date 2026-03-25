@@ -64,7 +64,13 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
       <span>📞 {{ customer.phone }}</span>
       <span>🗓️ {{ customer.total_visits }} Ziyaret</span>
       {% if customer.last_visit %}
-        <span>📅 Son: {{ customer.last_visit.strftime("%d.%m.%Y") }}</span>
+        <span>📅 Son:
+          {% if customer.last_visit is string %}
+            {{ customer.last_visit }}
+          {% else %}
+            {{ customer.last_visit.strftime("%d.%m.%Y") }}
+          {% endif %}
+        </span>
       {% endif %}
     </div>
   </div>
