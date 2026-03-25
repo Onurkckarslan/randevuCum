@@ -207,9 +207,8 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   <input type="date" class="date-input" id="datePicker" value="{{ sel_date }}"
          onchange="window.location='/panel/randevu-defteri?d='+this.value">
   <a href="/panel/randevu-defteri" class="date-nav-btn today">📅 Bugün</a>
-  {% set parts = sel_date.split('-') %}
   <span style="font-size:.82rem;color:rgba(196,181,253,.55);">
-    {{ sel_date }} — {{ staff_list|length }} personel, {{ slot_map|length }} randevulu saat
+    {{ sel_date | date_tr }} — {{ staff_list|length }} personel, {{ slot_map|length }} randevulu saat
   </span>
 </div>
 
