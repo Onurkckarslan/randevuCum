@@ -151,7 +151,6 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     ).order_by(Appointment.date, Appointment.time).limit(10).all()
 
     # ── İstatistikler ──
-    from sqlalchemy import func
     total_appointments = db.query(func.count(Appointment.id)).filter(
         Appointment.business_id == biz.id, Appointment.status != "iptal"
     ).scalar() or 0
