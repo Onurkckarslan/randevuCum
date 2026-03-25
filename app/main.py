@@ -17,53 +17,69 @@ _BASE = Path(__file__).parent.parent
 async def lifespan(app: FastAPI):
     models.Base.metadata.create_all(bind=engine)
 
-    # S3 column migration
-    # Staff authorization migration
-    from sqlalchemy import text
+    # Database migrations
+    from sqlalchemy import text, inspect
     db = SessionLocal()
     try:
-        db.execute(text("""
-            ALTER TABLE business_photos
-            ADD COLUMN IF NOT EXISTS s3_url VARCHAR(500)
-        """))
-        db.execute(text("""
-            ALTER TABLE staff
-            ADD COLUMN IF NOT EXISTS staff_login_id VARCHAR(50)
-        """))
-        db.execute(text("""
-            ALTER TABLE staff
-            ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'personel'
-        """))
-        db.execute(text("""
-            CREATE TABLE IF NOT EXISTS customer_profiles (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                business_id INTEGER NOT NULL,
-                name VARCHAR(100),
-                phone VARCHAR(20) NOT NULL,
-                notes TEXT,
-                preferences TEXT,
-                allergies TEXT,
-                vip_status BOOLEAN DEFAULT 0,
-                total_visits INTEGER DEFAULT 0,
-                last_visit DATETIME,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        """))
-        db.execute(text("""
-            CREATE TABLE IF NOT EXISTS expenses (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                business_id INTEGER NOT NULL,
-                amount INTEGER NOT NULL,
-                category VARCHAR(50) DEFAULT 'Diğer',
-                description TEXT,
-                date VARCHAR(10) NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        """))
-        db.execute(text("ALTER TABLE appointments ADD COLUMN IF NOT EXISTS is_paid BOOLEAN DEFAULT 0"))
+        # Helper to check if column exists
+        inspector = inspect(engine)
+
+        # ── Add s3_url to business_photos ──
+        if "business_photos" in inspector.get_table_names():
+            cols = [col["name"] for col in inspector.get_columns("business_photos")]
+            if "s3_url" not in cols:
+                db.execute(text("ALTER TABLE business_photos ADD COLUMN s3_url VARCHAR(500)"))
+
+        # ── Add staff_login_id and role to staff ──
+        if "staff" in inspector.get_table_names():
+            cols = [col["name"] for col in inspector.get_columns("staff")]
+            if "staff_login_id" not in cols:
+                db.execute(text("ALTER TABLE staff ADD COLUMN staff_login_id VARCHAR(50)"))
+            if "role" not in cols:
+                db.execute(text("ALTER TABLE staff ADD COLUMN role VARCHAR(20) DEFAULT 'personel'"))
+
+        # ── Add is_paid to appointments ──
+        if "appointments" in inspector.get_table_names():
+            cols = [col["name"] for col in inspector.get_columns("appointments")]
+            if "is_paid" not in cols:
+                db.execute(text("ALTER TABLE appointments ADD COLUMN is_paid BOOLEAN DEFAULT FALSE"))
+
+        # ── Create customer_profiles if not exists ──
+        if "customer_profiles" not in inspector.get_table_names():
+            db.execute(text("""
+                CREATE TABLE customer_profiles (
+                    id SERIAL PRIMARY KEY,
+                    business_id INTEGER NOT NULL,
+                    name VARCHAR(100),
+                    phone VARCHAR(20) NOT NULL,
+                    notes TEXT,
+                    preferences TEXT,
+                    allergies TEXT,
+                    vip_status BOOLEAN DEFAULT FALSE,
+                    total_visits INTEGER DEFAULT 0,
+                    last_visit TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """))
+
+        # ── Create expenses if not exists ──
+        if "expenses" not in inspector.get_table_names():
+            db.execute(text("""
+                CREATE TABLE expenses (
+                    id SERIAL PRIMARY KEY,
+                    business_id INTEGER NOT NULL,
+                    amount INTEGER NOT NULL,
+                    category VARCHAR(50) DEFAULT 'Diğer',
+                    description TEXT,
+                    date VARCHAR(10) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """))
+
         db.commit()
     except Exception as e:
         db.rollback()
+        print(f"Migration warning: {e}")
     finally:
         db.close()
 
