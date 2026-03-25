@@ -556,6 +556,22 @@ function closeModal() {
     document.body.style.overflow = "";
 }
 
+function toggleMoreProducts(prefix) {
+    const items = document.querySelectorAll(`.${prefix}-product-item`);
+    const btn = document.getElementById(`${prefix}-more-btn`);
+    const hiddenItems = Array.from(items).filter((_, i) => i >= 4);
+
+    hiddenItems.forEach(item => {
+        if (item.style.display === "none") {
+            item.style.display = "flex";
+        } else {
+            item.style.display = "none";
+        }
+    });
+
+    btn.textContent = hiddenItems[0]?.style.display === "none" ? "+ Daha fazla gör" : "- Daha az gör";
+}
+
 function checkStaff(prefix) {
     // Tarih doğrulaması
     const datePicker = document.getElementById(prefix + "-datePicker");
@@ -902,13 +918,16 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
               <label style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:10px;display:block;">🛍️ İşletmenin Ürünlerinden Eklemek İster misin? <span style="font-weight:400;color:rgba(196,181,253,.5);">(opsiyonel)</span></label>
               <div style="display:flex;flex-direction:column;gap:8px;">
                 {% for p in products %}
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:8px;transition:all .2s;color:#c4b5fd;font-size:.9rem;" onmouseover="this.style.background='rgba(124,58,237,.1)'" onmouseout="this.style.background='transparent'">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:8px;transition:all .2s;color:#c4b5fd;font-size:.9rem;{% if loop.index > 4 %}display:none;{% endif %}" class="d-product-item" onmouseover="this.style.background='rgba(124,58,237,.1)'" onmouseout="this.style.background='transparent'">
                   <input type="checkbox" name="product_ids" value="{{ p.id }}" style="cursor:pointer;width:16px;height:16px;">
                   <span style="flex:1;">{{ p.name }}</span>
                   <span style="color:#a78bfa;font-weight:600;white-space:nowrap;">{{ p.price }}₺</span>
                 </label>
                 {% endfor %}
               </div>
+              {% if products|length > 4 %}
+              <button type="button" onclick="toggleMoreProducts('d')" style="background:none;border:none;color:#a78bfa;font-size:.8rem;font-weight:600;margin-top:8px;cursor:pointer;text-decoration:underline;" id="d-more-btn">+ Daha fazla gör</button>
+              {% endif %}
             </div>
             {% endif %}
 
@@ -970,13 +989,16 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
                   <label style="font-size:.85rem;font-weight:600;color:#a78bfa;margin-bottom:10px;display:block;">🛍️ İşletmenin Ürünlerinden Eklemek İster misin? <span style="font-weight:400;color:rgba(196,181,253,.5);">(opsiyonel)</span></label>
                   <div style="display:flex;flex-direction:column;gap:8px;">
                     {% for p in products %}
-                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:8px;transition:all .2s;color:#c4b5fd;font-size:.9rem;" onmouseover="this.style.background='rgba(124,58,237,.1)'" onmouseout="this.style.background='transparent'">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:8px;transition:all .2s;color:#c4b5fd;font-size:.9rem;{% if loop.index > 4 %}display:none;{% endif %}" class="m-product-item" onmouseover="this.style.background='rgba(124,58,237,.1)'" onmouseout="this.style.background='transparent'">
                       <input type="checkbox" name="product_ids" value="{{ p.id }}" style="cursor:pointer;width:16px;height:16px;">
                       <span style="flex:1;">{{ p.name }}</span>
                       <span style="color:#a78bfa;font-weight:600;white-space:nowrap;">{{ p.price }}₺</span>
                     </label>
                     {% endfor %}
                   </div>
+                  {% if products|length > 4 %}
+                  <button type="button" onclick="toggleMoreProducts('m')" style="background:none;border:none;color:#a78bfa;font-size:.8rem;font-weight:600;margin-top:8px;cursor:pointer;text-decoration:underline;" id="m-more-btn">+ Daha fazla gör</button>
+                  {% endif %}
                 </div>
                 {% endif %}
 
