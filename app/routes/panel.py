@@ -82,30 +82,98 @@ async def ledger(request: Request, d: str = None, db: Session = Depends(get_db))
     })
 
 @router.get("/panel/istatistikler", response_class=HTMLResponse)
-async def statistics(request: Request, db: Session = Depends(get_db)):
+async def statistics(
+    request: Request,
+    period: str = "hafta",
+    staff_id: int = None,
+    db: Session = Depends(get_db)
+):
     biz = get_biz(request, db)
-    today_str = date.today().isoformat()
-    month_start = date.today().replace(day=1).isoformat()
-
-    # ── GRAFIK VERİSİ: Son 7 günün randevu sayısı ──
+    today = date.today()
     from datetime import timedelta
-    daily_stats = {}
-    for i in range(6, -1, -1):  # 6 gün öncesinden bugüne kadar
-        day = date.today() - timedelta(days=i)
-        day_str = day.isoformat()
-        count = db.query(func.count(Appointment.id)).filter(
-            Appointment.business_id == biz.id,
-            Appointment.date == day_str,
-            Appointment.status != "iptal"
-        ).scalar() or 0
-        daily_stats[day_str] = count
+    import calendar
+
+    # ── PERSONEL LİSTESİ (dropdown için) ──
+    staff_list = db.query(Staff).filter(
+        Staff.business_id == biz.id, Staff.is_active == True
+    ).order_by(Staff.name).all()
+
+    # ── BASE QUERY FİLTRELERİ ──
+    base_filters = [
+        Appointment.business_id == biz.id,
+        Appointment.status != "iptal"
+    ]
+    if staff_id:
+        base_filters.append(Appointment.staff_id == staff_id)
+
+    # ── PERIYODA GÖRE CHART VERİSİ ──
+    chart_labels = []
+    chart_values = []
+    period_label = ""
+
+    if period == "gun":
+        # Bugün saatlik (09:00 - 21:00)
+        today_str = today.isoformat()
+        for h in range(9, 22):
+            hour_str = f"{h:02d}:"
+            count = db.query(func.count(Appointment.id)).filter(
+                *base_filters,
+                Appointment.date == today_str,
+                Appointment.time.like(f"{hour_str}%")
+            ).scalar() or 0
+            chart_labels.append(f"{h:02d}:00")
+            chart_values.append(count)
+        period_label = "Bugün (Saatlik)"
+
+    elif period == "ay":
+        # Bu ayın günleri
+        days_in_month = calendar.monthrange(today.year, today.month)[1]
+        for d in range(1, days_in_month + 1):
+            day_str = date(today.year, today.month, d).isoformat()
+            count = db.query(func.count(Appointment.id)).filter(
+                *base_filters,
+                Appointment.date == day_str
+            ).scalar() or 0
+            chart_labels.append(f"{d}")
+            chart_values.append(count)
+        period_label = f"Bu Ay ({today.strftime('%B %Y').capitalize()})"
+
+    elif period == "yil":
+        # Bu yılın 12 ayı
+        MONTHS = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]
+        for m in range(1, 13):
+            m_start = date(today.year, m, 1).isoformat()
+            days = calendar.monthrange(today.year, m)[1]
+            m_end = date(today.year, m, days).isoformat()
+            count = db.query(func.count(Appointment.id)).filter(
+                *base_filters,
+                Appointment.date >= m_start,
+                Appointment.date <= m_end
+            ).scalar() or 0
+            chart_labels.append(MONTHS[m - 1])
+            chart_values.append(count)
+        period_label = f"Bu Yıl ({today.year})"
+
+    else:  # hafta (default)
+        # Son 7 gün
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            day_str = day.isoformat()
+            count = db.query(func.count(Appointment.id)).filter(
+                *base_filters,
+                Appointment.date == day_str
+            ).scalar() or 0
+            chart_labels.append(day_str)
+            chart_values.append(count)
+        period_label = "Son 7 Gün"
 
     # ── PERSONEL İSTATİSTİKLERİ ──
-    staff_members = db.query(Staff).filter(
-        Staff.business_id == biz.id, Staff.is_active == True
-    ).all()
+    month_start = today.replace(day=1).isoformat()
     staff_stats = []
-    for staff in staff_members:
+
+    target_staff = [s for s in staff_list if not staff_id or s.id == staff_id]
+
+    for staff in target_staff:
         appt_count = db.query(func.count(Appointment.id)).filter(
             Appointment.business_id == biz.id,
             Appointment.staff_id == staff.id,
@@ -124,13 +192,17 @@ async def statistics(request: Request, db: Session = Depends(get_db)):
             "month": month_appt_count,
         })
 
-    # Toplam randevu sayısına göre sırala
     staff_stats.sort(key=lambda x: x["month"], reverse=True)
 
     return templates.TemplateResponse("business/statistics.html", {
         "request": request,
         "biz": biz,
-        "daily_stats": daily_stats,
+        "chart_labels": chart_labels,
+        "chart_values": chart_values,
+        "period": period,
+        "period_label": period_label,
+        "staff_id": staff_id,
+        "staff_list": staff_list,
         "staff_stats": staff_stats,
     })
 

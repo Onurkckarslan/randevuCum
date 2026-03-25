@@ -13,6 +13,17 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 .stats-section { background: rgba(255,255,255,.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 24px; margin-bottom: 20px; }
 .section-title { font-size: 1.1rem; font-weight: 800; color: #f1f0f5; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
 
+.filter-controls { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+.period-btns { display: flex; gap: 8px; }
+.period-btn { padding: 7px 14px; border-radius: 10px; font-size: .82rem; font-weight: 700; text-decoration: none; cursor: pointer; border: 1px solid transparent; transition: all .15s; }
+.period-btn.inactive { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); color: #c4b5fd; }
+.period-btn.inactive:hover { background: rgba(255,255,255,.12); }
+.period-btn.active { background: linear-gradient(135deg, #7c3aed, #ec4899); color: white; }
+
+.staff-filter { padding: 7px 12px; border-radius: 10px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); color: #c4b5fd; font-size: .82rem; font-weight: 600; font-family: inherit; cursor: pointer; }
+.staff-filter:focus { outline: none; border-color: rgba(124,58,237,.3); }
+.staff-filter option { background: #1a1a2e; color: #c4b5fd; }
+
 .chart-container { position: relative; height: 300px; margin-bottom: 20px; }
 
 .staff-table { width: 100%; border-collapse: collapse; background: transparent; }
@@ -38,9 +49,25 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
     <a href="/panel" class="back-btn">← Panel</a>
   </div>
 
+  <!-- Filtre Kontrolleri -->
+  <div class="filter-controls">
+    <div class="period-btns">
+      <a href="/panel/istatistikler?period=gun{% if staff_id %}&staff_id={{ staff_id }}{% endif %}" class="period-btn {% if period == 'gun' %}active{% else %}inactive{% endif %}">Gün</a>
+      <a href="/panel/istatistikler?period=hafta{% if staff_id %}&staff_id={{ staff_id }}{% endif %}" class="period-btn {% if period == 'hafta' %}active{% else %}inactive{% endif %}">Hafta</a>
+      <a href="/panel/istatistikler?period=ay{% if staff_id %}&staff_id={{ staff_id }}{% endif %}" class="period-btn {% if period == 'ay' %}active{% else %}inactive{% endif %}">Ay</a>
+      <a href="/panel/istatistikler?period=yil{% if staff_id %}&staff_id={{ staff_id }}{% endif %}" class="period-btn {% if period == 'yil' %}active{% else %}inactive{% endif %}">Yıl</a>
+    </div>
+    <select class="staff-filter" onchange="updateStaffFilter(this.value)">
+      <option value="">Tüm Personel</option>
+      {% for staff in staff_list %}
+      <option value="{{ staff.id }}" {% if staff_id == staff.id %}selected{% endif %}>{{ staff.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
   <!-- Grafik -->
   <div class="stats-section">
-    <div class="section-title">📈 Son 7 Günün Randevu İstatistiği</div>
+    <div class="section-title">📈 {{ period_label }}</div>
     <div class="chart-container">
       <canvas id="dailyChart"></canvas>
     </div>
@@ -87,15 +114,27 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" crossorigin="anonymous"></script>
 <script>
+function updateStaffFilter(value) {
+  const staffId = value ? `&staff_id=${value}` : '';
+  const period = new URLSearchParams(window.location.search).get('period') || 'hafta';
+  window.location.href = `/panel/istatistikler?period=${period}${staffId}`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const ctx = document.getElementById('dailyChart');
   if (ctx) {
-    const dailyData = {{ daily_stats | tojson }};
-    const labels = Object.keys(dailyData).map(d => {
-      const date = new Date(d);
-      return date.toLocaleDateString('tr-TR', { weekday: 'short', month: 'short', day: 'numeric' });
-    });
-    const values = Object.values(dailyData);
+    const rawLabels = {{ chart_labels | tojson }};
+    const values = {{ chart_values | tojson }};
+    const period = '{{ period }}';
+
+    // Hafta periyodunda labels ISO tarih → tr-TR format
+    let labels = rawLabels;
+    if (period === 'hafta') {
+      labels = rawLabels.map(d => {
+        const date = new Date(d);
+        return date.toLocaleDateString('tr-TR', { weekday: 'short', month: 'short', day: 'numeric' });
+      });
+    }
 
     new Chart(ctx, {
       type: 'line',
