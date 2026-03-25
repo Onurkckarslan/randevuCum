@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Request, Form, Depends, HTTPException, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from ..database import get_db
 from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, CustomerProfile
 import shutil, os, uuid
