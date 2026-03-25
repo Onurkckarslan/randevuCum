@@ -83,43 +83,6 @@ body { background: #0d0d16 !important; }
   </div>
 </div>
 
-<!-- İSTATİSTİK GRAFİĞİ -->
-<div class="stats-card">
-  <div class="stats-card-title">📈 Son 7 Günün Randevu İstatistiği</div>
-  <div class="chart-container">
-    <canvas id="dailyChart"></canvas>
-  </div>
-</div>
-
-<!-- PERSONEL İSTATİSTİKLERİ -->
-{% if staff_stats %}
-<div class="stats-card">
-  <div class="stats-card-title">👥 Personel Performansı</div>
-  <table class="staff-table">
-    <thead>
-      <tr>
-        <th style="width: 40px;"></th>
-        <th>Personel</th>
-        <th>Bu Ay</th>
-        <th>Toplam</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for staff in staff_stats %}
-      <tr>
-        <td style="text-align: center;">
-          <span class="staff-rank">{{ loop.index }}</span>
-        </td>
-        <td><span class="staff-name">{{ staff.name }}</span></td>
-        <td><span class="staff-stat">{{ staff.month }}</span></td>
-        <td><span class="staff-stat">{{ staff.total }}</span></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% endif %}
-
 <div class="link-qr-card mb-4">
   <div class="d-flex align-items-center gap-4 flex-wrap">
     <div style="background:#fff;border-radius:16px;padding:10px;display:inline-flex;"><div id="qrCodeContainer" style="width:110px;height:110px;display:flex;align-items:center;justify-content:center;"><div id="qrPlaceholder" style="font-size:.65rem;color:#9ca3af;">Yükleniyor</div></div></div>
@@ -143,6 +106,7 @@ body { background: #0d0d16 !important; }
   <div class="col-6 col-md-3"><a href="/panel/calisma-saatleri" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">🕐</div><div class="fw-bold">Saatler</div></a></div>
   <div class="col-6 col-md-3"><a href="/panel/fotolar" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">📷</div><div class="fw-bold">Fotoğraflar</div></a></div>
   <div class="col-6 col-md-3"><a href="/panel/randevu-defteri" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">📋</div><div class="fw-bold">Randevu Defteri</div></a></div>
+  <div class="col-6 col-md-3"><a href="/panel/istatistikler" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">📊</div><div class="fw-bold">İstatistikler</div></a></div>
   <div class="col-6 col-md-3"><a href="/panel/gelir-takibi" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">💰</div><div class="fw-bold">Gelir Takibi</div></a></div>
   <div class="col-6 col-md-3"><a href="/panel/urun-stok" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">📦</div><div class="fw-bold">Ürün/Stok</div></a></div>
   <div class="col-6 col-md-3"><a href="/panel/musteri-sadakati" class="panel-menu-card text-center"><div style="font-size:2rem;margin-bottom:8px;">👥</div><div class="fw-bold">Müşteri Sadakati</div></a></div>
@@ -235,8 +199,9 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-});
+
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
 <script>
 (function(){const slug="{{ biz.slug }}",bizUrl="https://www.randevucum.com/"+slug,c=document.getElementById("qrCodeContainer"),p=document.getElementById("qrPlaceholder");function addLogoToQR(){const canvas=c.querySelector("canvas");if(!canvas){console.log("Canvas bulunamadı");return}const ctx=canvas.getContext("2d"),img=new Image();img.crossOrigin="anonymous";img.onload=function(){try{console.log("Logo yüklendi, canvas:",canvas.width+"x"+canvas.height);const size=canvas.width*0.25,x=canvas.width/2-size/2,y=canvas.height/2-size/2;ctx.clearRect(x-2,y-2,size+4,size+4);ctx.drawImage(img,x,y,size,size);console.log("Logo çizildi")}catch(e){console.log("Logo çizme hatası:",e)}};img.onerror=function(){console.log("Logo yükleme hatası")};img.src="/static/qr-logo.png";console.log("Logo yükleniyor...")}function b(){if(p)p.remove();c.innerHTML="";new QRCode(c,{text:bizUrl,width:110,height:110,colorDark:"#000",colorLight:"#fff",correctLevel:QRCode.CorrectLevel.M});setTimeout(addLogoToQR,500)}if(typeof QRCode!=="undefined")b();else{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js";s.onload=b;document.head.appendChild(s)}function ct(t){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t);const a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;left:-9999px";document.body.appendChild(a);a.focus();a.select();document.execCommand("copy");document.body.removeChild(a);return Promise.resolve()}window.downloadQR=function(){const v=c.querySelector("canvas");if(v){const o=document.createElement("canvas");o.width=o.height=512;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,512,512);x.drawImage(v,0,0,512,512);const a=document.createElement("a");a.href=o.toDataURL("image/png");a.download=slug+"-qr.png";a.click()}};window.copyLink=function(btn,url){ct(url).then(()=>{btn.innerHTML='<i class="bi bi-check2 me-1"></i>Kopyalandı!';btn.classList.add("copied");setTimeout(()=>{btn.innerHTML='<i class="bi bi-copy me-1"></i>Kopyala';btn.classList.remove("copied")},2500)})};window.shareWhatsApp=function(){window.location.href="https://wa.me/?text="+encodeURIComponent("Randevu linkim: "+bizUrl)};window.shareNative=function(){if(navigator.share)navigator.share({title:"Randevu",text:"Online randevu: "+bizUrl,url:bizUrl}).catch(()=>ct(bizUrl));else ct(bizUrl)}})();
 </script>
