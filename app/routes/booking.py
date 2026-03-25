@@ -171,17 +171,29 @@ async def book_appointment(
         db.commit()
         db.refresh(apt)
 
-        # Müşteri notlarını al (varsa)
-        customer_notes = ""
+        # Notları birleştir: müşteri notu (form) + işletme notu (panel)
+        combined_notes = ""
+
+        # Müşteri notu (randevu esnasında yazılan)
+        if notes and notes.strip():
+            combined_notes = f"Müşteri Notu: {notes}"
+
+        # İşletme notu (panelden kaydedilen)
+        business_note = ""
         customer_profile = db.query(CustomerProfile).filter(
             CustomerProfile.business_id == biz.id,
             CustomerProfile.phone == customer_phone
         ).first()
         if customer_profile:
             if customer_profile.notes:
-                customer_notes = customer_profile.notes
+                business_note = customer_profile.notes
             elif customer_profile.preferences:
-                customer_notes = f"Tercihler: {customer_profile.preferences}"
+                business_note = f"Tercihler: {customer_profile.preferences}"
+
+        if business_note:
+            if combined_notes:
+                combined_notes += " | "
+            combined_notes += f"İşletme Notu: {business_note}"
 
         # SMS gönder (async, hata olsa da devam et)
         asyncio.create_task(send_appointment_confirm(
@@ -194,7 +206,7 @@ async def book_appointment(
         if biz.phone:
             asyncio.create_task(send_booking_with_products_business(
                 biz.phone, customer_name,
-                svc.name, selected_date, selected_time, [], customer_notes
+                svc.name, selected_date, selected_time, [], combined_notes
             ))
 
         # Get active products for this business
@@ -256,17 +268,29 @@ async def select_products(
         db.refresh(apt)
         apt_products = db.query(AppointmentProduct).filter_by(appointment_id=apt_id).all()
 
-        # Müşteri notlarını al (varsa)
-        customer_notes = ""
+        # Notları birleştir: müşteri notu (randevu) + işletme notu (panel)
+        combined_notes = ""
+
+        # Müşteri notu (randevu esnasında yazılan)
+        if apt.notes and apt.notes.strip():
+            combined_notes = f"Müşteri Notu: {apt.notes}"
+
+        # İşletme notu (panelden kaydedilen)
+        business_note = ""
         customer_profile = db.query(CustomerProfile).filter(
             CustomerProfile.business_id == biz.id,
             CustomerProfile.phone == apt.customer_phone
         ).first()
         if customer_profile:
             if customer_profile.notes:
-                customer_notes = customer_profile.notes
+                business_note = customer_profile.notes
             elif customer_profile.preferences:
-                customer_notes = f"Tercihler: {customer_profile.preferences}"
+                business_note = f"Tercihler: {customer_profile.preferences}"
+
+        if business_note:
+            if combined_notes:
+                combined_notes += " | "
+            combined_notes += f"İşletme Notu: {business_note}"
 
         # Send SMS to customer and business owner
         asyncio.create_task(send_booking_with_products_customer(
@@ -278,7 +302,7 @@ async def select_products(
         if biz.phone:
             asyncio.create_task(send_booking_with_products_business(
                 biz.phone, apt.customer_name,
-                svc.name, apt.date, apt.time, apt_products, customer_notes
+                svc.name, apt.date, apt.time, apt_products, combined_notes
             ))
 
         # Redirect to success page with flag
