@@ -23,10 +23,25 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 
 .section-title { font-size: 1rem; font-weight: 800; letter-spacing: .08em; color: rgba(196,181,253,.5); text-transform: uppercase; margin-bottom: 16px; }
 
-.search-bar { display: flex; gap: 8px; margin-bottom: 20px; }
-.search-bar input { flex: 1; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; color: #f1f0f5; padding: 10px 14px; font-size: .95rem; }
-.search-bar input::placeholder { color: rgba(196,181,253,.3); }
-.search-bar input:focus { outline: none; border-color: rgba(124,58,237,.5); box-shadow: 0 0 0 3px rgba(124,58,237,.18); }
+.search-bar { display: flex; gap: 10px; margin-bottom: 24px; }
+.search-bar input {
+  flex: 1;
+  background: rgba(124,58,237,.08);
+  border: 2px solid rgba(124,58,237,.3);
+  border-radius: 12px;
+  color: #f1f0f5;
+  padding: 12px 16px;
+  font-size: .95rem;
+  font-weight: 500;
+  transition: all .2s;
+}
+.search-bar input::placeholder { color: rgba(196,181,253,.4); font-weight: 500; }
+.search-bar input:focus {
+  outline: none;
+  border-color: rgba(124,58,237,.8);
+  background: rgba(124,58,237,.12);
+  box-shadow: 0 0 0 4px rgba(124,58,237,.2);
+}
 
 .btn-add { background: linear-gradient(135deg, #7c3aed, #ec4899); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; font-size: .9rem; }
 .btn-add:hover { opacity: .9; transform: translateY(-1px); }
@@ -47,6 +62,30 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 
 .btn-detail { background: rgba(124,58,237,.15); color: #a78bfa; border: 1px solid rgba(124,58,237,.3); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: .85rem; display: inline-block; transition: all .2s; }
 .btn-detail:hover { background: rgba(124,58,237,.25); color: #c4b5fd; border-color: rgba(124,58,237,.5); }
+
+.whatsapp-icon { color: #25d366; text-decoration: none; font-size: 1.2rem; display: inline-block; transition: all .2s; }
+.whatsapp-icon:hover { transform: scale(1.2); }
+
+.badge-super-vip { background: linear-gradient(135deg, #fbbf24, #f97316); color: white; font-size: .75rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; display: inline-block; animation: glow-pulse 2s infinite; }
+@keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 8px rgba(251,191,36,.5); } 50% { box-shadow: 0 0 16px rgba(251,191,36,.8); } }
+
+.note-btn { background: rgba(167,139,250,.15); color: #a78bfa; border: 1px solid rgba(167,139,250,.3); border-radius: 6px; padding: 6px 10px; cursor: pointer; transition: all .2s; font-size: .9rem; }
+.note-btn:hover { background: rgba(167,139,250,.25); color: #c4b5fd; }
+
+.customers-table tbody tr { transition: all .2s; }
+.customers-table tbody tr:hover { background: rgba(124,58,237,.12); transform: scale(1.001); }
+
+/* Modal untuk Notes */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 1000; backdrop-filter: blur(4px); }
+.modal-overlay.active { display: flex; align-items: center; justify-content: center; }
+.modal-box { background: #13111f; border: 1px solid rgba(255,255,255,.15); border-radius: 16px; padding: 24px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.8); }
+.modal-title { font-size: 1.2rem; font-weight: 800; color: #f1f0f5; margin-bottom: 14px; }
+.modal-close { background: none; border: none; color: #a78bfa; font-size: 1.8rem; cursor: pointer; float: right; }
+.modal-close:hover { color: #c4b5fd; }
+.modal-input { width: 100%; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; color: #f1f0f5; padding: 12px; font-family: inherit; font-size: .95rem; margin-bottom: 14px; resize: none; min-height: 100px; }
+.modal-input:focus { outline: none; border-color: rgba(124,58,237,.5); box-shadow: 0 0 0 3px rgba(124,58,237,.18); }
+.modal-btn { background: linear-gradient(135deg, #7c3aed, #ec4899); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 700; cursor: pointer; }
+.modal-btn:hover { opacity: .9; }
 </style>
 {% endblock %}
 
@@ -96,20 +135,29 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   <table class="customers-table" id="customersTable">
     <thead>
       <tr>
-        <th>İsim</th>
+        <th>İsim & Durum</th>
         <th>Telefon</th>
         <th>Ziyaret</th>
         <th>Son Ziyaret</th>
-        <th>Durum</th>
-        <th></th>
+        <th>İşlemler</th>
       </tr>
     </thead>
     <tbody>
       {% for customer in customers %}
       <tr>
-        <td>{{ customer.name or "—" }}</td>
-        <td>{{ customer.phone }}</td>
-        <td>{{ customer.get("visit_count", 0) }}</td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            {{ customer.name or "—" }}
+            {% if customer.get("visit_count", 0) > 3 %}
+              <span class="badge-super-vip">👑 V.I.P</span>
+            {% endif %}
+          </div>
+        </td>
+        <td>
+          <a href="https://wa.me/{{ customer.phone }}" target="_blank" class="whatsapp-icon" title="WhatsApp'ta Aç">💬</a>
+          {{ customer.phone }}
+        </td>
+        <td style="text-align: center; font-weight: 600; color: #a78bfa;">{{ customer.get("visit_count", 0) }}</td>
         <td>
           {% if customer.get("last_visit") %}
             {% if customer.last_visit is string %}
@@ -121,14 +169,8 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
             —
           {% endif %}
         </td>
-        <td>
-          {% if customer.get("vip") %}
-            <span class="badge-vip">⭐ VIP</span>
-          {% else %}
-            <span class="badge-active">Aktif</span>
-          {% endif %}
-        </td>
         <td style="text-align: right;">
+          <button class="note-btn" onclick="openNoteModal('{{ customer.name }}', '{{ customer.phone }}')">📝 Not</button>
           {% if customer.get("profile_id") %}
             <a href="/panel/musteri-detay/{{ customer.profile_id }}" class="btn-detail">Detay →</a>
           {% endif %}
@@ -146,6 +188,17 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   {% endif %}
 </div>
 
+<!-- MODAL FOR NOTES -->
+<div class="modal-overlay" id="noteModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeNoteModal()">✕</button>
+    <div class="modal-title">📝 Müşteri Notu</div>
+    <div id="noteModalCustomer" style="font-size: .95rem; color: rgba(196,181,253,.6); margin-bottom: 14px;"></div>
+    <textarea class="modal-input" id="noteText" placeholder="Bu müşteri için özel notlar, hatırlatıcılar, tercihler..."></textarea>
+    <button class="modal-btn" onclick="saveNote()">💾 Notu Kaydet</button>
+  </div>
+</div>
+
 <script>
 function filterCustomers() {
   const input = document.getElementById("searchInput").value.toLowerCase();
@@ -159,5 +212,34 @@ function filterCustomers() {
     row.style.display = (name.includes(input) || phone.includes(input)) ? "" : "none";
   }
 }
+
+let currentCustomer = { name: "", phone: "" };
+
+function openNoteModal(name, phone) {
+  currentCustomer = { name, phone };
+  document.getElementById("noteModalCustomer").textContent = `${name} (${phone})`;
+  document.getElementById("noteModal").classList.add("active");
+  document.getElementById("noteText").focus();
+}
+
+function closeNoteModal() {
+  document.getElementById("noteModal").classList.remove("active");
+  document.getElementById("noteText").value = "";
+}
+
+function saveNote() {
+  const noteText = document.getElementById("noteText").value;
+  if (!noteText.trim()) {
+    alert("Lütfen bir not yazınız!");
+    return;
+  }
+  alert(`Not kaydedildi: ${currentCustomer.name}\n\n${noteText}`);
+  closeNoteModal();
+}
+
+// Modal dışı tıklanırsa kapat
+document.getElementById("noteModal")?.addEventListener("click", (e) => {
+  if (e.target.id === "noteModal") closeNoteModal();
+});
 </script>
 {% endblock %}
