@@ -135,6 +135,46 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         Service.business_id == biz.id, Service.is_active == True
     ).scalar() or 0
 
+    # ── GRAFIK VERİSİ: Son 7 günün randevu sayısı ──
+    from datetime import timedelta
+    daily_stats = {}
+    for i in range(6, -1, -1):  # 6 gün öncesinden bugüne kadar
+        day = date.today() - timedelta(days=i)
+        day_str = day.isoformat()
+        count = db.query(func.count(Appointment.id)).filter(
+            Appointment.business_id == biz.id,
+            Appointment.date == day_str,
+            Appointment.status != "iptal"
+        ).scalar() or 0
+        daily_stats[day_str] = count
+
+    # ── PERSONEL İSTATİSTİKLERİ ──
+    staff_members = db.query(Staff).filter(
+        Staff.business_id == biz.id, Staff.is_active == True
+    ).all()
+    staff_stats = []
+    for staff in staff_members:
+        appt_count = db.query(func.count(Appointment.id)).filter(
+            Appointment.business_id == biz.id,
+            Appointment.staff_id == staff.id,
+            Appointment.status != "iptal"
+        ).scalar() or 0
+        month_appt_count = db.query(func.count(Appointment.id)).filter(
+            Appointment.business_id == biz.id,
+            Appointment.staff_id == staff.id,
+            Appointment.date >= month_start,
+            Appointment.status != "iptal"
+        ).scalar() or 0
+        staff_stats.append({
+            "id": staff.id,
+            "name": staff.name,
+            "total": appt_count,
+            "month": month_appt_count,
+        })
+
+    # Toplam randevu sayısına göre sırala
+    staff_stats.sort(key=lambda x: x["month"], reverse=True)
+
     return templates.TemplateResponse("business/dashboard.html", {
         "request": request,
         "biz": biz,
@@ -148,6 +188,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "pending_count": pending_count,
         "staff_count": staff_count,
         "service_count": service_count,
+        "daily_stats": daily_stats,
+        "staff_stats": staff_stats,
     })
 
 
