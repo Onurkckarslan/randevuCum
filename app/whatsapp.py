@@ -96,3 +96,44 @@ def get_next_available_date_str(choice: int) -> str:
     today = datetime.now()
     selected = today + timedelta(days=choice)
     return selected.strftime("%Y-%m-%d")
+
+
+async def purchase_twilio_number() -> str | None:
+    """
+    Twilio'dan yeni WhatsApp-capable numara satın al.
+    Başarılı olursa numarayı döndür, hata olursa None.
+    """
+    if not twilio_client or not TWILIO_ENABLED:
+        print("[Twilio] Disabled - number purchase skipped (test mode)")
+        return None
+
+    try:
+        print("[Twilio] Purchasing new WhatsApp number...")
+
+        # Twilio'dan uygun bir numara al (US bölgesinde)
+        # Gerçekte Türkiye (TR) isteyebilirsin ama Twilio TR desteği sınırlı
+        available_numbers = twilio_client.available_phone_numbers("US").local.list(
+            area_code="415",  # San Francisco area code (standard for Twilio)
+            limit=1
+        )
+
+        if not available_numbers:
+            print("[Twilio] No available numbers in this area")
+            return None
+
+        phone_number = available_numbers[0].phone_number
+
+        # Numarayı satın al
+        result = twilio_client.incoming_phone_numbers.create(
+            phone_number=phone_number,
+            friendly_name=f"RandevuCum Business WhatsApp"
+        )
+
+        purchased_number = result.phone_number
+        print(f"[Twilio] Purchased number: {purchased_number}")
+
+        return purchased_number
+
+    except Exception as e:
+        print(f"[Twilio] Error purchasing number: {e}")
+        return None

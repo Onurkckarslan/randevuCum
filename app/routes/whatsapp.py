@@ -25,16 +25,28 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
     try:
         data = await request.form()
         from_number = data.get("From")  # whatsapp:+905551234567
+        to_number = data.get("To")      # whatsapp:+1415523xxxx (gelen numara)
         message_body = data.get("Body", "").strip()
 
-        print(f"[WhatsApp Webhook] From: {from_number}, Body: {message_body}")
+        print(f"[WhatsApp Webhook] From: {from_number}, To: {to_number}, Body: {message_body}")
 
-        # Hangi işletme bu numaraya ait?
-        # Not: Şu anda default işletme kullanıyoruz (sandbox'ta)
-        # Production'da: Business.whatsapp_phone == from_number check yapılır
+        # Production: Gelen numaraya (To) göre işletme bul
+        # Sandbox: whatsapp_phone boş olabilir, ilk active business'e geri fallback
+        clean_to = to_number.replace("whatsapp:", "") if to_number else None
 
-        # For now, tüm mesajları ilk active business'e yönlendir (test için)
-        biz = db.query(Business).filter(Business.is_active == True).first()
+        biz = None
+        if clean_to:
+            # Production mode: Numaraya göre işletme ara
+            biz = db.query(Business).filter(
+                Business.whatsapp_phone == clean_to,
+                Business.is_active == True,
+                Business.whatsapp_enabled == True
+            ).first()
+
+        if not biz:
+            # Sandbox fallback: İlk active işletme
+            print("[WhatsApp] Production number not found, using first active business (sandbox mode)")
+            biz = db.query(Business).filter(Business.is_active == True).first()
 
         if not biz:
             print("[WhatsApp] İşletme bulunamadı")

@@ -7,6 +7,8 @@ from ..models import Business, Appointment, Service, Staff
 from ..templates_config import templates
 from datetime import datetime, timedelta
 from typing import Optional
+import asyncio
+from ..whatsapp import purchase_twilio_number
 
 router = APIRouter(prefix="/admin")
 
@@ -93,12 +95,29 @@ async def admin_set_plan(
     biz = db.query(Business).filter(Business.id == biz_id).first()
     if not biz:
         raise HTTPException(404)
+
     biz.plan = plan
+
     if plan == "premium":
+        # Premium'a yükselt, WhatsApp numarası al
         base = biz.plan_expires_at if (biz.plan_expires_at and biz.plan_expires_at > datetime.utcnow()) else datetime.utcnow()
         biz.plan_expires_at = base + timedelta(days=30 * months)
+        biz.whatsapp_enabled = True
+
+        # Eğer WhatsApp numarası yoksa, Twilio'dan satın al
+        if not biz.whatsapp_phone:
+            print(f"[Admin] Buying Twilio number for business {biz_id}...")
+            phone_number = await purchase_twilio_number()
+            if phone_number:
+                biz.whatsapp_phone = phone_number
+                print(f"[Admin] Number assigned: {phone_number}")
+            else:
+                print(f"[Admin] Failed to purchase number (may be in sandbox mode)")
     else:
+        # Temel plana düşür
         biz.plan_expires_at = None
+        biz.whatsapp_enabled = False
+
     db.commit()
     return RedirectResponse(f"/admin/business/{biz_id}", status_code=302)
 
