@@ -40,16 +40,19 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
             print("[WhatsApp] İşletme bulunamadı")
             return {"status": "ok"}
 
+        # Telefon numarasından "whatsapp:" prefixini kaldır
+        clean_phone = from_number.replace("whatsapp:", "")
+
         # Conversation kaydını bul veya oluştur
         conv = db.query(WhatsAppConversation).filter(
             WhatsAppConversation.business_id == biz.id,
-            WhatsAppConversation.customer_phone == from_number
+            WhatsAppConversation.customer_phone == clean_phone
         ).first()
 
         if not conv:
             conv = WhatsAppConversation(
                 business_id=biz.id,
-                customer_phone=from_number,
+                customer_phone=clean_phone,
                 status="waiting_service"
             )
             db.add(conv)
