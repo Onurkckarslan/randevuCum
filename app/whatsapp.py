@@ -100,7 +100,7 @@ def get_next_available_date_str(choice: int) -> str:
 
 async def purchase_twilio_number() -> str | None:
     """
-    Twilio'dan yeni WhatsApp-capable numara satın al.
+    Twilio'dan yeni WhatsApp-capable numara satın al ve WhatsApp'ı etkinleştir.
     Başarılı olursa numarayı döndür, hata olursa None.
     """
     if not twilio_client or not TWILIO_ENABLED:
@@ -111,9 +111,8 @@ async def purchase_twilio_number() -> str | None:
         print("[Twilio] Purchasing new WhatsApp number...")
 
         # Twilio'dan uygun bir numara al (US bölgesinde)
-        # Gerçekte Türkiye (TR) isteyebilirsin ama Twilio TR desteği sınırlı
         available_numbers = twilio_client.available_phone_numbers("US").local.list(
-            area_code="415",  # San Francisco area code (standard for Twilio)
+            area_code="415",  # San Francisco area code
             limit=1
         )
 
@@ -130,7 +129,23 @@ async def purchase_twilio_number() -> str | None:
         )
 
         purchased_number = result.phone_number
+        phone_number_sid = result.sid
         print(f"[Twilio] Purchased number: {purchased_number}")
+
+        # ✅ WhatsApp'ı bu numaraya etkinleştir
+        try:
+            print(f"[Twilio] Enabling WhatsApp on {purchased_number}...")
+            twilio_client.messaging.phone_numbers(phone_number_sid).update(
+                address_sid=None,  # WhatsApp için gerekli
+                sms_fallback_method="POST",
+                sms_method="POST",
+                voice_fallback_method="POST",
+                voice_method="POST"
+            )
+            print(f"[Twilio] WhatsApp enabled on {purchased_number}")
+        except Exception as e:
+            print(f"[Twilio] Warning enabling WhatsApp: {e}")
+            # Devam et, numara yine de satın alındı
 
         return purchased_number
 
