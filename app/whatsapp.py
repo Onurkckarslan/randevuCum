@@ -11,6 +11,7 @@ TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
 TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER", "")
 TWILIO_ENABLED = os.getenv("TWILIO_ENABLED", "false").lower() == "true"
+TWILIO_MESSAGING_SERVICE_SID = os.getenv("TWILIO_MESSAGING_SERVICE_SID", "")
 
 # Twilio client
 if TWILIO_ENABLED and TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
@@ -98,9 +99,37 @@ def get_next_available_date_str(choice: int) -> str:
     return selected.strftime("%Y-%m-%d")
 
 
+async def get_or_create_messaging_service() -> str | None:
+    """
+    Twilio Messaging Service oluştur veya var olanı kullan (WhatsApp için).
+    Service SID döndür.
+    """
+    if not twilio_client or not TWILIO_ENABLED:
+        return None
+
+    if TWILIO_MESSAGING_SERVICE_SID:
+        print(f"[Twilio] Using existing Messaging Service: {TWILIO_MESSAGING_SERVICE_SID}")
+        return TWILIO_MESSAGING_SERVICE_SID
+
+    try:
+        print("[Twilio] Creating new Messaging Service for WhatsApp...")
+        service = twilio_client.messaging.services.create(
+            friendly_name="RandevuCum WhatsApp Business",
+            inbound_request_url="https://randevucum.com/api/whatsapp/webhook",
+            inbound_method="POST"
+        )
+        print(f"[Twilio] Messaging Service created: {service.sid}")
+        print(f"[Twilio] ⚠️  Add this to .env: TWILIO_MESSAGING_SERVICE_SID={service.sid}")
+        return service.sid
+    except Exception as e:
+        print(f"[Twilio] Error creating Messaging Service: {e}")
+        return None
+
+
 async def purchase_twilio_number() -> str | None:
     """
-    Twilio'dan yeni WhatsApp-capable numara satın al ve WhatsApp'ı etkinleştir.
+    Twilio'dan yeni WhatsApp-capable numara satın al.
+    Messaging Service'e bağla.
     Başarılı olursa numarayı döndür, hata olursa None.
     """
     if not twilio_client or not TWILIO_ENABLED:
@@ -110,9 +139,14 @@ async def purchase_twilio_number() -> str | None:
     try:
         print("[Twilio] Purchasing new WhatsApp number...")
 
-        # Twilio'dan uygun bir numara al (US bölgesinde)
-        # Birden fazla area code dene çünkü bazıları bitebilir
-        area_codes = ["415", "510", "408", "650", "707", "209", "530"]  # California area codes
+        # Messaging Service'i al/oluştur
+        service_sid = await get_or_create_messaging_service()
+        if not service_sid:
+            print("[Twilio] Failed to get/create Messaging Service")
+            return None
+
+        # Twilio'dan uygun bir numara al
+        area_codes = ["415", "510", "408", "650", "707", "209", "530"]
         available_numbers = None
 
         for area_code in area_codes:
@@ -137,30 +171,34 @@ async def purchase_twilio_number() -> str | None:
         # Numarayı satın al
         result = twilio_client.incoming_phone_numbers.create(
             phone_number=phone_number,
-            friendly_name=f"RandevuCum Business WhatsApp"
+            friendly_name="RandevuCum Business WhatsApp",
+            sms_fallback_url="https://randevucum.com/api/whatsapp/webhook",
+            sms_url="https://randevucum.com/api/whatsapp/webhook",
+            sms_method="POST",
+            voice_fallback_url="https://randevucum.com/api/whatsapp/webhook",
+            voice_url="https://randevucum.com/api/whatsapp/webhook",
+            voice_method="POST"
         )
 
         purchased_number = result.phone_number
         phone_number_sid = result.sid
         print(f"[Twilio] Purchased number: {purchased_number}")
 
-        # ✅ WhatsApp'ı bu numaraya etkinleştir
+        # ✅ Numarayı Messaging Service'e bağla
         try:
-            print(f"[Twilio] Enabling WhatsApp on {purchased_number}...")
-            twilio_client.messaging.phone_numbers(phone_number_sid).update(
-                address_sid=None,  # WhatsApp için gerekli
-                sms_fallback_method="POST",
-                sms_method="POST",
-                voice_fallback_method="POST",
-                voice_method="POST"
+            print(f"[Twilio] Binding {purchased_number} to Messaging Service...")
+            twilio_client.messaging.services(service_sid).phone_numbers.create(
+                phone_number_sid=phone_number_sid
             )
-            print(f"[Twilio] WhatsApp enabled on {purchased_number}")
+            print(f"[Twilio] ✅ Number {purchased_number} bound to WhatsApp Service!")
         except Exception as e:
-            print(f"[Twilio] Warning enabling WhatsApp: {e}")
-            # Devam et, numara yine de satın alındı
+            print(f"[Twilio] Error binding to service: {e}")
+            return None
 
         return purchased_number
 
     except Exception as e:
         print(f"[Twilio] Error purchasing number: {e}")
+        import traceback
+        traceback.print_exc()
         return None
