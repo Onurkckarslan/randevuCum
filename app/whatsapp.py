@@ -111,13 +111,25 @@ async def purchase_twilio_number() -> str | None:
         print("[Twilio] Purchasing new WhatsApp number...")
 
         # Twilio'dan uygun bir numara al (US bölgesinde)
-        available_numbers = twilio_client.available_phone_numbers("US").local.list(
-            area_code="415",  # San Francisco area code
-            limit=1
-        )
+        # Birden fazla area code dene çünkü bazıları bitebilir
+        area_codes = ["415", "510", "408", "650", "707", "209", "530"]  # California area codes
+        available_numbers = None
+
+        for area_code in area_codes:
+            try:
+                available_numbers = twilio_client.available_phone_numbers("US").local.list(
+                    area_code=area_code,
+                    limit=1
+                )
+                if available_numbers:
+                    print(f"[Twilio] Found numbers in area code {area_code}")
+                    break
+            except Exception as e:
+                print(f"[Twilio] Area code {area_code} failed: {e}")
+                continue
 
         if not available_numbers:
-            print("[Twilio] No available numbers in this area")
+            print("[Twilio] No available numbers in any area code")
             return None
 
         phone_number = available_numbers[0].phone_number
