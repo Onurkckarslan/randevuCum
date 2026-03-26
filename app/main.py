@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import asyncio
 from .database import engine, SessionLocal, get_db
 from . import models
-from .routes import auth, panel, booking, categories, staff_portal, admin
+from .routes import auth, panel, booking, categories, staff_portal, admin, whatsapp
 from .scheduler import scheduler_loop
 from .auth import get_current_business_id
 from .models import Business
@@ -76,6 +76,24 @@ async def lifespan(app: FastAPI):
                 )
             """))
 
+        # ── Create whatsapp_conversations if not exists ──
+        if "whatsapp_conversations" not in inspector.get_table_names():
+            db.execute(text("""
+                CREATE TABLE whatsapp_conversations (
+                    id SERIAL PRIMARY KEY,
+                    business_id INTEGER NOT NULL,
+                    customer_phone VARCHAR(20) NOT NULL,
+                    status VARCHAR(50) DEFAULT 'waiting_service',
+                    selected_service_id INTEGER,
+                    selected_date VARCHAR(10),
+                    selected_time VARCHAR(5),
+                    customer_name VARCHAR(100),
+                    message_count INTEGER DEFAULT 0,
+                    last_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """))
+
         db.commit()
     except Exception as e:
         db.rollback()
@@ -120,5 +138,6 @@ app.include_router(auth.router)         # EN ÖNCE — /giris, /kayit vb.
 app.include_router(admin.router)        # Sonra admin
 app.include_router(panel.router)
 app.include_router(categories.router)
+app.include_router(whatsapp.router)     # WhatsApp webhook
 app.include_router(booking.router)      # SON — catch-all /{slug}
 app.include_router(staff_portal.router)
