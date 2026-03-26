@@ -206,16 +206,16 @@ class WhatsAppConversation(Base):
 
     id              = Column(Integer, primary_key=True, index=True)
     business_id     = Column(Integer, ForeignKey("businesses.id"), nullable=False)
-    customer_phone  = Column(String(20), nullable=False, index=True)  # whatsapp:+905551234567
-    status          = Column(String(50), default="waiting_service")    # waiting_service | waiting_date | waiting_time | waiting_name | completed
+    customer_phone  = Column(String(20), nullable=False, index=True)
+    status          = Column(String(50), default="waiting_service")
     selected_service_id = Column(Integer, ForeignKey("services.id"), nullable=True)
-    selected_date   = Column(String(10), nullable=True)               # YYYY-MM-DD
-    selected_time   = Column(String(5), nullable=True)                # HH:MM
+    selected_date   = Column(String(10), nullable=True)
+    selected_time   = Column(String(5), nullable=True)
     customer_name   = Column(String(100), nullable=True)
     message_count   = Column(Integer, default=0)
     last_message_at = Column(DateTime, default=datetime.utcnow)
     created_at      = Column(DateTime, default=datetime.utcnow)
 
-    business = relationship("Business")
+    business = relationship("Business", overlaps="whatsapp_conversations")
     service  = relationship("Service")
 
