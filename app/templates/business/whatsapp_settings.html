@@ -52,8 +52,14 @@
     {% if biz.whatsapp_enabled %}
     <div style="background:rgba(255,255,255,.04);padding:16px;border-radius:10px;margin-top:16px;">
       <div class="stat-row">
-        <span style="color:rgba(196,181,253,.7);">📞 Twilio Numarası</span>
-        <span style="color:#c4b5fd;font-weight:600;">+1 415 523 8886</span>
+        <span style="color:rgba(196,181,253,.7);">📞 İşletme WhatsApp Bot Numarası</span>
+        <span style="color:#25d366;font-weight:700;font-size:1.1rem;">
+          {% if biz.whatsapp_phone %}
+            {{ biz.whatsapp_phone }}
+          {% else %}
+            <span style="color:rgba(196,181,253,.5);">Atanmadı (Admin tarafından atanacak)</span>
+          {% endif %}
+        </span>
       </div>
       <div class="stat-row">
         <span style="color:rgba(196,181,253,.7);">🔗 Webhook URL</span>
@@ -61,8 +67,17 @@
       </div>
       <div class="stat-row">
         <span style="color:rgba(196,181,253,.7);">🎯 Durum</span>
-        <span style="background:rgba(16,185,129,.15);color:#34d399;padding:2px 8px;border-radius:6px;font-size:.85rem;font-weight:600;">Bağlantı Hazır</span>
+        {% if biz.whatsapp_phone %}
+        <span style="background:rgba(16,185,129,.15);color:#34d399;padding:2px 8px;border-radius:6px;font-size:.85rem;font-weight:600;">✅ Aktif</span>
+        {% else %}
+        <span style="background:rgba(251,191,36,.15);color:#fbbf24;padding:2px 8px;border-radius:6px;font-size:.85rem;font-weight:600;">⏳ Bekleniyor</span>
+        {% endif %}
       </div>
+    </div>
+    {% else %}
+    <div class="info-box" style="background:rgba(251,191,36,.1);border-left-color:#fbbf24;margin-top:16px;">
+      <strong style="color:#fbbf24;">⚠️ WhatsApp Bot Pasif</strong><br>
+      <span style="color:rgba(196,181,253,.6);font-size:.9rem;">WhatsApp botunu aktifleştirmek için yukarıdaki butonu açın.</span>
     </div>
     {% endif %}
   </div>
