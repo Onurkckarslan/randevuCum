@@ -9,7 +9,7 @@ from ..whatsapp import (
     send_whatsapp_message, format_service_list, format_date_list,
     format_slot_list, parse_selection, get_next_available_date_str
 )
-from ..booking import generate_slots
+from .booking import generate_slots
 from ..sms import send_appointment_confirm, send_booking_with_products_business
 from datetime import datetime, timedelta
 import asyncio
