@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}WhatsApp Bot Ayarları — {{ biz.name }}{% endblock %}
+{% block extra_head %}
+<style>
+.whatsapp-card { background: rgba(37,211,102,.08); border: 2px solid rgba(37,211,102,.25); border-radius: 16px; padding: 24px; }
+.whatsapp-card h2 { color: #25d366; margin-bottom: 16px; font-weight: 800; }
+.toggle-switch { display: inline-flex; align-items: center; gap: 12px; }
+.switch { position: relative; width: 50px; height: 28px; background: rgba(255,255,255,.1); border-radius: 14px; cursor: pointer; transition: all .3s; }
+.switch.active { background: #25d366; }
+.switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: left .3s; }
+.switch.active::after { left: 24px; }
+.info-box { background: rgba(99,102,241,.12); border-left: 4px solid #6366f1; padding: 16px; border-radius: 8px; margin: 16px 0; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+.stat-row:last-child { border-bottom: none; }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+  <div class="mb-4">
+    <h4 style="color:#f1f0f5;font-weight:800;">💬 WhatsApp Bot Ayarları</h4>
+    <small style="color:rgba(196,181,253,.5);">Müşterilerin WhatsApp üzerinden randevu almasını sağlayın</small>
+  </div>
+
+  <!-- WhatsApp Status Card -->
+  <div class="whatsapp-card mb-4">
+    <h2><i class="bi bi-whatsapp me-2"></i>Bot Durumu</h2>
+
+    <div class="toggle-switch">
+      <form id="whatsappForm" action="/panel/whatsapp-toggle" method="post" style="display:inline;">
+        <input type="hidden" name="enabled" id="enabledInput" value="{% if biz.whatsapp_enabled %}on{% else %}off{% endif %}">
+        <div class="switch{% if biz.whatsapp_enabled %} active{% endif %}" onclick="toggleWhatsApp()"></div>
+      </form>
+      <span style="font-weight:600;">
+        {% if biz.whatsapp_enabled %}
+        <span style="color:#25d366;">✅ Aktif</span>
+        {% else %}
+        <span style="color:rgba(196,181,253,.5);">⭕ Pasif</span>
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="info-box mt-3">
+      <strong>ℹ️ Bilgi:</strong><br>
+      {% if biz.whatsapp_enabled %}
+      WhatsApp botunuz aktif. Müşteriler Twilio numarasına "Randevu Al" yazarak randevu alabilirler.
+      {% else %}
+      WhatsApp botunu etkinleştirmek için yukarıdaki butonu açın. Bot, müşterilerin WhatsApp üzerinden doğrudan randevu almalarını sağlar.
+      {% endif %}
+    </div>
+
+    {% if biz.whatsapp_enabled %}
+    <div style="background:rgba(255,255,255,.04);padding:16px;border-radius:10px;margin-top:16px;">
+      <div class="stat-row">
+        <span style="color:rgba(196,181,253,.7);">📞 Twilio Numarası</span>
+        <span style="color:#c4b5fd;font-weight:600;">+1 415 523 8886</span>
+      </div>
+      <div class="stat-row">
+        <span style="color:rgba(196,181,253,.7);">🔗 Webhook URL</span>
+        <span style="color:#c4b5fd;font-weight:600;font-size:.9rem;">https://randevucum.com/api/whatsapp/webhook</span>
+      </div>
+      <div class="stat-row">
+        <span style="color:rgba(196,181,253,.7);">🎯 Durum</span>
+        <span style="background:rgba(16,185,129,.15);color:#34d399;padding:2px 8px;border-radius:6px;font-size:.85rem;font-weight:600;">Bağlantı Hazır</span>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- How It Works -->
+  <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;">
+    <h5 style="color:#f1f0f5;font-weight:800;margin-bottom:16px;">📖 Nasıl Çalışır?</h5>
+
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;gap:12px;margin-bottom:12px;">
+        <div style="background:#7c3aed;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">1</div>
+        <div>
+          <strong style="color:#f1f0f5;">Müşteri Mesaj Yazar</strong><br>
+          <span style="color:rgba(196,181,253,.6);font-size:.9rem;">Müşteri "Randevu Al" yazarak başlar</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;gap:12px;margin-bottom:12px;">
+        <div style="background:#7c3aed;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">2</div>
+        <div>
+          <strong style="color:#f1f0f5;">Hizmet Seçer</strong><br>
+          <span style="color:rgba(196,181,253,.6);font-size:.9rem;">Bot hizmetlerin listesini gösterir, müşteri seçer</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;gap:12px;margin-bottom:12px;">
+        <div style="background:#7c3aed;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">3</div>
+        <div>
+          <strong style="color:#f1f0f5;">Tarih & Saat Seçer</strong><br>
+          <span style="color:rgba(196,181,253,.6);font-size:.9rem;">Uygun tarihleri, sonra uygun saatleri seçer</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:0;">
+      <div style="display:flex;gap:12px;">
+        <div style="background:#25d366;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">✓</div>
+        <div>
+          <strong style="color:#25d366;">Randevu Onaylandı!</strong><br>
+          <span style="color:rgba(196,181,253,.6);font-size:.9rem;">Randevu sisteme kaydedilir ve SMS bildirim gider</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;">
+    <a href="/panel" class="btn btn-outline-primary">← Geri Dön</a>
+  </div>
+</div>
+
+<script>
+function toggleWhatsApp() {
+  const form = document.getElementById('whatsappForm');
+  const input = document.getElementById('enabledInput');
+  const current = input.value;
+  input.value = current === 'on' ? 'off' : 'on';
+  form.submit();
+}
+</script>
+
+{% endblock %}

@@ -1137,3 +1137,25 @@ async def update_customer(
 
     return RedirectResponse(f"/panel/musteri-detay/{customer_id}", status_code=302)
 
+
+@router.get("/panel/whatsapp", response_class=HTMLResponse)
+async def whatsapp_settings(request: Request, db: Session = Depends(get_db)):
+    """WhatsApp bot ayarları"""
+    biz = get_biz(request, db)
+    return templates.TemplateResponse("business/whatsapp_settings.html", {
+        "request": request, "biz": biz
+    })
+
+
+@router.post("/panel/whatsapp-toggle")
+async def toggle_whatsapp(
+    request: Request,
+    enabled: str = Form("off"),
+    db: Session = Depends(get_db)
+):
+    """WhatsApp'ı aç/kapat"""
+    biz = get_biz(request, db)
+    biz.whatsapp_enabled = enabled == "on"
+    db.commit()
+    return RedirectResponse("/panel/whatsapp", status_code=302)
+

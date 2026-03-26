@@ -23,6 +23,8 @@ class Business(Base):
     created_at    = Column(DateTime, default=datetime.utcnow)
     plan          = Column(String(20), default="temel")        # temel | premium
     plan_expires_at = Column(DateTime, nullable=True)          # None = süresiz
+    whatsapp_enabled = Column(Boolean, default=False)          # WhatsApp aktif mi?
+    whatsapp_phone = Column(String(20), nullable=True)         # Twilio WhatsApp numarası
 
     services      = relationship("Service", back_populates="business", cascade="all, delete")
     staff         = relationship("Staff", back_populates="business", cascade="all, delete")
