@@ -128,7 +128,7 @@ async def get_or_create_messaging_service() -> str | None:
 
 async def purchase_twilio_number() -> str | None:
     """
-    Twilio'dan yeni WhatsApp-capable numara satın al.
+    Twilio'dan yeni WhatsApp-capable numara satın al (UK).
     Messaging Service'e bağla.
     Başarılı olursa numarayı döndür, hata olursa None.
     """
@@ -137,7 +137,7 @@ async def purchase_twilio_number() -> str | None:
         return None
 
     try:
-        print("[Twilio] Purchasing new WhatsApp number...")
+        print("[Twilio] Purchasing new WhatsApp number (UK)...")
 
         # Messaging Service'i al/oluştur
         service_sid = await get_or_create_messaging_service()
@@ -145,22 +145,18 @@ async def purchase_twilio_number() -> str | None:
             print("[Twilio] Failed to get/create Messaging Service")
             return None
 
-        # Twilio'dan uygun bir numara al
-        area_codes = ["415", "510", "408", "650", "707", "209", "530"]
+        # Twilio'dan UK numarası al
         available_numbers = None
 
-        for area_code in area_codes:
-            try:
-                available_numbers = twilio_client.available_phone_numbers("US").local.list(
-                    area_code=area_code,
-                    limit=1
-                )
-                if available_numbers:
-                    print(f"[Twilio] Found numbers in area code {area_code}")
-                    break
-            except Exception as e:
-                print(f"[Twilio] Area code {area_code} failed: {e}")
-                continue
+        try:
+            available_numbers = twilio_client.available_phone_numbers("GB").local.list(
+                limit=1
+            )
+            if available_numbers:
+                print(f"[Twilio] Found UK number")
+        except Exception as e:
+            print(f"[Twilio] UK number search failed: {e}")
+            return None
 
         if not available_numbers:
             print("[Twilio] No available numbers in any area code")
