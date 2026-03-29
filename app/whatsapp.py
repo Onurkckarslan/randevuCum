@@ -191,6 +191,17 @@ async def purchase_twilio_number() -> str | None:
             print(f"[Twilio] Error binding to service: {e}")
             return None
 
+        # ✅ WhatsApp capability'sini enable et
+        try:
+            print(f"[Twilio] Enabling WhatsApp capability on {purchased_number}...")
+            twilio_client.incoming_phone_numbers(phone_number_sid).update(
+                capabilities={'whatsapp': True}
+            )
+            print(f"[Twilio] ✅ WhatsApp enabled on {purchased_number}!")
+        except Exception as e:
+            print(f"[Twilio] Error enabling WhatsApp: {e}")
+            return None
+
         return purchased_number
 
     except Exception as e:
