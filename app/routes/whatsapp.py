@@ -306,18 +306,33 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
                      "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
         formatted_date = f"{date_obj.day} {months_tr[date_obj.month - 1]} {date_obj.year}"
 
-        # Müşteriye SMS
-        asyncio.create_task(send_appointment_confirm(
-            conv.customer_name, customer_phone,
-            biz.name, service.name,
-            conv.selected_date, conv.selected_time
+        # Müşteriye WhatsApp (Premium: kendi numara | Temel: Global)
+        from ..whatsapp import TWILIO_WHATSAPP_NUMBER
+        sender = biz.whatsapp_phone.replace(" ", "") if (biz.plan == "premium" and biz.whatsapp_phone) else TWILIO_WHATSAPP_NUMBER
+        customer_message = (
+            f"Merhaba {conv.customer_name},\n\n"
+            f"{biz.name} için {formatted_date} {conv.selected_time}'de "
+            f"{service.name} randevunuz onaylandı.\n\n"
+            f"Teşekkür ederiz! 😊"
+        )
+        asyncio.create_task(send_whatsapp_message(
+            f"whatsapp:{customer_phone}",
+            customer_message,
+            from_number=sender
         ))
 
-        # İşletmeye SMS
-        if biz.phone:
-            asyncio.create_task(send_booking_with_products_business(
-                biz.phone, conv.customer_name,
-                service.name, conv.selected_date, conv.selected_time, [], ""
+        # İşletmeye WhatsApp (sadece premium üyelere)
+        if biz.plan == "premium" and biz.whatsapp_phone:
+            business_message = (
+                f"Yeni randevu: {conv.customer_name}\n"
+                f"Hizmet: {service.name}\n"
+                f"Tarih: {formatted_date}\n"
+                f"Saat: {conv.selected_time}"
+            )
+            asyncio.create_task(send_whatsapp_message(
+                f"whatsapp:{biz.whatsapp_phone}",
+                business_message,
+                from_number=biz.whatsapp_phone
             ))
 
         response = (
