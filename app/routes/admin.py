@@ -185,3 +185,25 @@ async def admin_set_appt_status(
     appt.status = status
     db.commit()
     return RedirectResponse(f"/admin/business/{appt.business_id}", status_code=302)
+
+# ── WHATSAPP NUMARALARINI NORMALIZE ET ────────────────────────────────────
+@router.post("/normalize-numbers")
+async def admin_normalize_numbers(request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+
+    businesses = db.query(Business).all()
+    updated_count = 0
+
+    for biz in businesses:
+        if biz.whatsapp_phone:
+            original = biz.whatsapp_phone
+            normalized = original.replace(" ", "")
+
+            if original != normalized:
+                biz.whatsapp_phone = normalized
+                updated_count += 1
+
+    db.commit()
+    print(f"[Admin] {updated_count} WhatsApp numbers normalized")
+
+    return RedirectResponse("/admin", status_code=302)

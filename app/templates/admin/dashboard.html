@@ -139,9 +139,20 @@ tr:hover td { background: rgba(255,255,255,.02); }
 
 <!-- Main -->
 <div class="main">
-  <div class="page-header">
-    <h1>Admin Dashboard</h1>
-    <p>{{ now.strftime('%d %B %Y, %H:%M') }} — Hoş geldin 👋</p>
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:start;">
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p>{{ now.strftime('%d %B %Y, %H:%M') }} — Hoş geldin 👋</p>
+    </div>
+    <form action="/admin/normalize-numbers" method="POST" style="margin:0;">
+      <button type="submit" style="
+        background: rgba(16,185,129,.2); border: 1px solid rgba(16,185,129,.3);
+        color: #34d399; padding: 10px 18px; border-radius: 10px; font-weight: 700;
+        cursor: pointer; font-size: .85rem; font-family: inherit; transition: all .15s;
+      " onmouseover="this.style.background='rgba(16,185,129,.35)'" onmouseout="this.style.background='rgba(16,185,129,.2)'">
+        🔧 Numaraları Normalize Et
+      </button>
+    </form>
   </div>
 
   <!-- Stats -->
