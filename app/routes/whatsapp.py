@@ -2,6 +2,7 @@
 WhatsApp Twilio webhook ve mesaj işleme
 """
 from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Business, Service, WhatsAppConversation, Appointment, WorkHour
@@ -50,7 +51,7 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
 
         if not biz:
             print("[WhatsApp] İşletme bulunamadı")
-            return {"status": "ok"}
+            return JSONResponse({"status": "ok"}, status_code=200)
 
         # Telefon numarasından "whatsapp:" prefixini kaldır
         clean_phone = from_number.replace("whatsapp:", "")
@@ -82,13 +83,13 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
         # Yanıt gönder
         await send_whatsapp_message(from_number, response)
 
-        return {"status": "ok"}
+        return JSONResponse({"status": "ok"}, status_code=200)
 
     except Exception as e:
         print(f"[WhatsApp Webhook Error] {str(e)}")
         import traceback
         traceback.print_exc()
-        return {"status": "error", "message": str(e)}
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
 
 async def handle_message(message: str, conv: WhatsAppConversation, biz: Business, db: Session) -> str:
