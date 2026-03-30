@@ -154,21 +154,52 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
 
         selected_date = get_next_available_date_str(choice)
         conv.selected_date = selected_date
+        conv.status = "waiting_staff"
+
+        # Personelleri listele
+        staff = db.query(Staff).filter(
+            Staff.business_id == biz.id,
+            Staff.is_active == True
+        ).all()
+
+        if staff:
+            response = f"✅ {selected_date} seçildi.\n\n*Hangi personelden hizmet almak istersiniz?*\n"
+            for i, s in enumerate(staff, 1):
+                response += f"{i}. {s.name}\n"
+            return response
+        else:
+            # Personel yoksa saat seçimine geç
+            conv.status = "waiting_time"
+            return f"✅ {selected_date} seçildi.\n\nUygun saatleri gösterileri hazırlanıyor..."
+
+    # Personel bekliyoruz (tarih seçildikten sonra)
+    if conv.status == "waiting_staff":
+        staff = db.query(Staff).filter(
+            Staff.business_id == biz.id,
+            Staff.is_active == True
+        ).all()
+
+        choice = parse_selection(message, len(staff))
+        if choice is None:
+            return "Lütfen geçerli bir personel seçin (1-" + str(len(staff)) + ")"
+
+        selected_staff = staff[choice - 1]
+        conv.selected_staff_id = selected_staff.id
         conv.status = "waiting_time"
 
-        # Uygun saatleri bul
+        # Personelden SONRA uygun saatleri göster
         service = db.query(Service).filter(Service.id == conv.selected_service_id).first()
         if not service:
             return "Hizmet bulunamadı"
 
-        day_of_week = datetime.strptime(selected_date, "%Y-%m-%d").weekday()
+        day_of_week = datetime.strptime(conv.selected_date, "%Y-%m-%d").weekday()
         wh = db.query(WorkHour).filter(
             WorkHour.business_id == biz.id,
             WorkHour.day_of_week == day_of_week
         ).first()
 
         if wh and wh.is_closed:
-            conv.status = "waiting_date"  # Geri git
+            conv.status = "waiting_date"
             return "Bu gün kapalı. Lütfen başka bir tarih seçin.\n\n" + format_date_list()
 
         if not wh:
@@ -176,10 +207,11 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
         else:
             open_time, close_time = wh.open_time, wh.close_time
 
-        # Dolu saatleri bul
+        # Dolu saatleri bul (bu personel + bu tarih)
         booked = db.query(Appointment).filter(
             Appointment.business_id == biz.id,
-            Appointment.date == selected_date,
+            Appointment.staff_id == conv.selected_staff_id,
+            Appointment.date == conv.selected_date,
             Appointment.status != "iptal"
         ).all()
         booked_times = [a.time for a in booked]
@@ -188,18 +220,16 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
         available_slots = [s for s in slots if s.get("available")]
 
         if not available_slots:
-            conv.status = "waiting_date"
-            return "Bu tarihe uygun saat yok. Başka bir tarih seçin.\n\n" + format_date_list()
+            conv.status = "waiting_staff"
+            return f"✅ {selected_staff.name} seçildi.\n\nMaalesef bu tarihte uygun saat yok. Lütfen başka bir personel seçin ya da tarih değiştirin.\n\n*Başka bir personel seçin?*\n"
 
-        # Saatleri göster
-        response = f"✅ {selected_date} seçildi.\n\n"
-        response += "*Uygun saatler:*\n"
+        response = f"✅ {selected_staff.name} seçildi.\n\n*Uygun saatler:*\n"
         for i, slot in enumerate(available_slots, 1):
             response += f"{i}. {slot['time']}\n"
 
         return response
 
-    # Saat bekliyoruz
+    # Saat bekliyoruz (personel seçildikten sonra)
     if conv.status == "waiting_time":
         # Saatleri tekrar bul
         service = db.query(Service).filter(Service.id == conv.selected_service_id).first()
@@ -214,13 +244,23 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
         else:
             open_time, close_time = wh.open_time, wh.close_time
 
-        booked = db.query(Appointment).filter(
-            Appointment.business_id == biz.id,
-            Appointment.date == conv.selected_date,
-            Appointment.status != "iptal"
-        ).all()
-        booked_times = [a.time for a in booked]
+        # Personel seçilmişse, o personelin dolu saatlerini say
+        if conv.selected_staff_id:
+            booked = db.query(Appointment).filter(
+                Appointment.business_id == biz.id,
+                Appointment.staff_id == conv.selected_staff_id,
+                Appointment.date == conv.selected_date,
+                Appointment.status != "iptal"
+            ).all()
+        else:
+            # Personel seçilmemişse tüm personelleri say
+            booked = db.query(Appointment).filter(
+                Appointment.business_id == biz.id,
+                Appointment.date == conv.selected_date,
+                Appointment.status != "iptal"
+            ).all()
 
+        booked_times = [a.time for a in booked]
         slots = generate_slots(open_time, close_time, service.duration, booked_times)
         available_slots = [s for s in slots if s.get("available")]
 
@@ -230,40 +270,9 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
 
         selected_time = available_slots[choice - 1]["time"]
         conv.selected_time = selected_time
-        conv.status = "waiting_staff"
-
-        # Personelleri listele
-        staff = db.query(Staff).filter(
-            Staff.business_id == biz.id,
-            Staff.is_active == True
-        ).all()
-
-        if staff:
-            response = f"✅ {selected_time} seçildi.\n\n*Hangi personelden hizmet almak istersiniz?*\n"
-            for i, s in enumerate(staff, 1):
-                response += f"{i}. {s.name}\n"
-            return response
-        else:
-            # Personel yoksa, adıma geç
-            conv.status = "waiting_name"
-            return f"✅ {selected_time} seçildi.\n\nAdınız nedir?"
-
-    # Personel bekliyoruz
-    if conv.status == "waiting_staff":
-        staff = db.query(Staff).filter(
-            Staff.business_id == biz.id,
-            Staff.is_active == True
-        ).all()
-
-        choice = parse_selection(message, len(staff))
-        if choice is None:
-            return "Lütfen geçerli bir personel seçin (1-" + str(len(staff)) + ")"
-
-        selected_staff = staff[choice - 1]
-        conv.selected_staff_id = selected_staff.id
         conv.status = "waiting_name"
 
-        return f"✅ {selected_staff.name} seçildi.\n\nAdınız nedir?"
+        return f"✅ {selected_time} seçildi.\n\nAdınız nedir?"
 
     # Ad bekliyoruz
     if conv.status == "waiting_name":
