@@ -888,7 +888,7 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
           <i class="bi bi-check-circle-fill me-2"></i>
           <span id="d-summary"></span>
         </div>
-        <form method="post" action="/{{ biz.slug }}/randevu-al">
+        <form method="post" action="/{{ biz.slug }}/randevu-al" onsubmit="return checkStaff('d')">
             <input type="hidden" name="service_id" id="d-f-sid">
             <input type="hidden" name="staff_id" id="d-f-stid">
             <input type="hidden" name="selected_date" id="d-f-date">
