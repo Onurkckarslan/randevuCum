@@ -1,49 +1,46 @@
 ﻿"""
-İletibilgi.com SMS entegrasyonu
-API belgesi: https://www.iletibilgi.com.tr/api
+Twilio SMS entegrasyonu
 """
-import httpx
 import os
 import asyncio
 from datetime import datetime
+from twilio.rest import Client
 
-SMS_USER    = os.getenv("SMS_USER", "")
-SMS_PASS    = os.getenv("SMS_PASS", "")
-SMS_SENDER  = os.getenv("SMS_SENDER", "RANDEVUCUM")   # Başlık (max 11 karakter)
-SMS_ENABLED = os.getenv("SMS_ENABLED", "false").lower() == "true"
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
+TWILIO_SMS_NUMBER = "+15108718367"  # Twilio SMS numarası
+TWILIO_ENABLED = os.getenv("TWILIO_ENABLED", "false").lower() == "true"
+
+twilio_client = None
+if TWILIO_ENABLED and TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
+    twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 
 async def send_sms(phone: str, message: str) -> bool:
-    """SMS gönder. SMS_ENABLED=false ise sadece loglar."""
-    phone = phone.replace(" ", "").replace("-", "").replace("+90", "").replace("(", "").replace(")", "")
-    if phone.startswith("0"):
-        phone = phone[1:]
+    """Twilio üzerinden SMS gönder."""
+    # Telefon numarasını format'la: 05... → +905...
+    formatted_phone = phone.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+    if formatted_phone.startswith("0"):
+        formatted_phone = "+9" + formatted_phone
+    elif not formatted_phone.startswith("+"):
+        formatted_phone = "+" + formatted_phone
 
-    print(f"[SMS] → {phone}: {message[:60]}...")
+    print(f"[SMS] → {formatted_phone}: {message[:60]}...")
 
-    if not SMS_ENABLED:
+    if not TWILIO_ENABLED or not twilio_client:
         print("[SMS] Test modu — gerçek SMS gönderilmedi")
         return True
 
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(
-                "https://api.iletibilgi.com.tr/SendSms",
-                params={
-                    "username": SMS_USER,
-                    "password": SMS_PASS,
-                    "sender":   SMS_SENDER,
-                    "tel":      phone,
-                    "msg":      message,
-                    "datacoding": "0",
-                }
-            )
-            ok = resp.status_code == 200 and "Error" not in resp.text
-            if not ok:
-                print(f"[SMS] Hata: {resp.text}")
-            return ok
+        msg = twilio_client.messages.create(
+            body=message,
+            from_=TWILIO_SMS_NUMBER,
+            to=formatted_phone
+        )
+        print(f"[SMS] Gönderildi: {msg.sid}")
+        return True
     except Exception as e:
-        print(f"[SMS] Bağlantı hatası: {e}")
+        print(f"[SMS] Hata: {e}")
         return False
 
 
