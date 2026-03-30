@@ -209,14 +209,10 @@ async def book_appointment(
         elif not formatted_phone.startswith("+"):
             formatted_phone = "+" + formatted_phone
 
-        # Debug: İşletme bilgisi
-        print(f"[BOOK] Business: {biz.name} (ID={biz.id}), Plan: {biz.plan}, WhatsApp: {biz.whatsapp_phone}")
-
         # Müşteriye bildirim (plan'a göre WhatsApp veya SMS)
         if biz.plan == "premium" and biz.whatsapp_phone:
             # Premium: WhatsApp (kendi numarası)
             sender = biz.whatsapp_phone.replace(" ", "")
-            print(f"[BOOK] Sending WhatsApp to customer from {sender}")
             customer_message = (
                 f"Merhaba {customer_name},\n\n"
                 f"{biz.name} için {formatted_date} {selected_time}'de "
@@ -230,29 +226,14 @@ async def book_appointment(
             ))
         else:
             # Temel: SMS
-            print(f"[BOOK] Sending SMS to customer (plan: {biz.plan}, has_phone: {bool(biz.whatsapp_phone)})")
             sms_message = (
                 f"Merhaba {customer_name}, {biz.name} için {formatted_date} {selected_time}'de "
                 f"{svc.name} randevunuz onaylandı. Teşekkür ederiz!"
             )
             asyncio.create_task(send_sms(customer_phone, sms_message))
 
-        # İşletmeye WhatsApp (sadece premium üyelere)
-        if biz.plan == "premium" and biz.whatsapp_phone:
-            print(f"[BOOK] Sending WhatsApp to business {biz.whatsapp_phone}")
-            business_message = (
-                f"Yeni randevu: {customer_name}\n"
-                f"Hizmet: {svc.name}\n"
-                f"Tarih: {formatted_date}\n"
-                f"Saat: {selected_time}"
-            )
-            asyncio.create_task(send_whatsapp_message(
-                f"whatsapp:{biz.whatsapp_phone}",
-                business_message,
-                from_number=biz.whatsapp_phone
-            ))
-        else:
-            print(f"[BOOK] Not sending to business (plan: {biz.plan}, has_phone: {bool(biz.whatsapp_phone)})")
+        # Note: Cannot send WhatsApp to business (Twilio doesn't allow same To/From number)
+        # Business notifications could be sent via SMS or panel notification instead
 
         # Get active products for this business
         products = db.query(Product).filter_by(business_id=biz.id, is_active=True).all()
