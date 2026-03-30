@@ -5,7 +5,7 @@ from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from ..database import get_db
-from ..models import Business, Service, WhatsAppConversation, Appointment, WorkHour
+from ..models import Business, Service, WhatsAppConversation, Appointment, WorkHour, Staff
 from ..whatsapp import (
     send_whatsapp_message, format_service_list, format_date_list,
     format_slot_list, parse_selection, get_next_available_date_str
@@ -230,9 +230,40 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
 
         selected_time = available_slots[choice - 1]["time"]
         conv.selected_time = selected_time
+        conv.status = "waiting_staff"
+
+        # Personelleri listele
+        staff = db.query(Staff).filter(
+            Staff.business_id == biz.id,
+            Staff.is_active == True
+        ).all()
+
+        if staff:
+            response = f"✅ {selected_time} seçildi.\n\n*Hangi personelden hizmet almak istersiniz?*\n"
+            for i, s in enumerate(staff, 1):
+                response += f"{i}. {s.name}\n"
+            return response
+        else:
+            # Personel yoksa, adıma geç
+            conv.status = "waiting_name"
+            return f"✅ {selected_time} seçildi.\n\nAdınız nedir?"
+
+    # Personel bekliyoruz
+    if conv.status == "waiting_staff":
+        staff = db.query(Staff).filter(
+            Staff.business_id == biz.id,
+            Staff.is_active == True
+        ).all()
+
+        choice = parse_selection(message, len(staff))
+        if choice is None:
+            return "Lütfen geçerli bir personel seçin (1-" + str(len(staff)) + ")"
+
+        selected_staff = staff[choice - 1]
+        conv.selected_staff_id = selected_staff.id
         conv.status = "waiting_name"
 
-        return f"✅ {selected_time} seçildi.\n\nAdınız nedir?"
+        return f"✅ {selected_staff.name} seçildi.\n\nAdınız nedir?"
 
     # Ad bekliyoruz
     if conv.status == "waiting_name":
@@ -246,6 +277,7 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
         apt = Appointment(
             business_id=biz.id,
             service_id=conv.selected_service_id,
+            staff_id=conv.selected_staff_id if conv.selected_staff_id else None,
             customer_name=conv.customer_name,
             customer_phone=customer_phone,
             date=conv.selected_date,
