@@ -283,6 +283,12 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
         # Telefon numarası WhatsApp'tan geliyor
         customer_phone = conv.customer_phone.replace("whatsapp:", "")
 
+        # Telefon numarasını international format'a dönüştür (05... → +905...)
+        if customer_phone.startswith("0"):
+            customer_phone = "+9" + customer_phone
+        elif not customer_phone.startswith("+"):
+            customer_phone = "+" + customer_phone
+
         apt = Appointment(
             business_id=biz.id,
             service_id=conv.selected_service_id,

@@ -202,6 +202,13 @@ async def book_appointment(
                      "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
         formatted_date = f"{date_obj.day} {months_tr[date_obj.month - 1]} {date_obj.year}"
 
+        # Telefon numarasını international format'a dönüştür (05... → +905...)
+        formatted_phone = customer_phone
+        if formatted_phone.startswith("0"):
+            formatted_phone = "+9" + formatted_phone
+        elif not formatted_phone.startswith("+"):
+            formatted_phone = "+" + formatted_phone
+
         # Müşteriye WhatsApp (Premium: kendi numara | Temel: Global)
         sender = biz.whatsapp_phone.replace(" ", "") if (biz.plan == "premium" and biz.whatsapp_phone) else TWILIO_WHATSAPP_NUMBER
         customer_message = (
@@ -211,7 +218,7 @@ async def book_appointment(
             f"Teşekkür ederiz! 😊"
         )
         asyncio.create_task(send_whatsapp_message(
-            f"whatsapp:{customer_phone}",
+            f"whatsapp:{formatted_phone}",
             customer_message,
             from_number=sender
         ))
