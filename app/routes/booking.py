@@ -136,6 +136,7 @@ async def book_appointment(
     notes: str = Form(""),
     db: Session = Depends(get_db)
 ):
+    print(f"[BOOKING] {slug}: service_id={service_id}, date={selected_date}, time={selected_time}")
     try:
         biz = db.query(Business).filter(Business.slug == slug).first()
         if not biz:
@@ -260,7 +261,8 @@ async def book_appointment(
             "products": products,
             "products_saved": False,
         })
-    except HTTPException:
+    except HTTPException as he:
+        print(f"[BOOKING HTTP ERROR] {slug}: {he.status_code} - {he.detail}")
         raise
     except Exception as e:
         print(f"[BOOKING ERROR] {slug}: {str(e)}")
