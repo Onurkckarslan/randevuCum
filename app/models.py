@@ -209,6 +209,7 @@ class WhatsAppConversation(Base):
     customer_phone  = Column(String(20), nullable=False, index=True)
     status          = Column(String(50), default="waiting_service")
     selected_service_id = Column(Integer, ForeignKey("services.id"), nullable=True)
+    selected_staff_id = Column(Integer, ForeignKey("staff.id"), nullable=True)
     selected_date   = Column(String(10), nullable=True)
     selected_time   = Column(String(5), nullable=True)
     customer_name   = Column(String(100), nullable=True)
@@ -218,4 +219,5 @@ class WhatsAppConversation(Base):
 
     business = relationship("Business", overlaps="whatsapp_conversations")
     service  = relationship("Service")
+    staff    = relationship("Staff")
 
