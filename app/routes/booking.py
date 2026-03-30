@@ -211,7 +211,7 @@ async def book_appointment(
 
         # Müşteriye bildirim (plan'a göre WhatsApp veya SMS)
         if biz.plan == "premium" and biz.whatsapp_phone:
-            # Premium: WhatsApp (kendi numarası)
+            # Premium: WhatsApp (Twilio numarası)
             sender = biz.whatsapp_phone.replace(" ", "")
             customer_message = (
                 f"Merhaba {customer_name},\n\n"
@@ -224,6 +224,28 @@ async def book_appointment(
                 customer_message,
                 from_number=sender
             ))
+
+            # İşletme sahibine WhatsApp bildirim (kendi personal numarası)
+            if biz.phone:
+                owner_phone = biz.phone.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+                if not owner_phone.startswith("+"):
+                    if owner_phone.startswith("0"):
+                        owner_phone = "+9" + owner_phone
+                    else:
+                        owner_phone = "+" + owner_phone
+
+                business_message = (
+                    f"Yeni randevu!\n\n"
+                    f"Müşteri: {customer_name}\n"
+                    f"Hizmet: {svc.name}\n"
+                    f"Tarih: {formatted_date}\n"
+                    f"Saat: {selected_time}"
+                )
+                asyncio.create_task(send_whatsapp_message(
+                    f"whatsapp:{owner_phone}",
+                    business_message,
+                    from_number=sender
+                ))
         else:
             # Temel: SMS
             sms_message = (
@@ -231,9 +253,6 @@ async def book_appointment(
                 f"{svc.name} randevunuz onaylandı. Teşekkür ederiz!"
             )
             asyncio.create_task(send_sms(customer_phone, sms_message))
-
-        # Note: Cannot send WhatsApp to business (Twilio doesn't allow same To/From number)
-        # Business notifications could be sent via SMS or panel notification instead
 
         # Get active products for this business
         products = db.query(Product).filter_by(business_id=biz.id, is_active=True).all()
