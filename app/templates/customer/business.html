@@ -580,22 +580,7 @@ function checkStaff(prefix) {
         if (datePicker) datePicker.focus();
         return false;
     }
-
-    const staffSel = document.getElementById(prefix + "-staffSelect");
-    if (staffSel && !staffSel.value) {
-        staffSel.style.border = "2px solid #ef4444";
-        staffSel.focus();
-        staffSel.scrollIntoView({ behavior: "smooth", block: "center" });
-        let warn = document.getElementById(prefix + "-staff-warn2");
-        if (!warn) {
-            warn = document.createElement("div");
-            warn.id = prefix + "-staff-warn2";
-            warn.style.cssText = "color:#ef4444;font-size:.85rem;font-weight:600;margin-top:6px;";
-            warn.textContent = "⚠️ Lütfen personel seçiniz.";
-            staffSel.after(warn);
-        }
-        return false;
-    }
+    // Personel seçimi optional - don't require staff selection
     return true;
 }
 
