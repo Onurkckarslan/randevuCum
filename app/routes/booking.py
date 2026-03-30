@@ -226,7 +226,7 @@ async def book_appointment(
             ))
         else:
             # Temel: Template message (global numara, requires Twilio approval)
-            template_sid = "HX63d5e820d12c6eb933a46f391b63cfbb"
+            template_sid = "HXc71ada727946f959f5a911bbfbca64d2"
             template_variables = [customer_name, biz.name, formatted_date, selected_time, svc.name]
             asyncio.create_task(send_whatsapp_message(
                 f"whatsapp:{formatted_phone}",
