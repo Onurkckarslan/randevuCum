@@ -48,12 +48,11 @@ async def send_whatsapp_message(to_number: str, message: str = None, from_number
 
         # Template veya custom mesaj
         if template_sid and template_variables:
-            import json
             msg = twilio_client.messages.create(
                 from_=f"whatsapp:{sender_number}",
                 to=to_number,
                 content_sid=template_sid,
-                content_variables=json.dumps(template_variables)
+                content_variables=template_variables
             )
             print(f"[WhatsApp] Gönderildi (template): {msg.sid} (from {sender_number})")
         else:
