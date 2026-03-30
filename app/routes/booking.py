@@ -209,19 +209,31 @@ async def book_appointment(
         elif not formatted_phone.startswith("+"):
             formatted_phone = "+" + formatted_phone
 
-        # Müşteriye WhatsApp bildirim (tüm planlar)
-        sender = biz.whatsapp_phone.replace(" ", "") if (biz.plan == "premium" and biz.whatsapp_phone) else TWILIO_WHATSAPP_NUMBER
-        customer_message = (
-            f"Merhaba {customer_name},\n\n"
-            f"{biz.name} için {formatted_date} {selected_time}'de "
-            f"{svc.name} randevunuz onaylandı.\n\n"
-            f"Teşekkür ederiz! 😊"
-        )
-        asyncio.create_task(send_whatsapp_message(
-            f"whatsapp:{formatted_phone}",
-            customer_message,
-            from_number=sender
-        ))
+        # Müşteriye WhatsApp bildirim
+        if biz.plan == "premium" and biz.whatsapp_phone:
+            # Premium: Custom message (kendi müşterileri, 24h window)
+            sender = biz.whatsapp_phone.replace(" ", "")
+            customer_message = (
+                f"Merhaba {customer_name},\n\n"
+                f"{biz.name} için {formatted_date} {selected_time}'de "
+                f"{svc.name} randevunuz onaylandı.\n\n"
+                f"Teşekkür ederiz! 😊"
+            )
+            asyncio.create_task(send_whatsapp_message(
+                f"whatsapp:{formatted_phone}",
+                customer_message,
+                from_number=sender
+            ))
+        else:
+            # Temel: Template message (global numara, solicited olmayan)
+            template_sid = "HX63d5e820d12c6eb933a46f391b63cfbb"
+            template_variables = [customer_name, biz.name, formatted_date, selected_time, svc.name]
+            asyncio.create_task(send_whatsapp_message(
+                f"whatsapp:{formatted_phone}",
+                from_number=TWILIO_WHATSAPP_NUMBER,
+                template_sid=template_sid,
+                template_variables=template_variables
+            ))
 
         # İşletmeye WhatsApp (sadece premium üyelere)
         if biz.plan == "premium" and biz.whatsapp_phone:
