@@ -93,6 +93,7 @@ async def lifespan(app: FastAPI):
                     customer_phone VARCHAR(20) NOT NULL,
                     status VARCHAR(50) DEFAULT 'waiting_service',
                     selected_service_id INTEGER,
+                    selected_staff_id INTEGER,
                     selected_date VARCHAR(10),
                     selected_time VARCHAR(5),
                     customer_name VARCHAR(100),
@@ -101,6 +102,12 @@ async def lifespan(app: FastAPI):
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """))
+
+        # ── Add selected_staff_id to whatsapp_conversations if it doesn't exist ──
+        if "whatsapp_conversations" in inspector.get_table_names():
+            cols = [col["name"] for col in inspector.get_columns("whatsapp_conversations")]
+            if "selected_staff_id" not in cols:
+                db.execute(text("ALTER TABLE whatsapp_conversations ADD COLUMN selected_staff_id INTEGER"))
 
         db.commit()
     except Exception as e:
