@@ -96,8 +96,8 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
 
         db.commit()
 
-        # Yanıt gönder
-        await send_whatsapp_message(from_number, response)
+        # Yanıt gönder (işletme'nin numarasından)
+        await send_whatsapp_message(from_number, response, from_number=biz.whatsapp_phone)
 
         return JSONResponse({"status": "ok"}, status_code=200)
 

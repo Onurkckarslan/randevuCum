@@ -20,10 +20,11 @@ else:
     twilio_client = None
 
 
-async def send_whatsapp_message(to_number: str, message: str, buttons: list = None) -> bool:
+async def send_whatsapp_message(to_number: str, message: str, from_number: str = None, buttons: list = None) -> bool:
     """
     WhatsApp mesajı gönder.
     to_number: whatsapp:+905551234567 formatında
+    from_number: İşletme'nin WhatsApp numarası (optional, default TWILIO_WHATSAPP_NUMBER kullanır)
     message: mesaj içeriği
     buttons: [{"text": "Seç", "id": "1"}] formatında buton listesi
     """
@@ -34,13 +35,19 @@ async def send_whatsapp_message(to_number: str, message: str, buttons: list = No
         return True
 
     try:
+        # Gönderecek numarayı belirle
+        sender_number = from_number if from_number else TWILIO_WHATSAPP_NUMBER
+        if not sender_number:
+            print(f"[WhatsApp] Hata: Gönderecek numara yok!")
+            return False
+
         # Basit mesaj gönder
         msg = twilio_client.messages.create(
-            from_=f"whatsapp:{TWILIO_WHATSAPP_NUMBER}",
+            from_=f"whatsapp:{sender_number}",
             body=message,
             to=to_number
         )
-        print(f"[WhatsApp] Gönderildi: {msg.sid}")
+        print(f"[WhatsApp] Gönderildi: {msg.sid} (from {sender_number})")
         return True
     except Exception as e:
         print(f"[WhatsApp] Hata: {e}")
