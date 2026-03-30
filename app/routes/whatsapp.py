@@ -291,6 +291,12 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
         # Bildirim gönder
         service = db.query(Service).filter(Service.id == conv.selected_service_id).first()
 
+        # Tarih formatlama: 2026-03-31 -> 31 Mart 2026
+        date_obj = datetime.strptime(conv.selected_date, "%Y-%m-%d")
+        months_tr = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+                     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
+        formatted_date = f"{date_obj.day} {months_tr[date_obj.month - 1]} {date_obj.year}"
+
         # Müşteriye SMS
         asyncio.create_task(send_appointment_confirm(
             conv.customer_name, customer_phone,
@@ -309,7 +315,7 @@ async def handle_message(message: str, conv: WhatsAppConversation, biz: Business
             f"✅ Randevunuz onaylandı!\n\n"
             f"İşletme: {biz.name}\n"
             f"Hizmet: {service.name}\n"
-            f"Tarih: {conv.selected_date}\n"
+            f"Tarih: {formatted_date}\n"
             f"Saat: {conv.selected_time}\n\n"
             f"Teşekkür ederiz! 😊"
         )
