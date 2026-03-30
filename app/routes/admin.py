@@ -126,15 +126,19 @@ async def admin_set_plan(
             free_numbers = [n for n in available_twilio_numbers if n not in assigned_numbers]
 
             if free_numbers:
-                biz.whatsapp_phone = free_numbers[0]
-                print(f"[Admin] Twilio number assigned: {free_numbers[0]}")
+                # Numarayı normalize et (boşluğu kaldır)
+                normalized = free_numbers[0].replace(" ", "")
+                biz.whatsapp_phone = normalized
+                print(f"[Admin] Twilio number assigned: {normalized}")
             else:
                 # Tüm numaralar atanmışsa, yeni satın al
                 print(f"[Admin] All Twilio numbers assigned, buying new one...")
                 phone_number = await purchase_twilio_number()
                 if phone_number:
-                    biz.whatsapp_phone = phone_number
-                    print(f"[Admin] New number purchased: {phone_number}")
+                    # Yeni numarayı da normalize et
+                    normalized = phone_number.replace(" ", "")
+                    biz.whatsapp_phone = normalized
+                    print(f"[Admin] New number purchased: {normalized}")
                 else:
                     print(f"[Admin] Failed to purchase number (may be in sandbox mode)")
     else:
