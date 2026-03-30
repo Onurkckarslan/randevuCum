@@ -35,21 +35,30 @@ async def whatsapp_webhook(request: Request, db: Session = Depends(get_db)):
         # Sandbox: whatsapp_phone boş olabilir, ilk active business'e geri fallback
         clean_to = to_number.replace("whatsapp:", "") if to_number else None
 
-        print(f"[WhatsApp] Looking for number: {clean_to}")
+        # Normalize: boşlukları kaldır (database'de boşluksuz ve boşluklu mix olabilir)
+        normalized_to = clean_to.replace(" ", "") if clean_to else None
+
+        print(f"[WhatsApp] Looking for number: {clean_to} -> normalized: {normalized_to}")
 
         biz = None
-        if clean_to:
+        if normalized_to:
             # Production mode: Numaraya göre işletme ara
-            all_businesses = db.query(Business).all()
-            print(f"[WhatsApp] Total businesses: {len(all_businesses)}")
-            for b in all_businesses:
-                print(f"[WhatsApp] Business {b.id}: phone={b.whatsapp_phone}, enabled={b.whatsapp_enabled}, active={b.is_active}")
-
-            biz = db.query(Business).filter(
-                Business.whatsapp_phone == clean_to,
+            candidates = db.query(Business).filter(
                 Business.is_active == True,
                 Business.whatsapp_enabled == True
-            ).first()
+            ).all()
+            print(f"[WhatsApp] Candidates with WhatsApp enabled: {len(candidates)}")
+
+            # Python'da normalize edip karşılaştır
+            for b in candidates:
+                print(f"[WhatsApp] Business {b.id}: phone='{b.whatsapp_phone}'")
+                if b.whatsapp_phone:
+                    normalized_stored = b.whatsapp_phone.replace(" ", "")
+                    print(f"[WhatsApp]   normalized: '{normalized_stored}' vs looking for '{normalized_to}'")
+                    if normalized_stored == normalized_to:
+                        biz = b
+                        print(f"[WhatsApp] ✓ MATCH! Found business {b.id}")
+                        break
 
         if not biz:
             # Sandbox fallback: İlk active işletme
