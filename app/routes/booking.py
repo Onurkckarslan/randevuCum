@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, AppointmentProduct, CustomerProfile
 from sqlalchemy.orm import joinedload
-from ..sms import send_appointment_confirm, send_booking_with_products_customer, send_booking_with_products_business
+from ..sms import send_appointment_confirm, send_booking_with_products_customer, send_booking_with_products_business, send_sms
 from ..whatsapp import send_whatsapp_message, TWILIO_WHATSAPP_NUMBER
 from datetime import date, datetime, timedelta
 from typing import Optional
@@ -209,9 +209,9 @@ async def book_appointment(
         elif not formatted_phone.startswith("+"):
             formatted_phone = "+" + formatted_phone
 
-        # Müşteriye WhatsApp bildirim
+        # Müşteriye bildirim (plan'a göre WhatsApp veya SMS)
         if biz.plan == "premium" and biz.whatsapp_phone:
-            # Premium: Custom message (kendi müşterileri, 24h window)
+            # Premium: WhatsApp (kendi numarası)
             sender = biz.whatsapp_phone.replace(" ", "")
             customer_message = (
                 f"Merhaba {customer_name},\n\n"
@@ -225,16 +225,12 @@ async def book_appointment(
                 from_number=sender
             ))
         else:
-            # Temel: Template message (global numara, requires Twilio approval)
-            template_sid = "HXc71ada727946f959f5a911bbfbca64d2"
-            template_variables = [customer_name, biz.name, formatted_date, selected_time, svc.name]
-            asyncio.create_task(send_whatsapp_message(
-                f"whatsapp:{formatted_phone}",
-                from_number=TWILIO_WHATSAPP_NUMBER,
-                template_sid=template_sid,
-                template_variables=template_variables
-            ))
-            print(f"[Booking] Template message queued for {customer_name}")
+            # Temel: SMS
+            sms_message = (
+                f"Merhaba {customer_name}, {biz.name} için {formatted_date} {selected_time}'de "
+                f"{svc.name} randevunuz onaylandı. Teşekkür ederiz!"
+            )
+            asyncio.create_task(send_sms(customer_phone, sms_message))
 
         # İşletmeye WhatsApp (sadece premium üyelere)
         if biz.plan == "premium" and biz.whatsapp_phone:
