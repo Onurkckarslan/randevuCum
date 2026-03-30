@@ -229,6 +229,9 @@ async def book_appointment(
             # Temel: Global numaradan template mesaj (Twilio kuralı)
             template_sid = "HX63d5e820d12c6eb933a46f391b63cfbb"
             template_variables = [customer_name, biz.name, formatted_date, selected_time, svc.name]
+            print(f"[TEMPLATE DEBUG] SID={template_sid}")
+            print(f"[TEMPLATE DEBUG] Variables: {template_variables}")
+            print(f"[TEMPLATE DEBUG] Types: {[type(v).__name__ for v in template_variables]}")
             asyncio.create_task(send_whatsapp_message(
                 f"whatsapp:{formatted_phone}",
                 from_number=TWILIO_WHATSAPP_NUMBER,
