@@ -137,15 +137,12 @@ async def book_appointment(
     db: Session = Depends(get_db)
 ):
     try:
-        print(f"[BOOK] {slug}: service_id={service_id}, date={selected_date}, time={selected_time}, staff_id={staff_id}")
         biz = db.query(Business).filter(Business.slug == slug).first()
         if not biz:
-            print(f"[BOOK ERROR] Business not found: {slug}")
             raise HTTPException(status_code=404)
 
         svc = db.query(Service).filter(Service.id == service_id, Service.business_id == biz.id).first()
         if not svc:
-            print(f"[BOOK ERROR] Service {service_id} not found for business {biz.id}")
             raise HTTPException(status_code=400, detail="Hizmet bulunamadı")
 
         # Çakışma kontrolü
@@ -156,7 +153,6 @@ async def book_appointment(
             Appointment.status != "iptal"
         ).first()
         if conflict:
-            print(f"[BOOK ERROR] Time conflict: {selected_date} {selected_time}")
             raise HTTPException(status_code=400, detail="Bu saat dolu, lütfen başka bir saat seçin.")
 
         staff_id_int = int(staff_id) if staff_id and staff_id.strip() else None
@@ -252,11 +248,10 @@ async def book_appointment(
             "products": products,
             "products_saved": False,
         })
-    except HTTPException as he:
-        print(f"[BOOK HTTP {he.status_code}] {slug}: {he.detail}")
+    except HTTPException:
         raise
     except Exception as e:
-        print(f"[BOOK EXCEPTION] {slug}: {str(e)}")
+        print(f"[BOOKING ERROR] {slug}: {str(e)}")
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Booking error: {str(e)}")
