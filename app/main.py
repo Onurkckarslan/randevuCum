@@ -149,18 +149,6 @@ def _patched_response(name, context, *args, **kwargs):
 
 templates.TemplateResponse = _patched_response
 
-from fastapi.exceptions import RequestValidationError
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    print(f"[VALIDATION ERROR] {request.method} {request.url.path}")
-    print(f"[VALIDATION ERROR] Details: {exc.errors()}")
-    from fastapi.responses import JSONResponse
-    return JSONResponse(
-        status_code=422,
-        content={"detail": str(exc)},
-    )
-
 app.include_router(auth.router)         # EN ÖNCE — /giris, /kayit vb.
 app.include_router(admin.router)        # Sonra admin
 app.include_router(panel.router)

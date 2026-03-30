@@ -225,7 +225,7 @@ async def book_appointment(
                 from_number=sender
             ))
         else:
-            # Temel: Template message (global numara, solicited olmayan)
+            # Temel: Template message (global numara, requires Twilio approval)
             template_sid = "HX63d5e820d12c6eb933a46f391b63cfbb"
             template_variables = [customer_name, biz.name, formatted_date, selected_time, svc.name]
             asyncio.create_task(send_whatsapp_message(
@@ -234,6 +234,7 @@ async def book_appointment(
                 template_sid=template_sid,
                 template_variables=template_variables
             ))
+            print(f"[Booking] Template message queued for {customer_name}")
 
         # İşletmeye WhatsApp (sadece premium üyelere)
         if biz.plan == "premium" and biz.whatsapp_phone:
