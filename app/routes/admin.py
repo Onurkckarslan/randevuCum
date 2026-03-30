@@ -104,15 +104,39 @@ async def admin_set_plan(
         biz.plan_expires_at = base + timedelta(days=30 * months)
         biz.whatsapp_enabled = True
 
-        # Eğer WhatsApp numarası yoksa, Twilio'dan satın al
+        # Eğer WhatsApp numarası yoksa, Twilio'dan satın al veya boş numaralardan birini ata
         if not biz.whatsapp_phone:
-            print(f"[Admin] Buying Twilio number for business {biz_id}...")
-            phone_number = await purchase_twilio_number()
-            if phone_number:
-                biz.whatsapp_phone = phone_number
-                print(f"[Admin] Number assigned: {phone_number}")
+            print(f"[Admin] Setting Twilio number for business {biz_id}...")
+
+            # Önce boş (kimseye atanmamış) numaralardan birini bul
+            existing_assigned = db.query(Business).filter(
+                Business.whatsapp_phone != None,
+                Business.whatsapp_phone != ""
+            ).all()
+            assigned_numbers = {b.whatsapp_phone for b in existing_assigned}
+
+            # Mevcut Twilio numaraları (config'ten)
+            available_twilio_numbers = [
+                "+1 415 691 2998",
+                "+1 510 871 8367",
+                "+14155238886"
+            ]
+
+            # Boş numaraları bul
+            free_numbers = [n for n in available_twilio_numbers if n not in assigned_numbers]
+
+            if free_numbers:
+                biz.whatsapp_phone = free_numbers[0]
+                print(f"[Admin] Twilio number assigned: {free_numbers[0]}")
             else:
-                print(f"[Admin] Failed to purchase number (may be in sandbox mode)")
+                # Tüm numaralar atanmışsa, yeni satın al
+                print(f"[Admin] All Twilio numbers assigned, buying new one...")
+                phone_number = await purchase_twilio_number()
+                if phone_number:
+                    biz.whatsapp_phone = phone_number
+                    print(f"[Admin] New number purchased: {phone_number}")
+                else:
+                    print(f"[Admin] Failed to purchase number (may be in sandbox mode)")
     else:
         # Temel plana düşür
         biz.plan_expires_at = None
