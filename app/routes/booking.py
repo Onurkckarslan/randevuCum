@@ -6,6 +6,7 @@ from ..database import get_db
 from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, AppointmentProduct, CustomerProfile
 from sqlalchemy.orm import joinedload
 from ..sms import send_appointment_confirm, send_booking_with_products_customer, send_booking_with_products_business
+from ..whatsapp import send_whatsapp_message, TWILIO_WHATSAPP_NUMBER
 from datetime import date, datetime, timedelta
 from typing import Optional
 import asyncio
@@ -195,18 +196,38 @@ async def book_appointment(
                 combined_notes += " | "
             combined_notes += f"İşletme Notu: {business_note}"
 
-        # SMS gönder (async, hata olsa da devam et)
-        asyncio.create_task(send_appointment_confirm(
-            customer_name, customer_phone,
-            biz.name, svc.name,
-            selected_date, selected_time
+        # Tarih formatlamışı: 2026-03-31 -> 31 Mart 2026
+        date_obj = datetime.strptime(selected_date, "%Y-%m-%d")
+        months_tr = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+                     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
+        formatted_date = f"{date_obj.day} {months_tr[date_obj.month - 1]} {date_obj.year}"
+
+        # Müşteriye WhatsApp (Premium: kendi numara | Temel: Global)
+        sender = biz.whatsapp_phone.replace(" ", "") if (biz.plan == "premium" and biz.whatsapp_phone) else TWILIO_WHATSAPP_NUMBER
+        customer_message = (
+            f"Merhaba {customer_name},\n\n"
+            f"{biz.name} için {formatted_date} {selected_time}'de "
+            f"{svc.name} randevunuz onaylandı.\n\n"
+            f"Teşekkür ederiz! 😊"
+        )
+        asyncio.create_task(send_whatsapp_message(
+            f"whatsapp:{customer_phone}",
+            customer_message,
+            from_number=sender
         ))
 
-        # İşletme sahibine bildir
-        if biz.phone:
-            asyncio.create_task(send_booking_with_products_business(
-                biz.phone, customer_name,
-                svc.name, selected_date, selected_time, [], combined_notes
+        # İşletmeye WhatsApp (sadece premium üyelere)
+        if biz.plan == "premium" and biz.whatsapp_phone:
+            business_message = (
+                f"Yeni randevu: {customer_name}\n"
+                f"Hizmet: {svc.name}\n"
+                f"Tarih: {formatted_date}\n"
+                f"Saat: {selected_time}"
+            )
+            asyncio.create_task(send_whatsapp_message(
+                f"whatsapp:{biz.whatsapp_phone}",
+                business_message,
+                from_number=biz.whatsapp_phone
             ))
 
         # Get active products for this business
