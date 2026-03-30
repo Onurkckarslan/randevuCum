@@ -48,15 +48,31 @@ async def send_whatsapp_message(to_number: str, message: str = None, from_number
         # Template kullan (temel üyeler için solicited olmayan mesaj)
         if template_sid and template_variables:
             import json
-            # Twilio expects content_variables as JSON array string
+            # Twilio expects variables as JSON array string
             variables_json = json.dumps(template_variables)
             print(f"[WhatsApp Template] Variables: {variables_json}")
-            msg = twilio_client.messages.create(
-                to=to_number,
-                from_=f"whatsapp:{sender_number}",
-                content_sid=template_sid,
-                content_variables=variables_json
-            )
+
+            # Try different parameter names
+            try:
+                msg = twilio_client.messages.create(
+                    to=to_number,
+                    from_=f"whatsapp:{sender_number}",
+                    content_sid=template_sid,
+                    content_variables=variables_json
+                )
+            except Exception as e1:
+                print(f"[WhatsApp] Attempt 1 (content_variables) failed: {e1}")
+                try:
+                    msg = twilio_client.messages.create(
+                        to=to_number,
+                        from_=f"whatsapp:{sender_number}",
+                        template_sid=template_sid,
+                        variables=variables_json
+                    )
+                except Exception as e2:
+                    print(f"[WhatsApp] Attempt 2 (template_sid + variables) failed: {e2}")
+                    raise e1  # Re-raise original error
+
             print(f"[WhatsApp] Gönderildi (template): {msg.sid} (from {sender_number})")
         else:
             # Custom mesaj (premium üyeler veya bot)
