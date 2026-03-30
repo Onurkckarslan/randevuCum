@@ -136,7 +136,6 @@ async def book_appointment(
     notes: str = Form(""),
     db: Session = Depends(get_db)
 ):
-    print(f"[BOOKING] {slug}: service_id={service_id}, date={selected_date}, time={selected_time}")
     try:
         biz = db.query(Business).filter(Business.slug == slug).first()
         if not biz:
@@ -210,34 +209,19 @@ async def book_appointment(
         elif not formatted_phone.startswith("+"):
             formatted_phone = "+" + formatted_phone
 
-        # Müşteriye WhatsApp bildirim
-        if biz.plan == "premium" and biz.whatsapp_phone:
-            # Premium: Kendi numarasından custom mesaj (template gerekmez, kendi müşterileri)
-            sender = biz.whatsapp_phone.replace(" ", "")
-            customer_message = (
-                f"Merhaba {customer_name},\n\n"
-                f"{biz.name} için {formatted_date} {selected_time}'de "
-                f"{svc.name} randevunuz onaylandı.\n\n"
-                f"Teşekkür ederiz! 😊"
-            )
-            asyncio.create_task(send_whatsapp_message(
-                f"whatsapp:{formatted_phone}",
-                customer_message,
-                from_number=sender
-            ))
-        else:
-            # Temel: Global numaradan template mesaj (Twilio kuralı)
-            template_sid = "HX63d5e820d12c6eb933a46f391b63cfbb"
-            template_variables = [customer_name, biz.name, formatted_date, selected_time, svc.name]
-            print(f"[TEMPLATE DEBUG] SID={template_sid}")
-            print(f"[TEMPLATE DEBUG] Variables: {template_variables}")
-            print(f"[TEMPLATE DEBUG] Types: {[type(v).__name__ for v in template_variables]}")
-            asyncio.create_task(send_whatsapp_message(
-                f"whatsapp:{formatted_phone}",
-                from_number=TWILIO_WHATSAPP_NUMBER,
-                template_sid=template_sid,
-                template_variables=template_variables
-            ))
+        # Müşteriye WhatsApp bildirim (tüm planlar)
+        sender = biz.whatsapp_phone.replace(" ", "") if (biz.plan == "premium" and biz.whatsapp_phone) else TWILIO_WHATSAPP_NUMBER
+        customer_message = (
+            f"Merhaba {customer_name},\n\n"
+            f"{biz.name} için {formatted_date} {selected_time}'de "
+            f"{svc.name} randevunuz onaylandı.\n\n"
+            f"Teşekkür ederiz! 😊"
+        )
+        asyncio.create_task(send_whatsapp_message(
+            f"whatsapp:{formatted_phone}",
+            customer_message,
+            from_number=sender
+        ))
 
         # İşletmeye WhatsApp (sadece premium üyelere)
         if biz.plan == "premium" and biz.whatsapp_phone:
@@ -264,8 +248,7 @@ async def book_appointment(
             "products": products,
             "products_saved": False,
         })
-    except HTTPException as he:
-        print(f"[BOOKING HTTP ERROR] {slug}: {he.status_code} - {he.detail}")
+    except HTTPException:
         raise
     except Exception as e:
         print(f"[BOOKING ERROR] {slug}: {str(e)}")
