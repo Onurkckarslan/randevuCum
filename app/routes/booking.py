@@ -136,7 +136,7 @@ async def book_appointment(
     notes: str = Form(""),
     db: Session = Depends(get_db)
 ):
-    print(f"[BOOK] Form params: service_id={service_id}, date={selected_date}, time={selected_time}, staff={staff_id}")
+    print(f"[BOOK] service_id={service_id}, date={selected_date}, time={selected_time}, staff={staff_id}, name={customer_name}, phone={customer_phone}")
     try:
         biz = db.query(Business).filter(Business.slug == slug).first()
         if not biz:
