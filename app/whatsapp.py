@@ -59,19 +59,19 @@ async def send_whatsapp_message(to_number: str, message: str, from_number: str =
 
 async def send_whatsapp_template(to_number: str, template_variables: list, from_number: str = None) -> bool:
     """
-    WhatsApp template mesajı gönder (approved template).
+    WhatsApp template mesajı gönder (approved template via REST API).
     to_number: whatsapp:+905551234567
     template_variables: ["customer_name", "business_name", "date", "time", "service_name"]
     from_number: Gönderen numara (default: TWILIO_WHATSAPP_NUMBER)
     """
     print(f"[WhatsApp Template] → {to_number} (vars: {template_variables[:2]}...)")
 
-    if not TWILIO_ENABLED or not twilio_client:
+    if not TWILIO_ENABLED:
         print("[WhatsApp Template] Test modu — gerçek mesaj gönderilmedi")
         return True
 
-    if not TWILIO_APPOINTMENT_TEMPLATE_SID:
-        print(f"[WhatsApp Template] Hata: Template SID yok! .env'e TWILIO_APPOINTMENT_TEMPLATE_SID ekle")
+    if not TWILIO_APPOINTMENT_TEMPLATE_SID or not TWILIO_MESSAGING_SERVICE_SID:
+        print(f"[WhatsApp Template] Hata: Template SID ya da Service SID yok!")
         return False
 
     try:
@@ -80,16 +80,40 @@ async def send_whatsapp_template(to_number: str, template_variables: list, from_
             print(f"[WhatsApp Template] Hata: Gönderecek numara yok!")
             return False
 
-        # Template gönder
-        msg = twilio_client.messages.create(
-            messaging_service_sid=TWILIO_MESSAGING_SERVICE_SID,
-            from_=f"whatsapp:{sender_number}",
-            to=to_number,
-            content_sid=TWILIO_APPOINTMENT_TEMPLATE_SID,
-            content_variables=json.dumps(template_variables)
-        )
-        print(f"[WhatsApp Template] ✅ Gönderildi: {msg.sid}")
-        return True
+        # Extract phone number from "whatsapp:+90..." format
+        to_phone = to_number.replace("whatsapp:", "")
+
+        # REST API'ye istek at
+        url = f"https://messaging.twilio.com/v1/Services/{TWILIO_MESSAGING_SERVICE_SID}/Messages"
+
+        # Content variables JSON array olarak gönder
+        content_vars_json = json.dumps(template_variables)
+
+        data = {
+            "To": f"whatsapp:{to_phone}",
+            "From": f"whatsapp:{sender_number}",
+            "ContentSid": TWILIO_APPOINTMENT_TEMPLATE_SID,
+            "ContentVariables": content_vars_json
+        }
+
+        print(f"[WhatsApp Template] API Call: {url}")
+        print(f"[WhatsApp Template] Vars: {template_variables}")
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                data=data,
+                auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+            )
+
+            if response.status_code in [200, 201]:
+                result = response.json()
+                print(f"[WhatsApp Template] ✅ Gönderildi: {result.get('sid')}")
+                return True
+            else:
+                print(f"[WhatsApp Template] ❌ HTTP {response.status_code}: {response.text}")
+                return False
+
     except Exception as e:
         print(f"[WhatsApp Template] ❌ Hata: {e}")
         import traceback
