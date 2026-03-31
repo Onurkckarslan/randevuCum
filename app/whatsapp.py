@@ -98,21 +98,34 @@ async def send_whatsapp_template(to_number: str, template_variables: list, from_
 
         print(f"[WhatsApp Template] API Call: {url}")
         print(f"[WhatsApp Template] Vars: {template_variables}")
+        print(f"[WhatsApp Template] Data: {data}")
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                url,
-                data=data,
-                auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-            )
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.post(
+                    url,
+                    data=data,
+                    auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+                )
 
-            if response.status_code in [200, 201]:
-                result = response.json()
-                print(f"[WhatsApp Template] ✅ Gönderildi: {result.get('sid')}")
-                return True
-            else:
-                print(f"[WhatsApp Template] ❌ HTTP {response.status_code}: {response.text}")
-                return False
+                print(f"[WhatsApp Template] Response Status: {response.status_code}")
+                print(f"[WhatsApp Template] Response Body: {response.text[:200]}")
+
+                if response.status_code in [200, 201]:
+                    result = response.json()
+                    print(f"[WhatsApp Template] ✅ Gönderildi: {result.get('sid')}")
+                    return True
+                else:
+                    print(f"[WhatsApp Template] ❌ HTTP {response.status_code}: {response.text}")
+                    return False
+        except httpx.TimeoutException:
+            print(f"[WhatsApp Template] ❌ Request Timeout")
+            return False
+        except Exception as e:
+            print(f"[WhatsApp Template] ❌ Request Error: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
 
     except Exception as e:
         print(f"[WhatsApp Template] ❌ Hata: {e}")
