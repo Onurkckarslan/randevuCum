@@ -136,15 +136,20 @@ async def book_appointment(
     notes: str = Form(""),
     db: Session = Depends(get_db)
 ):
+    print(f"[BOOK] ✅ Form validation başarılı!")
     print(f"[BOOK] service_id={service_id}, date={selected_date}, time={selected_time}, staff={staff_id}, name={customer_name}, phone={customer_phone}")
     try:
         biz = db.query(Business).filter(Business.slug == slug).first()
         if not biz:
+            print(f"[BOOK] ❌ Business not found: {slug}")
             raise HTTPException(status_code=404)
+        print(f"[BOOK] ✅ Business found: {biz.name}")
 
         svc = db.query(Service).filter(Service.id == service_id, Service.business_id == biz.id).first()
         if not svc:
+            print(f"[BOOK] ❌ Service not found: {service_id}")
             raise HTTPException(status_code=400, detail="Hizmet bulunamadı")
+        print(f"[BOOK] ✅ Service found: {svc.name}")
 
         # Çakışma kontrolü
         conflict = db.query(Appointment).filter(
@@ -172,6 +177,7 @@ async def book_appointment(
         db.add(apt)
         db.commit()
         db.refresh(apt)
+        print(f"[BOOK] ✅ Appointment created: {apt.id}")
 
         # Notları birleştir: müşteri notu (form) + işletme notu (panel)
         combined_notes = ""
@@ -256,6 +262,7 @@ async def book_appointment(
 
         # Get active products for this business
         products = db.query(Product).filter_by(business_id=biz.id, is_active=True).all()
+        print(f"[BOOK] ✅ About to return success response")
 
         return templates.TemplateResponse("customer/booking_success.html", {
             "request": request,
@@ -265,10 +272,11 @@ async def book_appointment(
             "products": products,
             "products_saved": False,
         })
-    except HTTPException:
+    except HTTPException as he:
+        print(f"[BOOKING ERROR] HTTPException: {he.status_code} - {he.detail}")
         raise
     except Exception as e:
-        print(f"[BOOKING ERROR] {slug}: {str(e)}")
+        print(f"[BOOKING ERROR] {slug}: {type(e).__name__}: {str(e)}")
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Booking error: {str(e)}")
