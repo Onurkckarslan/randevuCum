@@ -214,6 +214,7 @@ async def book_appointment(
         if biz.plan == "premium" and biz.whatsapp_phone:
             # Premium: WhatsApp (Twilio numarası)
             sender = biz.whatsapp_phone.replace(" ", "")
+            print(f"[BOOK] Premium - Müşteriye WhatsApp: {formatted_phone} from {sender}")
             customer_message = (
                 f"Merhaba {customer_name},\n\n"
                 f"{biz.name} için {formatted_date} {selected_time}'de "
@@ -235,6 +236,7 @@ async def book_appointment(
                     else:
                         owner_phone = "+" + owner_phone
 
+                print(f"[BOOK] Premium - İşletmeye WhatsApp: {owner_phone} from {sender}")
                 business_message = (
                     f"Yeni randevu!\n\n"
                     f"Müşteri: {customer_name}\n"
@@ -249,6 +251,7 @@ async def book_appointment(
                 ))
         else:
             # Temel: SMS
+            print(f"[BOOK] Temel - SMS gönderiyor: {customer_phone}")
             sms_message = (
                 f"Merhaba {customer_name}, {biz.name} için {formatted_date} {selected_time}'de "
                 f"{svc.name} randevunuz onaylandı. Teşekkür ederiz!"
