@@ -122,6 +122,16 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="RandevuCum", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=str(_BASE / "app" / "static")), name="static")
 
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(RequestValidationError)
+async def validation_handler(request: Request, exc: RequestValidationError):
+    print(f"[VALIDATION ERROR] {request.method} {request.url.path}")
+    for error in exc.errors():
+        print(f"  {error['loc']}: {error['msg']}")
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
 from .templates_config import templates
 
 templates.env.globals["enumerate"] = enumerate
