@@ -2,6 +2,7 @@
 Twilio WhatsApp entegrasyonu
 """
 import os
+import json
 import httpx
 from twilio.rest import Client
 from datetime import datetime, timedelta
@@ -12,6 +13,7 @@ TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
 TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER", "")
 TWILIO_ENABLED = os.getenv("TWILIO_ENABLED", "false").lower() == "true"
 TWILIO_MESSAGING_SERVICE_SID = os.getenv("TWILIO_MESSAGING_SERVICE_SID", "")
+TWILIO_APPOINTMENT_TEMPLATE_SID = os.getenv("TWILIO_APPOINTMENT_TEMPLATE_SID", "")
 
 # Twilio client
 if TWILIO_ENABLED and TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
@@ -22,7 +24,7 @@ else:
 
 async def send_whatsapp_message(to_number: str, message: str, from_number: str = None, buttons: list = None) -> bool:
     """
-    WhatsApp mesajı gönder.
+    WhatsApp mesajı gönder (plain text).
     to_number: whatsapp:+905551234567
     message: Mesaj içeriği
     from_number: Gönderen numara (default: TWILIO_WHATSAPP_NUMBER)
@@ -50,6 +52,46 @@ async def send_whatsapp_message(to_number: str, message: str, from_number: str =
         return True
     except Exception as e:
         print(f"[WhatsApp] Hata: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+async def send_whatsapp_template(to_number: str, template_variables: list, from_number: str = None) -> bool:
+    """
+    WhatsApp template mesajı gönder (approved template).
+    to_number: whatsapp:+905551234567
+    template_variables: ["customer_name", "business_name", "date", "time", "service_name"]
+    from_number: Gönderen numara (default: TWILIO_WHATSAPP_NUMBER)
+    """
+    print(f"[WhatsApp Template] → {to_number} (vars: {template_variables[:2]}...)")
+
+    if not TWILIO_ENABLED or not twilio_client:
+        print("[WhatsApp Template] Test modu — gerçek mesaj gönderilmedi")
+        return True
+
+    if not TWILIO_APPOINTMENT_TEMPLATE_SID:
+        print(f"[WhatsApp Template] Hata: Template SID yok! .env'e TWILIO_APPOINTMENT_TEMPLATE_SID ekle")
+        return False
+
+    try:
+        sender_number = from_number if from_number else TWILIO_WHATSAPP_NUMBER
+        if not sender_number:
+            print(f"[WhatsApp Template] Hata: Gönderecek numara yok!")
+            return False
+
+        # Template gönder
+        msg = twilio_client.messages.create(
+            messaging_service_sid=TWILIO_MESSAGING_SERVICE_SID,
+            from_=f"whatsapp:{sender_number}",
+            to=to_number,
+            content_sid=TWILIO_APPOINTMENT_TEMPLATE_SID,
+            content_variables=json.dumps(template_variables)
+        )
+        print(f"[WhatsApp Template] ✅ Gönderildi: {msg.sid}")
+        return True
+    except Exception as e:
+        print(f"[WhatsApp Template] ❌ Hata: {e}")
         import traceback
         traceback.print_exc()
         return False

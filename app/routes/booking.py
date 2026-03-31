@@ -6,7 +6,7 @@ from ..database import get_db
 from ..models import Business, Service, Staff, WorkHour, Appointment, BusinessPhoto, Product, AppointmentProduct, CustomerProfile
 from sqlalchemy.orm import joinedload
 from ..sms import send_appointment_confirm, send_booking_with_products_customer, send_booking_with_products_business, send_sms
-from ..whatsapp import send_whatsapp_message, TWILIO_WHATSAPP_NUMBER
+from ..whatsapp import send_whatsapp_message, send_whatsapp_template, TWILIO_WHATSAPP_NUMBER
 from datetime import date, datetime, timedelta
 from typing import Optional
 import asyncio
@@ -216,7 +216,7 @@ async def book_appointment(
         elif not formatted_phone.startswith("+"):
             formatted_phone = "+" + formatted_phone
 
-        # Müşteriye WhatsApp bildirim
+        # Müşteriye WhatsApp bildirim (Template kullanarak)
         if biz.plan == "premium" and biz.whatsapp_phone:
             # Premium: Kendi numarası
             sender = biz.whatsapp_phone.replace(" ", "")
@@ -224,16 +224,13 @@ async def book_appointment(
             # Temel: Global numara
             sender = TWILIO_WHATSAPP_NUMBER
 
-        print(f"[BOOK] Müşteriye WhatsApp: {formatted_phone} from {sender}")
-        customer_message = (
-            f"Merhaba {customer_name},\n\n"
-            f"{biz.name} için {formatted_date} {selected_time}'de "
-            f"{svc.name} randevunuz onaylandı.\n\n"
-            f"Teşekkür ederiz! 😊"
-        )
-        asyncio.create_task(send_whatsapp_message(
+        print(f"[BOOK] Müşteriye WhatsApp Template: {formatted_phone} from {sender}")
+
+        # Template variables: [customer_name, business_name, date, time, service_name]
+        template_vars = [customer_name, biz.name, formatted_date, selected_time, svc.name]
+        asyncio.create_task(send_whatsapp_template(
             f"whatsapp:{formatted_phone}",
-            customer_message,
+            template_vars,
             from_number=sender
         ))
 
