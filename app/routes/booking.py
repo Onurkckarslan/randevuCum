@@ -210,53 +210,49 @@ async def book_appointment(
         elif not formatted_phone.startswith("+"):
             formatted_phone = "+" + formatted_phone
 
-        # Müşteriye bildirim (plan'a göre WhatsApp veya SMS)
+        # Müşteriye WhatsApp bildirim
         if biz.plan == "premium" and biz.whatsapp_phone:
-            # Premium: WhatsApp (Twilio numarası)
+            # Premium: Kendi numarası
             sender = biz.whatsapp_phone.replace(" ", "")
-            print(f"[BOOK] Premium - Müşteriye WhatsApp: {formatted_phone} from {sender}")
-            customer_message = (
-                f"Merhaba {customer_name},\n\n"
-                f"{biz.name} için {formatted_date} {selected_time}'de "
-                f"{svc.name} randevunuz onaylandı.\n\n"
-                f"Teşekkür ederiz! 😊"
+        else:
+            # Temel: Global numara
+            sender = TWILIO_WHATSAPP_NUMBER
+
+        print(f"[BOOK] Müşteriye WhatsApp: {formatted_phone} from {sender}")
+        customer_message = (
+            f"Merhaba {customer_name},\n\n"
+            f"{biz.name} için {formatted_date} {selected_time}'de "
+            f"{svc.name} randevunuz onaylandı.\n\n"
+            f"Teşekkür ederiz! 😊"
+        )
+        asyncio.create_task(send_whatsapp_message(
+            f"whatsapp:{formatted_phone}",
+            customer_message,
+            from_number=sender
+        ))
+
+        # İşletme sahibine WhatsApp bildirim (sadece premium)
+        if biz.plan == "premium" and biz.phone:
+            owner_phone = biz.phone.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+            if not owner_phone.startswith("+"):
+                if owner_phone.startswith("0"):
+                    owner_phone = "+9" + owner_phone
+                else:
+                    owner_phone = "+" + owner_phone
+
+            print(f"[BOOK] İşletmeye WhatsApp: {owner_phone} from {sender}")
+            business_message = (
+                f"Yeni randevu!\n\n"
+                f"Müşteri: {customer_name}\n"
+                f"Hizmet: {svc.name}\n"
+                f"Tarih: {formatted_date}\n"
+                f"Saat: {selected_time}"
             )
             asyncio.create_task(send_whatsapp_message(
-                f"whatsapp:{formatted_phone}",
-                customer_message,
+                f"whatsapp:{owner_phone}",
+                business_message,
                 from_number=sender
             ))
-
-            # İşletme sahibine WhatsApp bildirim (kendi personal numarası)
-            if biz.phone:
-                owner_phone = biz.phone.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
-                if not owner_phone.startswith("+"):
-                    if owner_phone.startswith("0"):
-                        owner_phone = "+9" + owner_phone
-                    else:
-                        owner_phone = "+" + owner_phone
-
-                print(f"[BOOK] Premium - İşletmeye WhatsApp: {owner_phone} from {sender}")
-                business_message = (
-                    f"Yeni randevu!\n\n"
-                    f"Müşteri: {customer_name}\n"
-                    f"Hizmet: {svc.name}\n"
-                    f"Tarih: {formatted_date}\n"
-                    f"Saat: {selected_time}"
-                )
-                asyncio.create_task(send_whatsapp_message(
-                    f"whatsapp:{owner_phone}",
-                    business_message,
-                    from_number=sender
-                ))
-        else:
-            # Temel: SMS
-            print(f"[BOOK] Temel - SMS gönderiyor: {customer_phone}")
-            sms_message = (
-                f"Merhaba {customer_name}, {biz.name} için {formatted_date} {selected_time}'de "
-                f"{svc.name} randevunuz onaylandı. Teşekkür ederiz!"
-            )
-            asyncio.create_task(send_sms(customer_phone, sms_message))
 
         # Get active products for this business
         products = db.query(Product).filter_by(business_id=biz.id, is_active=True).all()
