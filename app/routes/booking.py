@@ -224,13 +224,17 @@ async def book_appointment(
             # Temel: Global numara
             sender = TWILIO_WHATSAPP_NUMBER
 
-        print(f"[BOOK] Müşteriye WhatsApp Template: {formatted_phone} from {sender}")
+        print(f"[BOOK] Müşteriye WhatsApp (plain text): {formatted_phone} from {sender}")
 
-        # Template variables: [customer_name, business_name, date, time, service_name]
-        template_vars = [customer_name, biz.name, formatted_date, selected_time, svc.name]
-        asyncio.create_task(send_whatsapp_template(
+        # Müşteriye plain text mesaj gönder
+        customer_message = (
+            f"Merhaba {customer_name},\n\n"
+            f"{biz.name} için {formatted_date} {selected_time}'de {svc.name} randevunuz onaylandı.\n\n"
+            f"Teşekkür ederiz! 😊"
+        )
+        asyncio.create_task(send_whatsapp_message(
             f"whatsapp:{formatted_phone}",
-            template_vars,
+            customer_message,
             from_number=sender
         ))
 
