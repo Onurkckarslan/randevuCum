@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 import asyncio
 from ..whatsapp import purchase_twilio_number
+from ..health import get_system_status
 
 router = APIRouter(prefix="/admin")
 
@@ -207,3 +208,9 @@ async def admin_normalize_numbers(request: Request, db: Session = Depends(get_db
     print(f"[Admin] {updated_count} WhatsApp numbers normalized")
 
     return RedirectResponse("/admin", status_code=302)
+
+# ── SİSTEM DURUMU ─────────────────────────────────────────────────────────────
+@router.get("/system-status")
+async def admin_system_status(request: Request):
+    require_admin(request)
+    return await get_system_status()

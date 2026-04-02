@@ -117,6 +117,29 @@ tr:hover td { background: rgba(255,255,255,.02); }
 .filter-chip:hover, .filter-chip.active {
   background: rgba(124,58,237,.2); border-color: rgba(124,58,237,.4); color: #c4b5fd;
 }
+
+/* System Health */
+.health-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.health-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px;
+  position: relative; overflow: hidden; transition: border-color .2s;
+}
+.health-card.ok    { border-color: rgba(16,185,129,.3); }
+.health-card.uyari { border-color: rgba(251,191,36,.3); }
+.health-card.hata  { border-color: rgba(239,68,68,.3); }
+.health-card.loading { opacity: .6; }
+.health-service-name { font-size: .7rem; font-weight: 800; letter-spacing: .1em; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; }
+.health-status-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle;
+}
+.dot-ok    { background: #10b981; box-shadow: 0 0 6px #10b981; }
+.dot-uyari { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+.dot-hata  { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+.dot-loading { background: var(--muted); animation: pulse 1.2s infinite; }
+.health-metric { font-size: 1.3rem; font-weight: 900; margin: 6px 0 4px; }
+.health-sub { font-size: .72rem; color: var(--muted); }
+.health-time { font-size: .65rem; color: rgba(241,240,245,.25); margin-top: 8px; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 </style>
 </head>
 <body>
@@ -176,6 +199,37 @@ tr:hover td { background: rgba(255,255,255,.02); }
       <div class="stat-label">BU AY RANDEVU</div>
       <div class="stat-num">{{ month_appt }}</div>
       <div class="stat-sub">toplam {{ total_appt }}</div>
+    </div>
+  </div>
+
+  <!-- Sistem Durumu -->
+  <div style="margin-bottom: 12px; display:flex; align-items:center; gap: 10px;">
+    <h2 style="font-size:1rem; font-weight:800;">Sistem Durumu</h2>
+    <button onclick="loadHealth()" id="health-refresh-btn" style="
+      background:rgba(124,58,237,.15); border:1px solid rgba(124,58,237,.3);
+      color:#c4b5fd; padding:4px 12px; border-radius:8px; font-size:.72rem;
+      font-weight:700; cursor:pointer; font-family:inherit; transition:all .15s;
+    " onmouseover="this.style.background='rgba(124,58,237,.3)'" onmouseout="this.style.background='rgba(124,58,237,.15)'">
+      ↻ Yenile
+    </button>
+  </div>
+  <div class="health-grid" id="health-grid">
+    <!-- JS will populate these four cards -->
+    <div class="health-card loading" id="hc-s3">
+      <div class="health-service-name">AWS S3</div>
+      <div><span class="health-status-dot dot-loading"></span>Yükleniyor...</div>
+    </div>
+    <div class="health-card loading" id="hc-twilio">
+      <div class="health-service-name">TWİLİO</div>
+      <div><span class="health-status-dot dot-loading"></span>Yükleniyor...</div>
+    </div>
+    <div class="health-card loading" id="hc-sendgrid">
+      <div class="health-service-name">SENDGRİD</div>
+      <div><span class="health-status-dot dot-loading"></span>Yükleniyor...</div>
+    </div>
+    <div class="health-card loading" id="hc-db">
+      <div class="health-service-name">VERİTABANI</div>
+      <div><span class="health-status-dot dot-loading"></span>Yükleniyor...</div>
     </div>
   </div>
 
@@ -273,6 +327,83 @@ function setFilter(btn, filter) {
   btn.classList.add('active');
   filterTable(document.querySelector('.search-input').value);
 }
+
+// System Health
+function statusClass(s) {
+  return {OK:'ok', UYARI:'uyari', HATA:'hata'}[s] || 'hata';
+}
+function dotClass(s) {
+  return {OK:'dot-ok', UYARI:'dot-uyari', HATA:'dot-hata'}[s] || 'dot-hata';
+}
+function fmtTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+function renderCard(id, name, status, metricHtml, subHtml, checkedAt) {
+  const el = document.getElementById(id);
+  const sc = statusClass(status), dc = dotClass(status);
+  el.className = `health-card ${sc}`;
+  el.innerHTML = `
+    <div class="health-service-name">${name}</div>
+    <div><span class="health-status-dot ${dc}"></span><strong>${status}</strong></div>
+    <div class="health-metric">${metricHtml}</div>
+    <div class="health-sub">${subHtml}</div>
+    <div class="health-time">Son kontrol: ${fmtTime(checkedAt)}</div>
+  `;
+}
+
+async function loadHealth() {
+  // Reset to loading state
+  ['hc-s3','hc-twilio','hc-sendgrid','hc-db'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'health-card loading';
+  });
+  try {
+    const res = await fetch('/admin/system-status');
+    const d = await res.json();
+
+    // S3
+    const s3 = d.s3;
+    renderCard('hc-s3', 'AWS S3', s3.status,
+      `${s3.file_count ?? '—'} dosya`,
+      `${s3.total_mb ?? '—'} MB`,
+      s3.checked_at);
+
+    // Twilio
+    const tw = d.twilio;
+    renderCard('hc-twilio', 'TWİLİO', tw.status,
+      `$${tw.balance ?? '—'}`,
+      `${tw.currency ?? ''} bakiye`,
+      tw.checked_at);
+
+    // SendGrid
+    const sg = d.sendgrid;
+    renderCard('hc-sendgrid', 'SENDGRİD', sg.status,
+      `${sg.today_sent ?? '—'} email`,
+      `Bugün / Limit: ${sg.plan_limit ?? '—'}`,
+      sg.checked_at);
+
+    // Database
+    const db = d.database;
+    renderCard('hc-db', 'VERİTABANI', db.status,
+      db.db_type === 'sqlite' ? `${db.size_mb ?? '—'} MB` : 'PostgreSQL',
+      db.db_type === 'sqlite' ? 'SQLite' : 'Bağlantı OK',
+      db.checked_at);
+
+  } catch(e) {
+    ['hc-s3','hc-twilio','hc-sendgrid','hc-db'].forEach(id => {
+      const el = document.getElementById(id);
+      el.className = 'health-card hata';
+      const name = el.querySelector?.('.health-service-name')?.textContent || id;
+      el.innerHTML = `<div class="health-service-name">${name}</div><div>Yüklenemedi</div>`;
+    });
+  }
+}
+
+// Auto-load on page open
+loadHealth();
 </script>
 </body>
 </html>
