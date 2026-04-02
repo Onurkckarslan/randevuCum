@@ -249,6 +249,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
       <thead>
         <tr>
           <th>#</th>
+          <th>KİMLİK NO</th>
           <th>İŞLETME ADI</th>
           <th>KATEGORİ</th>
           <th>TELEFON</th>
@@ -263,6 +264,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
         {% for biz in businesses %}
         <tr class="biz-row" data-plan="{{ biz.plan }}" data-active="{{ 'yes' if biz.is_active else 'no' }}" data-name="{{ biz.name|lower }}">
           <td style="color:var(--muted);">{{ biz.id }}</td>
+          <td style="color:#c4b5fd; font-weight:700; font-size:.88rem;">{{ biz.business_code or '—' }}</td>
           <td>
             <div style="font-weight:700;">{{ biz.name }}</div>
             <div style="font-size:.72rem;color:var(--muted);">/{{ biz.slug }}</div>

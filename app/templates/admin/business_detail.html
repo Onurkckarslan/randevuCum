@@ -126,6 +126,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
     <!-- İşletme Bilgileri -->
     <div class="info-card">
       <h2>İŞLETME BİLGİLERİ</h2>
+      <div class="info-row"><span class="info-label">🆔 Kimlik No</span><span class="info-val" style="cursor:pointer;" title="Kopyala" onclick="copyToClipboard('{{ biz.business_code }}')">{{ biz.business_code or '—' }}</span></div>
       <div class="info-row"><span class="info-label">📞 Telefon</span><span class="info-val">{{ biz.phone }}</span></div>
       <div class="info-row"><span class="info-label">📧 E-posta</span><span class="info-val">{{ biz.email }}</span></div>
       <div class="info-row"><span class="info-label">🏙️ Şehir</span><span class="info-val">{{ biz.city }} {% if biz.district %}/ {{ biz.district }}{% endif %}</span></div>
@@ -165,6 +166,17 @@ tr:hover td { background: rgba(255,255,255,.02); }
           </select>
           <button type="submit" class="btn btn-primary">Uygula</button>
         </form>
+      </div>
+
+      <div style="margin-top:20px;">
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px;">WhatsApp Bot Numarası (Premium):</p>
+        <form method="post" action="/admin/business/{{ biz.id }}/edit" class="plan-form">
+          <input type="text" name="whatsapp_phone" class="form-input" value="{{ biz.whatsapp_phone or '' }}" placeholder="+1234567890 veya boş bırak">
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+        </form>
+        {% if biz.whatsapp_phone %}
+        <p style="font-size:.72rem;color:#34d399;margin-top:8px;">✓ Atanmış: {{ biz.whatsapp_phone }}</p>
+        {% endif %}
       </div>
 
       <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -226,5 +238,16 @@ tr:hover td { background: rgba(255,255,255,.02); }
     {% endif %}
   </div>
 </div>
+
+<script>
+function copyToClipboard(text) {
+  if (!text || text === '—') return;
+  navigator.clipboard.writeText(text).then(() => {
+    alert(text + ' kopyalandı!');
+  }).catch(err => {
+    console.error('Kopyalama hatası:', err);
+  });
+}
+</script>
 </body>
 </html>

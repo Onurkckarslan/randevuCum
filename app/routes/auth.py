@@ -13,6 +13,8 @@ import os
 import urllib.parse
 import threading
 import logging
+import random
+import string
 
 logger = logging.getLogger(__name__)
 
@@ -119,13 +121,22 @@ async def register(
             })
 
         # Create business
+        # 6 haneli benzersiz kimlik numarası üret
+        def generate_unique_code() -> str:
+            while True:
+                code = ''.join(random.choices(string.digits, k=6))
+                exists = db.query(Business).filter(Business.business_code == code).first()
+                if not exists:
+                    return code
+
         biz = Business(
             name=name, slug=slug, category=category,
             phone=phone, email=email,
             password_hash=password_hash,
             address=address, district=district, city="Uşak",
             plan="temel",
-            plan_expires_at=datetime.utcnow() + timedelta(days=30)
+            plan_expires_at=datetime.utcnow() + timedelta(days=30),
+            business_code=generate_unique_code()
         )
 
         db.add(biz)

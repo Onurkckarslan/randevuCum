@@ -8,6 +8,8 @@ from ..templates_config import templates
 from datetime import datetime, timedelta
 from typing import Optional
 import asyncio
+import random
+import string
 from ..whatsapp import purchase_twilio_number
 from ..health import get_system_status
 
@@ -23,6 +25,15 @@ def is_admin(request: Request) -> bool:
 def require_admin(request: Request):
     if not is_admin(request):
         raise HTTPException(status_code=302, headers={"Location": "/admin/login"})
+
+# ── YARDIMCI FONKSİYONLAR ────────────────────────────────────────────────────
+def generate_unique_code(db: Session) -> str:
+    """6 haneli benzersiz işletme kimlik numarası üret"""
+    while True:
+        code = ''.join(random.choices(string.digits, k=6))
+        exists = db.query(Business).filter(Business.business_code == code).first()
+        if not exists:
+            return code
 
 # ── LOGIN ─────────────────────────────────────────────────────────────────────
 @router.get("/login", response_class=HTMLResponse)
@@ -208,6 +219,39 @@ async def admin_normalize_numbers(request: Request, db: Session = Depends(get_db
     print(f"[Admin] {updated_count} WhatsApp numbers normalized")
 
     return RedirectResponse("/admin", status_code=302)
+
+# ── İŞLETME PROFİLİ DÜZENLE ───────────────────────────────────────────────────
+@router.post("/business/{biz_id}/edit")
+async def admin_edit_business(
+    biz_id: int, request: Request,
+    whatsapp_phone: str = Form(""),
+    phone: str = Form(""),
+    name: str = Form(""),
+    db: Session = Depends(get_db)
+):
+    require_admin(request)
+    biz = db.query(Business).filter(Business.id == biz_id).first()
+    if not biz:
+        raise HTTPException(404)
+
+    # WhatsApp numarası güncelle
+    if whatsapp_phone:
+        whatsapp_phone = whatsapp_phone.strip().replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+        biz.whatsapp_phone = whatsapp_phone
+        print(f"[Admin] WhatsApp number updated for business {biz_id}: {whatsapp_phone}")
+
+    # İletişim telefonu güncelle
+    if phone:
+        biz.phone = phone.strip()
+        print(f"[Admin] Phone updated for business {biz_id}: {phone}")
+
+    # İşletme adı güncelle
+    if name:
+        biz.name = name.strip()
+        print(f"[Admin] Name updated for business {biz_id}: {name}")
+
+    db.commit()
+    return RedirectResponse(f"/admin/business/{biz_id}", status_code=302)
 
 # ── SİSTEM DURUMU ─────────────────────────────────────────────────────────────
 @router.get("/system-status")
