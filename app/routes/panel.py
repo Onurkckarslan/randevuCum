@@ -848,6 +848,39 @@ async def upload_photo(request: Request, file: UploadFile = File(...), db: Sessi
     return RedirectResponse("/panel/fotolar", status_code=302)
 
 
+@router.post("/panel/logo-yukle")
+async def upload_logo(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """İşletme logosu yükle (S3)"""
+    biz = get_biz(request, db)
+    ext = Path(file.filename).suffix.lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+        raise HTTPException(status_code=400, detail="Sadece JPG, PNG, WEBP desteklenir.")
+
+    # S3'e yükle
+    fname = f"logos/{uuid.uuid4().hex}{ext}"
+    file_content = await file.read()
+
+    try:
+        s3_url = upload_photo_to_s3(file_content, fname)
+    except Exception as e:
+        print(f"[LOGO] S3 yükleme hatası: {e}")
+        raise HTTPException(status_code=500, detail=f"S3 yükleme hatası: {str(e)[:100]}")
+
+    if not s3_url:
+        raise HTTPException(status_code=500, detail="AWS ayarlarını kontrol edin")
+
+    # DB'ye S3 URL'sini kaydet
+    try:
+        print(f"[LOGO] S3 URL: {s3_url}")
+        biz.logo_url = s3_url
+        db.commit()
+        print(f"[LOGO] Database'e kaydedildi")
+        return {"success": True, "logo_url": s3_url}
+    except Exception as e:
+        print(f"[LOGO] DB hatası: {e}")
+        raise HTTPException(status_code=500, detail="Veritabanı hatası")
+
+
 @router.post("/panel/fotograf-sil/{photo_id}")
 async def delete_photo(photo_id: int, request: Request, db: Session = Depends(get_db)):
     biz = get_biz(request, db)

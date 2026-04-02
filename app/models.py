@@ -26,6 +26,7 @@ class Business(Base):
     whatsapp_enabled = Column(Boolean, default=False)          # WhatsApp aktif mi?
     whatsapp_phone = Column(String(20), nullable=True)         # Twilio WhatsApp numarası
     business_code = Column(String(6), unique=True, nullable=True)  # 6 haneli işletme kimlik no
+    logo_url      = Column(String(500), nullable=True)         # İşletme logosu (S3 URL)
 
     services      = relationship("Service", back_populates="business", cascade="all, delete")
     staff         = relationship("Staff", back_populates="business", cascade="all, delete")

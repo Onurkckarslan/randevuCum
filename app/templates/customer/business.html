@@ -17,6 +17,18 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 }
 .biz-title { font-size: 1.3rem; font-weight: 900; color: #f1f0f5; margin-bottom: 5px; }
 .biz-stars { color: #fbbf24; font-size: .88rem; }
+.biz-logo-avatar {
+  width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
+  border: 3px solid rgba(255,255,255,.15); margin-right: 12px; flex-shrink: 0;
+}
+.biz-logo-placeholder {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-right: 12px; flex-shrink: 0;
+}
+.biz-header-content {
+  display: flex; align-items: center;
+}
 
 /* ── TELEFON BUTONU ── */
 .btn-call {
@@ -629,12 +641,23 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
 {% block content %}
 <!-- HEADER -->
 <div class="biz-header mb-3">
-    <div class="biz-title">{{ biz.name }}</div>
-    <div class="biz-stars">
-        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-        <span style="color:#374151;font-weight:700;"> 5.0</span>
-        <span style="color:#9ca3af;font-size:.82rem;"> · Yeni</span>
-        {% if biz.district %}<span style="color:#9ca3af;font-size:.82rem;"> · {{ biz.district }}, {{ biz.city }}</span>{% endif %}
+    <div class="biz-header-content">
+        {% if biz.logo_url %}
+        <img src="{{ biz.logo_url }}" alt="{{ biz.name }}" class="biz-logo-avatar">
+        {% else %}
+        <div class="biz-logo-placeholder">
+            {% if biz.category == 'berber' %}💈{% elif biz.category == 'kuafor' %}✂️{% else %}🏢{% endif %}
+        </div>
+        {% endif %}
+        <div>
+            <div class="biz-title">{{ biz.name }}</div>
+            <div class="biz-stars">
+                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                <span style="color:#374151;font-weight:700;"> 5.0</span>
+                <span style="color:#9ca3af;font-size:.82rem;"> · Yeni</span>
+                {% if biz.district %}<span style="color:#9ca3af;font-size:.82rem;"> · {{ biz.district }}, {{ biz.city }}</span>{% endif %}
+            </div>
+        </div>
     </div>
 </div>
 

@@ -7,6 +7,27 @@
 </div>
 <div class="row justify-content-center">
 <div class="col-md-7">
+
+<!-- Logo Yükleme Kartı -->
+<div class="card p-4 mb-4">
+    <h6 class="fw-bold mb-3">🎯 İşletme Logosu</h6>
+    {% if biz.logo_url %}
+    <div class="mb-3 text-center">
+        <img src="{{ biz.logo_url }}" alt="Logo" style="max-width:120px; max-height:120px; border-radius:8px; border:2px solid #e9ecef;">
+    </div>
+    {% endif %}
+    <input type="file" id="logoInput" accept="image/jpeg,image/png,image/webp" style="display:none;">
+    <button type="button" class="btn btn-outline-primary w-100 btn-sm" onclick="document.getElementById('logoInput').click()">
+        📸 Logo Seç
+    </button>
+    <div id="logoProgress" style="display:none; margin-top:10px;">
+        <div class="progress" style="height:6px;">
+            <div class="progress-bar" id="logoProgressBar" role="progressbar" style="width:0%"></div>
+        </div>
+    </div>
+    <small class="text-muted d-block mt-2">JPG, PNG veya WEBP formatında 5MB'tan küçük.</small>
+</div>
+
 <div class="card p-4">
     {% if success %}
     <div class="alert alert-success py-2 small rounded-3">✅ Profil güncellendi.</div>
@@ -75,4 +96,70 @@
 </div>
 </div>
 </div>
+
+<script>
+document.getElementById('logoInput').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Dosya 5MB\'tan büyük olamaz.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const progressDiv = document.getElementById('logoProgress');
+    const progressBar = document.getElementById('logoProgressBar');
+    progressDiv.style.display = 'block';
+
+    try {
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressBar.style.width = percentComplete + '%';
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                const img = document.createElement('img');
+                img.src = response.logo_url;
+                img.alt = 'Logo';
+                img.style.cssText = 'max-width:120px; max-height:120px; border-radius:8px; border:2px solid #e9ecef; display:block; margin:10px 0;';
+
+                const container = document.querySelector('.card.p-4.mb-4');
+                const existingImg = container.querySelector('img');
+                if (existingImg) {
+                    existingImg.replaceWith(img);
+                } else {
+                    const firstBtn = container.querySelector('button');
+                    firstBtn.parentNode.insertBefore(img, firstBtn);
+                }
+
+                progressDiv.style.display = 'none';
+                progressBar.style.width = '0%';
+                alert('✅ Logo başarıyla yüklendi!');
+            } else {
+                alert('❌ Yükleme başarısız: ' + xhr.responseText);
+            }
+        });
+
+        xhr.addEventListener('error', () => {
+            alert('❌ Yükleme sırasında hata oluştu.');
+            progressDiv.style.display = 'none';
+        });
+
+        xhr.open('POST', '/panel/logo-yukle');
+        xhr.send(formData);
+    } catch (err) {
+        alert('❌ Hata: ' + err.message);
+        progressDiv.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}

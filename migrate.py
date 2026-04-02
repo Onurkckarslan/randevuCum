@@ -55,6 +55,12 @@ for f in db_files:
     else:
         print(f"{f}: business_code zaten var")
 
+    if "logo_url" not in cols:
+        cur.execute("ALTER TABLE businesses ADD COLUMN logo_url VARCHAR(500)")
+        print(f"{f}: logo_url kolonu eklendi")
+    else:
+        print(f"{f}: logo_url zaten var")
+
     conn.commit()
     conn.close()
     print(f"{f}: OK")
