@@ -179,6 +179,14 @@ tr:hover td { background: rgba(255,255,255,.02); }
         {% endif %}
       </div>
 
+      <div style="margin-top:20px;">
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px;">Şifre Değiştir:</p>
+        <form method="post" action="/admin/business/{{ biz.id }}/change-password" class="plan-form">
+          <input type="password" name="new_password" class="form-input" placeholder="Yeni şifre" required>
+          <button type="submit" class="btn btn-primary" onclick="return confirm('Şifre değiştirilecek. Emin misin?')">Şifre Değiştir</button>
+        </form>
+      </div>
+
       <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
         <!-- Aktif/Pasif -->
         <form method="post" action="/admin/business/{{ biz.id }}/toggle">

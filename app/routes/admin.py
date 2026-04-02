@@ -12,6 +12,7 @@ import random
 import string
 from ..whatsapp import purchase_twilio_number
 from ..health import get_system_status
+from ..auth import hash_password
 
 router = APIRouter(prefix="/admin")
 
@@ -251,6 +252,32 @@ async def admin_edit_business(
         print(f"[Admin] Name updated for business {biz_id}: {name}")
 
     db.commit()
+    return RedirectResponse(f"/admin/business/{biz_id}", status_code=302)
+
+# ── ŞİFRE DEĞİŞTİR ───────────────────────────────────────────────────────────
+@router.post("/business/{biz_id}/change-password")
+async def admin_change_password(
+    biz_id: int, request: Request,
+    new_password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    require_admin(request)
+    biz = db.query(Business).filter(Business.id == biz_id).first()
+    if not biz:
+        raise HTTPException(404)
+
+    if not new_password or len(new_password.strip()) == 0:
+        raise HTTPException(status_code=400, detail="Şifre boş olamaz")
+
+    try:
+        new_password = new_password.strip()
+        biz.password_hash = hash_password(new_password)
+        db.commit()
+        print(f"[Admin] Password changed for business {biz_id}")
+    except Exception as e:
+        print(f"[Admin] Password change error for business {biz_id}: {e}")
+        raise HTTPException(status_code=500, detail="Şifre değiştirilemedi")
+
     return RedirectResponse(f"/admin/business/{biz_id}", status_code=302)
 
 # ── SİSTEM DURUMU ─────────────────────────────────────────────────────────────
