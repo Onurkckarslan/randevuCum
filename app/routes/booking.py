@@ -210,9 +210,15 @@ async def book_appointment(
         formatted_date = f"{date_obj.day} {months_tr[date_obj.month - 1]} {date_obj.year}"
 
         # Telefon numarasını international format'a dönüştür (05... → +905...)
-        formatted_phone = customer_phone
+        formatted_phone = customer_phone.strip()
+        # Önce boşluk/çizgi/parantez temizle
+        formatted_phone = formatted_phone.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+        # Sonra format'la
         if formatted_phone.startswith("0"):
             formatted_phone = "+9" + formatted_phone
+        elif formatted_phone.startswith("+90"):
+            # Zaten +90 ile başlıyorsa dokunma
+            pass
         elif not formatted_phone.startswith("+"):
             formatted_phone = "+" + formatted_phone
 
@@ -232,11 +238,14 @@ async def book_appointment(
             f"{biz.name} için {formatted_date} {selected_time}'de {svc.name} randevunuz onaylandı.\n\n"
             f"Teşekkür ederiz! 😊"
         )
-        asyncio.create_task(send_whatsapp_message(
-            f"whatsapp:{formatted_phone}",
-            customer_message,
-            from_number=sender
-        ))
+        try:
+            await send_whatsapp_message(
+                f"whatsapp:{formatted_phone}",
+                customer_message,
+                from_number=sender
+            )
+        except Exception as e:
+            print(f"[BOOK] ❌ Müşteri WhatsApp hatası: {type(e).__name__}: {e}")
 
         # İşletme sahibine WhatsApp bildirim (sadece premium)
         if biz.plan == "premium" and biz.phone:
@@ -255,11 +264,14 @@ async def book_appointment(
                 f"Tarih: {formatted_date}\n"
                 f"Saat: {selected_time}"
             )
-            asyncio.create_task(send_whatsapp_message(
-                f"whatsapp:{owner_phone}",
-                business_message,
-                from_number=sender
-            ))
+            try:
+                await send_whatsapp_message(
+                    f"whatsapp:{owner_phone}",
+                    business_message,
+                    from_number=sender
+                )
+            except Exception as e:
+                print(f"[BOOK] ❌ İşletme WhatsApp hatası: {type(e).__name__}: {e}")
 
         # Get active products for this business
         products = db.query(Product).filter_by(business_id=biz.id, is_active=True).all()
