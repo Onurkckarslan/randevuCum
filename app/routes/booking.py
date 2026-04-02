@@ -47,11 +47,37 @@ async def cookie_policy(request: Request):
     return templates.TemplateResponse("cookie_policy.html", {"request": request})
 
 
+@router.get("/hakkimizda", response_class=HTMLResponse)
+async def about_us(request: Request):
+    return templates.TemplateResponse("hakkimizda.html", {"request": request})
+
+
+@router.get("/iletisim", response_class=HTMLResponse)
+async def contact(request: Request):
+    return templates.TemplateResponse("iletisim.html", {"request": request})
+
+
+@router.get("/kullanim-kosullari", response_class=HTMLResponse)
+async def terms_of_use(request: Request):
+    return templates.TemplateResponse("kullanim-kosullari.html", {"request": request})
+
+
+@router.get("/kvkk", response_class=HTMLResponse)
+async def privacy_policy(request: Request):
+    return templates.TemplateResponse("kvkk.html", {"request": request})
+
+
+@router.get("/iade-politikasi", response_class=HTMLResponse)
+async def refund_policy(request: Request):
+    return templates.TemplateResponse("iade-politikasi.html", {"request": request})
+
+
 @router.get("/{slug}", response_class=HTMLResponse)
 async def business_page(slug: str, request: Request, db: Session = Depends(get_db)):
     # Reserved routes — don't try to match as business slugs
     reserved = {"giris", "kayit", "cikis", "sifremi-unuttum", "sifremi-sifirla",
-                "admin", "panel", "personel", "isletmeler-icin", "api"}
+                "admin", "panel", "personel", "isletmeler-icin", "api",
+                "hakkimizda", "iletisim", "kullanim-kosullari", "kvkk", "iade-politikasi", "cerez-politikasi"}
     if slug.lower() in reserved:
         raise HTTPException(status_code=404, detail="Sayfa bulunamadı")
 

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Gizlilik ve KVKK Politikası — RandevuCum{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h1 class="mb-4" style="font-size:2rem;font-weight:900;color:#f1f0f5;">Gizlilik ve KVKK Politikası</h1>
+
+      <div class="card border-0" style="background:rgba(255,255,255,.04);backdrop-filter:blur(20px);padding:32px;border-radius:18px;border:1px solid rgba(255,255,255,.09);color:rgba(241,240,245,.85);line-height:1.8;">
+
+        <p><strong>Son Güncelleme: Nisan 2026</strong></p>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">1. Gizlilik Nedir?</h2>
+        <p>
+          RandevuCum, kullanıcılarının (işletme sahipleri ve müşterilerinin) kişisel verilerini koruma ve Türkiye Cumhuriyet Devleti'nin "Kişisel Verileri Koruma Kanunu" (KVKK) uygulamakta kararlıdır.
+        </p>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">2. Ne Gibi Veriler Toplanır?</h2>
+        <ul style="padding-left:20px;">
+          <li><strong>Hesap Bilgileri:</strong> Ad, soyad, email, telefon, adres</li>
+          <li><strong>İşletme Bilgileri:</strong> İşletme adı, kategori, fotoğraflar, açıklamalar</li>
+          <li><strong>Müşteri Bilgileri:</strong> Müşteri adı, telefon, randevu tarihi ve saati</li>
+          <li><strong>Ödeme Bilgileri:</strong> Abonelik planı, ödeme tarihleri (Kredi kartı numarası TOPLANMAZ)</li>
+          <li><strong>Teknik Veriler:</strong> IP adresi, tarayıcı bilgisi, kullanım istatistikleri</li>
+        </ul>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">3. Veriler Neden Toplanır?</h2>
+        <ul style="padding-left:20px;">
+          <li>Platformu sunmak ve iyileştirmek</li>
+          <li>WhatsApp bildirimleri göndermek</li>
+          <li>Faturalandırma ve ödeme işlemlerini yönetmek</li>
+          <li>Hukuki yükümlülükleri yerine getirmek</li>
+          <li>Sistem güvenliğini sağlamak</li>
+        </ul>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">4. Veriler Kime Açıklanır?</h2>
+        <p>
+          Kişisel verileriniz, aşağıdakiler dışında üçüncü taraflara açıklanmaz:
+        </p>
+        <ul style="padding-left:20px;">
+          <li><strong>Twilio:</strong> WhatsApp mesajları göndermek için (telefon numarası)</li>
+          <li><strong>SendGrid:</strong> Email göndermek için (email adresi)</li>
+          <li><strong>AWS:</strong> Veriler yedeklenmek için (şifreli)</li>
+          <li><strong>Yasal Zorunluluk:</strong> Mahkeme kararı veya resmi talep halinde</li>
+        </ul>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">5. Veriler Güvenli mi?</h2>
+        <p>
+          Evet. Verileriniz:
+        </p>
+        <ul style="padding-left:20px;">
+          <li>Şifreli veritabanında saklanır (bcrypt)</li>
+          <li>HTTPS/SSL ile aktarılır</li>
+          <li>AWS'de yedeklenir</li>
+          <li>Yetkisiz erişimden korunur</li>
+        </ul>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">6. Haklarınız Nelerdir?</h2>
+        <p>
+          KVKK kapsamında:
+        </p>
+        <ul style="padding-left:20px;">
+          <li>Verilerinize erişim hakkı</li>
+          <li>Verileri düzeltme hakkı</li>
+          <li>Verileri silme hakkı ("Unutulma Hakkı")</li>
+          <li>Verilerinizin kullanımını sınırlandırma hakkı</li>
+          <li>Verilerinizi başka tarafa aktarma hakkı</li>
+        </ul>
+        <p style="margin-top:12px;">
+          Bu hakları kullanmak için <a href="/iletisim" style="color:#34d399;text-decoration:none;">bize yazın</a>.
+        </p>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">7. Veri Saklama Süresi</h2>
+        <p>
+          Kişisel verileriniz:
+        </p>
+        <ul style="padding-left:20px;">
+          <li>Hesap aktif olduğu müddetçe saklanır</li>
+          <li>Hesap silinme talebinden 30 gün sonra silinir</li>
+          <li>Yasal zorunluluk varsa (vergi, muhasebe) belirlenen süre boyunca saklanır</li>
+        </ul>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">8. Çocuklara Dair</h2>
+        <p>
+          RandevuCum, 18 yaşından küçük kişilerden bilinçli olarak veri toplamaz. Eğer böyle bir durumla karşılaşırsak, bunu derhal sileriz.
+        </p>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">9. Politika Değişiklikleri</h2>
+        <p>
+          Bu politikayı gerektiğinde güncelleyebiliriz. Önemli değişiklikleri email ile bildireceğiz.
+        </p>
+
+        <h2 style="font-size:1.2rem;font-weight:800;color:#c4b5fd;margin-top:24px;margin-bottom:12px;">10. İletişim</h2>
+        <p>
+          Gizlilik hakkında soru veya endişe varsa, <a href="/iletisim" style="color:#34d399;text-decoration:none;">iletişim sayfamızı</a> ziyaret edin.
+        </p>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}İletişim — RandevuCum{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h1 class="mb-4" style="font-size:2rem;font-weight:900;color:#f1f0f5;">İletişim</h1>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+        <!-- İş Adresi -->
+        <div class="card border-0" style="background:rgba(255,255,255,.04);backdrop-filter:blur(20px);padding:28px;border-radius:18px;border:1px solid rgba(255,255,255,.09);">
+          <h3 style="font-size:1.1rem;font-weight:800;color:#c4b5fd;margin-bottom:16px;">📍 Adres</h3>
+          <p style="color:rgba(241,240,245,.8);line-height:1.8;">
+            Dikilitaş Mahallesi<br/>
+            Barbaros Cadesi 222/A<br/>
+            <span style="color:rgba(241,240,245,.6);">Türkiye</span>
+          </p>
+        </div>
+
+        <!-- Telefon -->
+        <div class="card border-0" style="background:rgba(255,255,255,.04);backdrop-filter:blur(20px);padding:28px;border-radius:18px;border:1px solid rgba(255,255,255,.09);">
+          <h3 style="font-size:1.1rem;font-weight:800;color:#c4b5fd;margin-bottom:16px;">📞 Telefon</h3>
+          <p style="color:rgba(241,240,245,.8);">
+            <a href="tel:+905444746368" style="color:#34d399;text-decoration:none;font-weight:600;">+90 544 474 6368</a><br/>
+            <span style="font-size:.85rem;color:rgba(241,240,245,.6);">Pazartesi-Cuma 09:00-18:00</span>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Email -->
+      <div class="card border-0" style="background:rgba(255,255,255,.04);backdrop-filter:blur(20px);padding:28px;border-radius:18px;border:1px solid rgba(255,255,255,.09);margin-top:24px;">
+        <h3 style="font-size:1.1rem;font-weight:800;color:#c4b5fd;margin-bottom:16px;">📧 E-Posta</h3>
+        <p style="color:rgba(241,240,245,.8);">
+          <a href="mailto:randevucum.noreply@gmail.com" style="color:#34d399;text-decoration:none;font-weight:600;">randevucum.noreply@gmail.com</a><br/>
+          <span style="font-size:.85rem;color:rgba(241,240,245,.6);">24 saat içinde cevap veririz</span>
+        </p>
+      </div>
+
+      <!-- İçerik -->
+      <div class="card border-0" style="background:rgba(255,255,255,.04);backdrop-filter:blur(20px);padding:28px;border-radius:18px;border:1px solid rgba(255,255,255,.09);margin-top:24px;">
+        <h3 style="font-size:1.1rem;font-weight:800;color:#c4b5fd;margin-bottom:16px;">💬 Bize Yazın</h3>
+        <p style="color:rgba(241,240,245,.8);line-height:1.8;">
+          <strong>Soru, önerinin veya şikayet:</strong><br/>
+          <a href="mailto:randevucum.noreply@gmail.com" style="color:#34d399;text-decoration:none;">randevucum.noreply@gmail.com</a>'a gönderebilirsiniz.<br/>
+          <br/>
+          <strong>Teknik destek:</strong><br/>
+          Sistem kullanımı sırasında sorun yaşıyorsanız, lütfen bize bildirin. En kısa sürede çözeceğiz.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
