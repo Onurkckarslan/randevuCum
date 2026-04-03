@@ -979,6 +979,7 @@ body::before {
   margin: 0 auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+}
 
   /* Custom scrollbar */
   scrollbar-width: thin;
@@ -1085,7 +1086,29 @@ body::before {
 /* Mobile: Larger carousel cards (2x size) */
 @media(max-width: 992px) {
   .biz-card {
-    flex: 0 0 600px !important;
+    flex: 0 0 700px !important;
+  }
+  .biz-card-cover-wrapper {
+    height: 320px !important;
+  }
+  .biz-card-logo-badge {
+    width: 120px !important;
+    height: 120px !important;
+  }
+}
+
+@media(max-width: 768px) {
+  .biz-card {
+    flex: 0 0 680px !important;
+  }
+  .biz-card-cover-wrapper {
+    height: 310px !important;
+  }
+}
+
+@media(max-width: 576px) {
+  .biz-card {
+    flex: 0 0 650px !important;
   }
   .biz-card-cover-wrapper {
     height: 300px !important;
@@ -1093,15 +1116,6 @@ body::before {
   .biz-card-logo-badge {
     width: 110px !important;
     height: 110px !important;
-  }
-}
-
-@media(max-width: 576px) {
-  .biz-card {
-    flex: 0 0 580px !important;
-  }
-  .biz-card-cover-wrapper {
-    height: 280px !important;
   }
 }
 </style>
@@ -1370,10 +1384,10 @@ body::before {
     </img>
   </div>
 
-  <!-- ═══ FEATURED CAROUSEL (DESKTOP) ═══ -->
+  <!-- ═══ FEATURED CAROUSEL (BOTH DESKTOP & MOBILE) ═══ -->
   {% if featured %}
-  <div style="display:none;margin:48px 0;padding:0 16px;position:relative;z-index:1;" class="d-md-block">
-    <p style="text-align:center;font-size:1.1rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:20px;letter-spacing:.5px;">✨ Öne Çıkan İşletmeler</p>
+  <div style="margin:48px 0;padding:0 16px;position:relative;z-index:1;">
+    <p style="text-align:center;font-size:2rem;font-weight:800;color:#ffffff;margin-bottom:24px;letter-spacing:-.5px;">✨ Öne Çıkan İşletmeler</p>
     <div class="biz-showcase">
       <div class="biz-track" id="bizTrackD">
         {% for b in featured %}
@@ -2539,6 +2553,44 @@ document.addEventListener('DOMContentLoaded', () => {
       track.innerHTML = html + html + html + html;
     }
   });
+
+  // ── Feature Carousel Auto-Scroll ──
+  const featGrid = document.querySelector('.feat-grid');
+  if (featGrid) {
+    let autoScrollInterval;
+    const cardWidth = 360 + 20; // card + gap
+    let scrollPos = 0;
+    const maxScroll = featGrid.scrollWidth / 2;
+
+    const startAutoScroll = () => {
+      autoScrollInterval = setInterval(() => {
+        scrollPos += 1.5;
+        if (scrollPos >= maxScroll) {
+          scrollPos = 0;
+        }
+        featGrid.scrollLeft = scrollPos;
+      }, 30);
+    };
+
+    const pauseAutoScroll = () => {
+      clearInterval(autoScrollInterval);
+    };
+
+    const resumeAutoScroll = () => {
+      pauseAutoScroll();
+      startAutoScroll();
+    };
+
+    startAutoScroll();
+
+    // Pause on user scroll
+    let userScrollTimeout;
+    featGrid.addEventListener('scroll', () => {
+      pauseAutoScroll();
+      clearTimeout(userScrollTimeout);
+      userScrollTimeout = setTimeout(resumeAutoScroll, 3000);
+    });
+  }
 });
 </script>
 {% endblock %}
