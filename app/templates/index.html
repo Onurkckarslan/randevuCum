@@ -771,26 +771,6 @@ body::before {
   box-sizing: border-box;
 }
 
-.biz-showcase::before,
-.biz-showcase::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 80px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.biz-showcase::before {
-  left: 0;
-  background: linear-gradient(to right, #13131a, transparent);
-}
-
-.biz-showcase::after {
-  right: 0;
-  background: linear-gradient(to left, #13131a, transparent);
-}
 
 .biz-track {
   display: flex;
@@ -1099,36 +1079,36 @@ body::before {
 /* Mobile: Larger carousel cards (2x size) */
 @media(max-width: 992px) {
   .biz-card {
-    flex: 0 0 700px !important;
+    flex: 0 0 800px !important;
   }
   .biz-card-cover-wrapper {
-    height: 320px !important;
+    height: 360px !important;
   }
   .biz-card-logo-badge {
-    width: 120px !important;
-    height: 120px !important;
+    width: 130px !important;
+    height: 130px !important;
   }
 }
 
 @media(max-width: 768px) {
   .biz-card {
-    flex: 0 0 680px !important;
+    flex: 0 0 800px !important;
   }
   .biz-card-cover-wrapper {
-    height: 310px !important;
+    height: 360px !important;
   }
 }
 
 @media(max-width: 576px) {
   .biz-card {
-    flex: 0 0 650px !important;
+    flex: 0 0 820px !important;
   }
   .biz-card-cover-wrapper {
-    height: 300px !important;
+    height: 380px !important;
   }
   .biz-card-logo-badge {
-    width: 110px !important;
-    height: 110px !important;
+    width: 135px !important;
+    height: 135px !important;
   }
 }
 </style>
