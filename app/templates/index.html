@@ -1076,39 +1076,32 @@ body::before {
   }
 }
 
-/* Mobile: Larger carousel cards (wider, shorter) */
-@media(max-width: 992px) {
-  .biz-card {
-    flex: 0 0 920px !important;
-  }
-  .biz-card-cover-wrapper {
-    height: 200px !important;
-  }
-  .biz-card-logo-badge {
-    width: 100px !important;
-    height: 100px !important;
-  }
+/* Mobile Featured Carousel Cards */
+.biz-card-mobile {
+  flex: 0 0 280px;
+  text-decoration: none;
+  color: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
-@media(max-width: 768px) {
-  .biz-card {
-    flex: 0 0 920px !important;
-  }
-  .biz-card-cover-wrapper {
-    height: 200px !important;
-  }
+.biz-card-mobile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.2);
 }
 
-@media(max-width: 576px) {
+/* Desktop carousel cards stay large */
+@media(min-width: 993px) {
   .biz-card {
-    flex: 0 0 950px !important;
-  }
-  .biz-card-cover-wrapper {
-    height: 220px !important;
-  }
-  .biz-card-logo-badge {
-    width: 105px !important;
-    height: 105px !important;
+    flex: 0 0 480px;
   }
 }
 </style>
@@ -1419,8 +1412,8 @@ body::before {
 
   <!-- ═══ FEATURED CAROUSEL (STANDALONE) ═══ -->
   {% if featured %}
-  <div style="padding:60px 16px;position:relative;z-index:1;">
-    <p style="text-align:center;font-size:1.2rem;font-weight:700;color:#ffffff;margin-bottom:24px;letter-spacing:0;">✨ Öne Çıkan İşletmeler</p>
+  <div style="padding:40px 16px 20px;position:relative;z-index:1;">
+    <p style="text-align:center;font-size:1rem;font-weight:600;color:#ffffff;margin-bottom:16px;letter-spacing:0;">✨ Öne Çıkan İşletmeler</p>
     <!-- DESKTOP -->
     <div class="biz-showcase d-md-block" style="display:none;">
       <div class="biz-track" id="bizTrackD">
@@ -1458,22 +1451,22 @@ body::before {
     </div>
     <!-- MOBILE -->
     <div class="biz-showcase d-md-none" style="width:100%;overflow:hidden;padding:0;">
-      <div class="biz-track" id="bizTrackM">
+      <div class="biz-track" id="bizTrackM" style="gap:12px;">
         {% for b in featured %}
         {% set cover_list = b.photos|selectattr("is_cover","equalto",true)|list %}
         {% set cover_photo = cover_list[0] if cover_list else (b.photos[0] if b.photos else none) %}
         {% set cover_url = cover_photo.s3_url if (cover_photo and cover_photo.s3_url) else none %}
-        <a href="/{{ b.slug }}" class="biz-card">
-          <div class="biz-card-cover-wrapper">
+        <a href="/{{ b.slug }}" class="biz-card-mobile">
+          <div class="biz-card-cover-wrapper" style="height:150px;">
             {% if cover_url %}
-              <img src="{{ cover_url }}" class="biz-card-cover" alt="{{ b.name }}">
+              <img src="{{ cover_url }}" class="biz-card-cover" alt="{{ b.name }}" style="height:150px;">
             {% else %}
-              <div class="biz-card-cover" style="background:linear-gradient(135deg, #5b21b6, #ec4899); display:flex; align-items:center; justify-content:center; font-size:3rem;">
+              <div class="biz-card-cover" style="height:150px;background:linear-gradient(135deg, #5b21b6, #ec4899); display:flex; align-items:center; justify-content:center; font-size:2.5rem;">
                 {% if b.category == 'kuafor' %}✂️{% elif b.category == 'berber' %}💇{% else %}🏢{% endif %}
               </div>
             {% endif %}
             <div class="biz-card-cover-overlay"></div>
-            <div class="biz-card-logo-badge">
+            <div class="biz-card-logo-badge" style="width:70px;height:70px;">
               {% if b.logo_url %}
                 <img src="{{ b.logo_url }}" class="biz-card-logo-img" alt="{{ b.name }}">
               {% else %}
@@ -1482,10 +1475,10 @@ body::before {
             </div>
             <div class="biz-cat-badge">{{ b.category|title }}</div>
           </div>
-          <div class="biz-card-body">
-            <div class="biz-card-name">{{ b.name }}</div>
-            <div class="biz-card-meta">{% if b.city %}📍 {{ b.city }}{% endif %}</div>
-            <button class="biz-card-cta">Randevu Al →</button>
+          <div class="biz-card-body" style="padding:10px 12px;">
+            <div class="biz-card-name" style="font-size:0.9rem;">{{ b.name }}</div>
+            <div class="biz-card-meta" style="font-size:0.75rem;">{% if b.city %}📍 {{ b.city }}{% endif %}</div>
+            <button class="biz-card-cta" style="font-size:0.8rem;padding:6px 10px;margin-top:6px;">Randevu Al →</button>
           </div>
         </a>
         {% endfor %}
