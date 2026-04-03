@@ -35,7 +35,9 @@ def generate_slots(open_time: str, close_time: str, duration: int, booked: list[
 @router.get("/", response_class=HTMLResponse)
 async def homepage(request: Request, db: Session = Depends(get_db)):
     businesses = db.query(Business).filter(Business.is_active == True).all()
-    featured = db.query(Business).filter(
+    featured = db.query(Business).options(
+        joinedload(Business.photos)
+    ).filter(
         Business.id.in_(FEATURED_IDS),
         Business.is_active == True
     ).all()
