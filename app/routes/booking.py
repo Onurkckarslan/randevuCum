@@ -13,6 +13,9 @@ import asyncio
 
 router = APIRouter()
 
+# ── Featured businesses for carousel (customize these IDs) ──
+FEATURED_IDS = [1, 2, 3, 4, 5, 6, 7]
+
 SLOT_INTERVAL = 60  # Dakika
 
 
@@ -32,8 +35,12 @@ def generate_slots(open_time: str, close_time: str, duration: int, booked: list[
 @router.get("/", response_class=HTMLResponse)
 async def homepage(request: Request, db: Session = Depends(get_db)):
     businesses = db.query(Business).filter(Business.is_active == True).all()
+    featured = db.query(Business).filter(
+        Business.id.in_(FEATURED_IDS),
+        Business.is_active == True
+    ).all()
     return templates.TemplateResponse("index.html", {
-        "request": request, "businesses": businesses
+        "request": request, "businesses": businesses, "featured": featured
     })
 
 
