@@ -967,120 +967,133 @@ body::before {
 /* ═══════════════════════════════════════════════════
    FEATURES GRID — ULTRA PREMIUM GLASSMORPHISM
 ═══════════════════════════════════════════════════ */
-/* Feature Grid as Horizontal Scroll Carousel */
+/* Bento Features Grid - Asymmetric */
 .feat-grid {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  padding: 0 16px 16px;
-  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(200px, auto);
+  gap: 16px;
+  max-width: 1200px;
   margin: 0 auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-
-  /* Custom scrollbar */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(124,58,237,.4) rgba(255,255,255,.05);
-}
-
-.feat-grid::-webkit-scrollbar {
-  height: 6px;
-}
-
-.feat-grid::-webkit-scrollbar-track {
-  background: rgba(255,255,255,.05);
-  border-radius: 10px;
-}
-
-.feat-grid::-webkit-scrollbar-thumb {
-  background: rgba(124,58,237,.5);
-  border-radius: 10px;
-}
-
-.feat-grid::-webkit-scrollbar-thumb:hover {
-  background: rgba(124,58,237,.7);
+  padding: 0;
 }
 
 .feat-card {
   position: relative;
-  padding: 40px 28px;
-  border-radius: 28px;
+  padding: 32px 28px;
+  border-radius: 24px;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.08);
   box-shadow: 0 8px 32px rgba(0,0,0,.3),
-              inset 0 1px 0 rgba(255,255,255,.1),
-              inset 0 -1px 0 rgba(0,0,0,.2);
+              inset 0 1px 0 rgba(255,255,255,.1);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: default;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex: 0 0 360px;
-  scroll-snap-align: start;
+}
+
+/* Grid column spans */
+.feat-card:nth-child(1) { grid-column: span 6; } /* 💬 WhatsApp */
+.feat-card:nth-child(2) { grid-column: span 6; } /* ⚡ 7/24 */
+.feat-card:nth-child(3) { grid-column: span 4; } /* 📊 Panel */
+.feat-card:nth-child(4) { grid-column: span 4; } /* 📦 Stok */
+.feat-card:nth-child(5) { grid-column: span 4; } /* 👥 Kadro */
+.feat-card:nth-child(6) { grid-column: span 3; } /* 📱 SMS */
+.feat-card:nth-child(7) { grid-column: span 3; } /* 📷 Fotoğraf */
+.feat-card:nth-child(8) { grid-column: span 3; } /* 📋 Müşteri */
+.feat-card:nth-child(9) { grid-column: span 3; } /* 🔒 Güvenli */
+
+/* Color variants */
+.feat-card:nth-child(1),
+.feat-card:nth-child(4),
+.feat-card:nth-child(7) {
+  border-color: rgba(124,58,237,.3);
+}
+.feat-card:nth-child(1):hover,
+.feat-card:nth-child(4):hover,
+.feat-card:nth-child(7):hover {
+  box-shadow: 0 0 40px rgba(124,58,237,.25), 0 8px 32px rgba(0,0,0,.3);
+  border-color: rgba(124,58,237,.5);
+}
+
+.feat-card:nth-child(2),
+.feat-card:nth-child(5),
+.feat-card:nth-child(8) {
+  border-color: rgba(236,72,153,.3);
+}
+.feat-card:nth-child(2):hover,
+.feat-card:nth-child(5):hover,
+.feat-card:nth-child(8):hover {
+  box-shadow: 0 0 40px rgba(236,72,153,.25), 0 8px 32px rgba(0,0,0,.3);
+  border-color: rgba(236,72,153,.5);
+}
+
+.feat-card:nth-child(3),
+.feat-card:nth-child(6),
+.feat-card:nth-child(9) {
+  border-color: rgba(6,182,212,.3);
+}
+.feat-card:nth-child(3):hover,
+.feat-card:nth-child(6):hover,
+.feat-card:nth-child(9):hover {
+  box-shadow: 0 0 40px rgba(6,182,212,.25), 0 8px 32px rgba(0,0,0,.3);
+  border-color: rgba(6,182,212,.5);
 }
 
 /* Icon styling */
 .feat-card > div:first-child {
-  font-size: 4rem !important;
+  font-size: 3.5rem !important;
   line-height: 1;
-  filter: drop-shadow(0 8px 24px rgba(124,58,237,.4));
   transition: all 0.4s ease;
-  animation: float 3s ease-in-out infinite;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+.feat-card:nth-child(1) > div:first-child {
+  filter: drop-shadow(0 8px 24px rgba(124,58,237,.4));
+}
+.feat-card:nth-child(2) > div:first-child {
+  filter: drop-shadow(0 8px 24px rgba(236,72,153,.4));
+}
+.feat-card:nth-child(3) > div:first-child,
+.feat-card:nth-child(6) > div:first-child,
+.feat-card:nth-child(9) > div:first-child {
+  filter: drop-shadow(0 8px 24px rgba(6,182,212,.4));
 }
 
 .feat-card:hover > div:first-child {
-  filter: drop-shadow(0 12px 32px rgba(124,58,237,.6));
-  transform: scale(1.15);
+  transform: scale(1.2);
 }
 
 /* Text styling */
 .feat-card > div:nth-child(2) {
-  font-size: 1.15rem !important;
+  font-size: 1.1rem !important;
   font-weight: 800 !important;
   color: #f1f0f5 !important;
   letter-spacing: -0.5px;
 }
 
 .feat-card > div:last-child {
-  font-size: 0.9rem !important;
+  font-size: 0.88rem !important;
   color: rgba(241,240,245,.65) !important;
   line-height: 1.6 !important;
 }
 
 .feat-card:hover {
-  background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
-  border-color: rgba(124,58,237,.4);
-  transform: translateY(-12px) rotateX(2deg);
-  box-shadow: 0 24px 64px rgba(124,58,237,.25),
-              0 0 40px rgba(124,58,237,.15),
-              inset 0 1px 0 rgba(255,255,255,.15);
+  background: rgba(255,255,255,.08);
+  transform: translateY(-4px);
 }
 
-.feat-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(600px at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                              rgba(124,58,237,.15), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  border-radius: 28px;
-}
-
-.feat-card:hover::before {
-  opacity: 1;
+@media(max-width:768px) {
+  .feat-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+  .feat-card {
+    grid-column: 1 !important;
+  }
 }
 
 /* Mobile: Larger carousel cards (2x size) */
@@ -1513,139 +1526,71 @@ body::before {
       </p>
     </div>
     <div class="feat-grid">
+      <!-- CARD 1: WhatsApp Bot (LARGE - 6 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">⚡</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">7/24 Anında Randevu</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">Müşterileriniz saat kaçta olursa olsun, istediği anda randevu alabilir. Gece yarısında bile, tatilinde bile... İşletme kapısı her zaman açık görünür. Telefonla saatlerce bekleme çilesi bitmiş olur. SMS ve WhatsApp ile anlık onay, hiçbir müşteri kaybı yaşamadan işletmenizi 24 saat açık tutun.</div>
+        <div style="font-size:3.5rem;margin-bottom:16px;">💬</div>
+        <div style="font-weight:800;color:#f1f0f5;margin-bottom:12px;font-size:1.3rem;">WhatsApp Bot Otomasyonu</div>
+        <div style="font-size:0.95rem;color:rgba(241,240,245,.65);line-height:1.7;">Müşteriler WhatsApp'tan yazarsa, AI bot otomatik olarak hizmet menüsünü gösterir. Müşteri ne istediğini seçer, uygun saatleri görür, randevu alır — tümü size hiç yer almadan. Gece, hafta sonu, tatilinde de müşteri randevu alabilir. İşletme başarısı uyurken de devam eder.</div>
       </div>
+
+      <!-- CARD 2: 7/24 Randevu (LARGE - 6 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">🔒</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">Güvenli & Ücretsiz</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">Kredi kartı istenmez, gizli ücret yoktur. Ücretsiz olarak başlayın, işletmeniz büyüdükçe istediğiniz pakete geçin. Müşteri verileriniz en yüksek güvenlik standartlarında korunur. KVKK, GDPR ve tüm gizlilik yasalarına tamamen uyumlu bir sistemde rahatlıkla çalışın.</div>
+        <div style="font-size:3.5rem;margin-bottom:16px;">⚡</div>
+        <div style="font-weight:800;color:#f1f0f5;margin-bottom:12px;font-size:1.3rem;">7/24 Anında Randevu</div>
+        <div style="font-size:0.95rem;color:rgba(241,240,245,.65);line-height:1.7;">Müşterileriniz saat kaçta olursa olsun, istediği anda randevu alabilir. Gece yarısında bile, tatilinde bile... İşletme kapısı her zaman açık görünür. Telefonla saatlerce bekleme çilesi bitmiş olur. SMS ve WhatsApp ile anlık onay.</div>
       </div>
+
+      <!-- CARD 3: Panel & İstatistik (4 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">👥</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">Kadro & Saatler</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">Tüm çalışanlarınızı sisteme ekleyin, şifre verin, onları bağımsız olarak çalışmasına izin verin. Her personelin çalışma saatlerini ayarlayın, hafta sonu ve tatil günlerini belirleyin. Otomatik olarak doğru personele randevu dağıtılır. Personel çakışması, yanlış atama artık geçmiş kalır.</div>
+        <div style="font-size:3rem;margin-bottom:12px;">📊</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:10px;font-size:1.05rem;">Panel & İstatistik</div>
+        <div style="font-size:0.88rem;color:rgba(241,240,245,.65);line-height:1.6;">Gerçek zamanlı dashboard sayesinde işletmenin nabzını her an hissedin. Hangi saatlerde müşteri yoğunluğu arttığını görün, analiz edin.</div>
       </div>
+
+      <!-- CARD 4: Stok Yönetimi (4 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">📦</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">Stok & Mali Takip</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">Ürün stoğunuzu gerçek zamanlı takip edin, bitmek üzere olan ürünler hakkında otomatik uyarı alın. Gelir ve giderleri detaylı olarak kaydedin, aylar bazında karşılaştırma yapın. Vergi danışmanınıza anında raporlar gönderin. İşletmenizin finansal sağlığı her zaman elinizin içinde.</div>
+        <div style="font-size:3rem;margin-bottom:12px;">📦</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:10px;font-size:1.05rem;">Stok & Ürün Yönetimi</div>
+        <div style="font-size:0.88rem;color:rgba(241,240,245,.65);line-height:1.6;">Ürün stoğunuzu gerçek zamanlı takip edin, bitmek üzere olan ürünler hakkında otomatik uyarı alın.</div>
       </div>
+
+      <!-- CARD 5: Kadro & Saatler (4 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">📊</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">Akıllı İstatistikler</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">Gerçek zamanlı dashboard sayesinde işletmenin nabzını her an hissedin. Hangi saatlerde müşteri yoğunluğu arttığını görün, hangi hizmetler en çok talep gördüğünü analiz edin. Müşteri tercihleri ve alışkanlıklarını öğrenin. Veri odaklı kararlar vererek işletmenizi büyütün.</div>
+        <div style="font-size:3rem;margin-bottom:12px;">👥</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:10px;font-size:1.05rem;">Kadro & Çalışma Saatleri</div>
+        <div style="font-size:0.88rem;color:rgba(241,240,245,.65);line-height:1.6;">Tüm çalışanlarınızı ekleyin, saatlerini ayarlayın. Otomatik olarak doğru personele randevu dağıtılır.</div>
       </div>
+
+      <!-- CARD 6: SMS Hatırlatma (3 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">📱</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">SMS Hatırlatması</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">Randevu günü, randevu saatinden 2 saat öncesinde müşteriye otomatik hatırlatma SMS'i gönderilir. No-show oranlarını %70'e kadar azaltın. Müşterilerin unutması nedeniyle kaybettiğiniz geliri kurtarın. Tüm hatırlatmalar otomatik, elinize iş kalmaz.</div>
+        <div style="font-size:2.8rem;margin-bottom:10px;">📱</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:0.95rem;">SMS Hatırlatması</div>
+        <div style="font-size:0.82rem;color:rgba(241,240,245,.65);line-height:1.6;">Otomatik hatırlatma SMS'i, no-show oranını %70 azaltır.</div>
       </div>
+
+      <!-- CARD 7: Fotoğraf Galerisi (3 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">📷</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">Fotoğraf Vitrini</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">İşletmenizin en güzel fotoğraflarını yükleyin - kesim sonrası, mekan görüntüleri, mutlu müşteriler. Potansiyel müşteriler randevu almadan önce işletmenizi görsün, güven duygusu gelişsin. Profesyonel fotoğraf vitrini, müşteri kazanmanızın ilk adımıdır.</div>
+        <div style="font-size:2.8rem;margin-bottom:10px;">📷</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:0.95rem;">Fotoğraf Galerisi</div>
+        <div style="font-size:0.82rem;color:rgba(241,240,245,.65);line-height:1.6;">İşletme fotoğraflarını yükleyin, müşterilere güven duygusu verin.</div>
       </div>
+
+      <!-- CARD 8: Müşteri Geçmişi (3 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">📋</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">Müşteri Geçmişi</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">Her müşterinin tüm randevu geçmişini, aldığı hizmetleri, tercih ve alerjilerini kaydedin. Sonraki ziyarette hemen hatırlayın, kişiselleştirilmiş hizmet sunun. Müşteri sadakati otomatik olarak artar. Uzun süreli müşteri ilişkileri kurun.</div>
+        <div style="font-size:2.8rem;margin-bottom:10px;">📋</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:0.95rem;">Müşteri Geçmişi & Tercihler</div>
+        <div style="font-size:0.82rem;color:rgba(241,240,245,.65);line-height:1.6;">Her müşterinin randevu geçmişini, tercihlerini ve alerjilerini kaydedin.</div>
       </div>
+
+      <!-- CARD 9: Güvenli & Ücretsiz (3 cols) -->
       <div class="feat-card">
-        <div style="font-size:2.5rem;margin-bottom:16px;">💬</div>
-        <div style="font-weight:700;color:#f1f0f5;margin-bottom:12px;font-size:1.05rem;">WhatsApp Otomasyon</div>
-        <div style="font-size:.9rem;color:rgba(241,240,245,.65);line-height:1.7;">Müşteri WhatsApp yazarsa, AI bot otomatik olarak hizmet menüsünü gösterir. Müşteri ne istediğini seçer, uygun saatleri görür, randevu alır - tüm bu size hiç yer almadan. Gece, hafta sonu, tatilinde de müşteri randevu alabilir. İşletme başarısı uyurken de devam eder.</div>
+        <div style="font-size:2.8rem;margin-bottom:10px;">🔒</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:0.95rem;">Güvenli & Ücretsiz</div>
+        <div style="font-size:0.82rem;color:rgba(241,240,245,.65);line-height:1.6;">KVKK uyumlu, SSL şifreli. Kredi kartı istenmez, gizli ücret yoktur.</div>
       </div>
     </div>
   </div>
 
-  <!-- CSS animations -->
-  <style>
-    @keyframes pulseGlow {
-      0%, 100% {
-        box-shadow: 0 0 80px rgba(124,58,237,.2),
-                    0 0 0 1px rgba(255,255,255,.08),
-                    inset 0 1px 0 rgba(255,255,255,.1);
-      }
-      50% {
-        box-shadow: 0 0 100px rgba(124,58,237,.35),
-                    0 0 0 1px rgba(255,255,255,.12),
-                    inset 0 1px 0 rgba(255,255,255,.15);
-      }
-    }
-
-    @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    /* Hover state for outer container */
-    @media(hover:hover) {
-      div[style*="pulseGlow"]:hover {
-        box-shadow: 0 0 120px rgba(124,58,237,.4),
-                    0 0 0 1px rgba(236,72,153,.2),
-                    inset 0 1px 0 rgba(255,255,255,.15);
-        transform: translateY(-8px);
-      }
-    }
-  </style>
-
-  <div class="bento">
-    <!-- KART 1 -->
-    <div class="bento-card bc1 reveal reveal-left" onmousemove="trackMouse(event,this)">
-      <div class="bento-icon" style="background:rgba(124,58,237,.15);">⚡</div>
-      <div class="bento-title" style="font-size:1.5rem;letter-spacing:-.5px;">7/24 Anında Randevu</div>
-      <div class="bento-desc" style="max-width:380px;">Gece yarısı bile randevu alabilirsiniz. Telefon bekleme yok, kuyruk yok. Sadece tıkla, randevunu al, SMS ile onayla.</div>
-      <!-- mini mockup -->
-      <div class="sms-preview">
-        <div style="font-size:.7rem;color:var(--muted);margin-bottom:8px;">📱 SMS Onayı</div>
-        <div class="sms-bubble">✅ Randevunuz onaylandı! Onur Berber — 14.03.2026 saat 14:00</div>
-      </div>
-    </div>
-    <!-- KART 2 -->
-    <div class="bento-card bc2 reveal reveal-left reveal-delay-1" onmousemove="trackMouse(event,this)">
-      <div class="bento-icon" style="background:rgba(236,72,153,.12);">🔒</div>
-      <div class="bento-title">Güvenli & Ücretsiz</div>
-      <div class="bento-desc">İşletmeler için temel paket tamamen ücretsiz. Kredi kartı gerekmez, kurulum yok, sözleşme yok.</div>
-      <div style="margin-top:20px;">
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
-          <span style="color:#34d399;font-size:.9rem;">✓</span><span style="font-size:.85rem;color:var(--muted);">SSL şifreleme</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
-          <span style="color:#34d399;font-size:.9rem;">✓</span><span style="font-size:.85rem;color:var(--muted);">KVKK uyumlu</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <span style="color:#34d399;font-size:.9rem;">✓</span><span style="font-size:.85rem;color:var(--muted);">Sınırsız randevu</span>
-        </div>
-      </div>
-    </div>
-    <!-- KART 3 -->
-    <div class="bento-card bc3 reveal reveal-left reveal-delay-2" onmousemove="trackMouse(event,this)">
-      <div class="bento-icon" style="background:rgba(6,182,212,.12);">📊</div>
-      <div class="bento-title">Panel & İstatistik</div>
-      <div class="bento-desc" style="font-size:.82rem;">Randevularınızı, personeli ve çalışma saatlerini tek panelden yönetin.</div>
-    </div>
-    <!-- KART 4 -->
-    <div class="bento-card bc4 reveal reveal-left reveal-delay-1" onmousemove="trackMouse(event,this)">
-      <div class="bento-icon" style="background:rgba(16,185,129,.12);">💬</div>
-      <div class="bento-title">SMS Hatırlatma</div>
-      <div class="bento-desc" style="font-size:.82rem;">Randevu onayı + 1 gün önce + 2 saat önce otomatik SMS.</div>
-    </div>
-    <!-- KART 5 -->
-    <div class="bento-card bc5 reveal reveal-left reveal-delay-3" onmousemove="trackMouse(event,this)">
-      <div class="bento-icon" style="background:rgba(245,158,11,.12);">🎨</div>
-      <div class="bento-title">Fotoğraf Galerisi</div>
-      <div class="bento-desc" style="font-size:.82rem;">Salonunuzun fotoğraflarını yükleyin, müşterileri etkileyin.</div>
-    </div>
-  </div>
 </div>
 </section>
 <!-- ═══ FİYATLANDIRMA ═══ -->
