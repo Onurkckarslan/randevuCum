@@ -51,6 +51,10 @@ async def lifespan(app: FastAPI):
                 db.execute(text("ALTER TABLE businesses ADD COLUMN whatsapp_enabled BOOLEAN DEFAULT FALSE"))
             if "whatsapp_phone" not in cols:
                 db.execute(text("ALTER TABLE businesses ADD COLUMN whatsapp_phone VARCHAR(20)"))
+            if "business_code" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN business_code VARCHAR(6) UNIQUE"))
+            if "logo_url" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN logo_url VARCHAR(500)"))
 
         # ── Create customer_profiles if not exists ──
         if "customer_profiles" not in inspector.get_table_names():
