@@ -766,6 +766,9 @@ body::before {
   position: relative;
   overflow: hidden;
   padding: 0 0 8px;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 .biz-showcase::before,
@@ -795,6 +798,8 @@ body::before {
   width: max-content;
   animation: bizScroll 40s linear infinite;
   will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .biz-track:hover {
@@ -1284,7 +1289,7 @@ body::before {
 
       <!-- ═══ FEATURED CAROUSEL (MOBILE) ═══ -->
       {% if featured %}
-      <div class="biz-showcase" style="margin:16px 0;margin-left:-16px;margin-right:-16px;padding:0 16px;">
+      <div class="biz-showcase" style="margin:16px 0;margin-left:-16px;margin-right:-16px;padding:0 16px;overflow:hidden;">
         <div class="biz-track" id="bizTrackM">
           {% for b in featured %}
           {% set cover_list = b.photos|selectattr("is_cover","equalto",true)|list %}
