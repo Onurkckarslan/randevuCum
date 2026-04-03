@@ -56,6 +56,18 @@ async def lifespan(app: FastAPI):
             if "logo_url" not in cols:
                 db.execute(text("ALTER TABLE businesses ADD COLUMN logo_url VARCHAR(500)"))
 
+            # ── Auto-assign business_code to NULL entries ──
+            import random, string
+            def generate_unique_code():
+                while True:
+                    code = ''.join(random.choices(string.digits, k=6))
+                    if not db.query(Business).filter(Business.business_code == code).first():
+                        return code
+
+            null_businesses = db.query(Business).filter(Business.business_code == None).all()
+            for biz in null_businesses:
+                biz.business_code = generate_unique_code()
+
         # ── Create customer_profiles if not exists ──
         if "customer_profiles" not in inspector.get_table_names():
             db.execute(text("""
