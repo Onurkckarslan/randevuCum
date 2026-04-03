@@ -796,7 +796,7 @@ body::before {
   display: flex;
   gap: 20px;
   width: max-content;
-  animation: bizScroll 40s linear infinite;
+  animation: bizScroll 60s linear infinite;
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -808,7 +808,7 @@ body::before {
 
 @keyframes bizScroll {
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  to   { transform: translateX(calc(-100% * 2 / 3)); }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -816,7 +816,7 @@ body::before {
 ═══════════════════════════════════════════════════ */
 
 .biz-card {
-  flex: 0 0 280px;
+  flex: 0 0 320px;
   text-decoration: none;
   color: #fff;
   border-radius: 24px;
@@ -2438,8 +2438,9 @@ document.addEventListener('DOMContentLoaded', () => {
   ['bizTrackM', 'bizTrackD'].forEach(trackId => {
     const track = document.getElementById(trackId);
     if (track) {
-      // Double content for seamless infinite loop
-      track.innerHTML = track.innerHTML + track.innerHTML;
+      // Triple content for seamless infinite loop (3x for proper tiling)
+      const html = track.innerHTML;
+      track.innerHTML = html + html + html;
     }
   });
 });
