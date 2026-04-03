@@ -1457,7 +1457,7 @@ body::before {
       </div>
     </div>
     <!-- MOBILE -->
-    <div class="biz-showcase d-md-none" style="margin:0;margin-left:-16px;margin-right:-16px;padding:0 16px;overflow:hidden;">
+    <div class="biz-showcase d-md-none" style="width:100%;overflow:hidden;padding:0;">
       <div class="biz-track" id="bizTrackM">
         {% for b in featured %}
         {% set cover_list = b.photos|selectattr("is_cover","equalto",true)|list %}
