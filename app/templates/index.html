@@ -967,12 +967,40 @@ body::before {
 /* ═══════════════════════════════════════════════════
    FEATURES GRID — ULTRA PREMIUM GLASSMORPHISM
 ═══════════════════════════════════════════════════ */
+/* Feature Grid as Horizontal Scroll Carousel */
 .feat-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 20px;
-  max-width: 1200px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  padding: 0 16px 16px;
+  max-width: 100%;
   margin: 0 auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124,58,237,.4) rgba(255,255,255,.05);
+}
+
+.feat-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.feat-grid::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.05);
+  border-radius: 10px;
+}
+
+.feat-grid::-webkit-scrollbar-thumb {
+  background: rgba(124,58,237,.5);
+  border-radius: 10px;
+}
+
+.feat-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(124,58,237,.7);
 }
 
 .feat-card {
@@ -992,6 +1020,8 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 0 0 360px;
+  scroll-snap-align: start;
 }
 
 /* Icon styling */
@@ -1052,29 +1082,26 @@ body::before {
   opacity: 1;
 }
 
+/* Mobile: Larger carousel cards (2x size) */
 @media(max-width: 992px) {
-  .feat-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+  .biz-card {
+    flex: 0 0 600px !important;
   }
-  .feat-card {
-    padding: 32px 24px;
+  .biz-card-cover-wrapper {
+    height: 300px !important;
   }
-  .feat-card > div:first-child {
-    font-size: 3.5rem !important;
+  .biz-card-logo-badge {
+    width: 110px !important;
+    height: 110px !important;
   }
 }
 
 @media(max-width: 576px) {
-  .feat-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
+  .biz-card {
+    flex: 0 0 580px !important;
   }
-  .feat-card {
-    padding: 28px 20px;
-  }
-  .feat-card > div:first-child {
-    font-size: 3rem !important;
+  .biz-card-cover-wrapper {
+    height: 280px !important;
   }
 }
 </style>
@@ -1475,9 +1502,9 @@ body::before {
     </div>
   </div>
 
-  <!-- ═══ GELİŞMİŞ ÖZELLİKLER GRID ═══ -->
-  <div style="padding:80px 16px;max-width:1400px;margin:0 auto;">
-    <div class="text-center mb-5 reveal">
+  <!-- ═══ GELİŞMİŞ ÖZELLİKLER CAROUSEL ═══ -->
+  <div style="padding:80px 16px;">
+    <div class="text-center mb-5 reveal" style="max-width:1400px;margin-left:auto;margin-right:auto;">
       <p style="font-size:.8rem;font-weight:700;letter-spacing:.12em;color:#a78bfa;">GELİŞMİŞ ÖZELLİKLER</p>
       <h2 style="font-size:2.2rem;font-weight:800;letter-spacing:-1px;color:var(--text);margin-bottom:8px;">
         İşletmenizi Zirveye <span class="grad-text">Taşıyacak</span> Araçlar
