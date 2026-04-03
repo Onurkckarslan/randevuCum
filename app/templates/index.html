@@ -963,6 +963,51 @@ body::before {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(124, 58, 237, 0.6);
 }
+
+/* ═══════════════════════════════════════════════════
+   FEATURES GRID (GELİŞMİŞ ÖZELLİKLER)
+═══════════════════════════════════════════════════ */
+.feat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 28px 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: default;
+}
+
+.feat-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(124, 58, 237, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(124, 58, 237, 0.15);
+}
+
+@media(max-width: 992px) {
+  .feat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media(max-width: 576px) {
+  .feat-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .feat-card {
+    padding: 20px 16px;
+  }
+}
 </style>
 {% endblock %}
 
@@ -1357,6 +1402,66 @@ body::before {
                onmouseout="this.style.transform='scale(1)';this.style.filter='brightness(1) saturate(1)';">
           </img>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GELİŞMİŞ ÖZELLİKLER GRID ═══ -->
+  <div style="padding:80px 16px;max-width:1400px;margin:0 auto;">
+    <div class="text-center mb-5 reveal">
+      <p style="font-size:.8rem;font-weight:700;letter-spacing:.12em;color:#a78bfa;">GELİŞMİŞ ÖZELLİKLER</p>
+      <h2 style="font-size:2.2rem;font-weight:800;letter-spacing:-1px;color:var(--text);margin-bottom:8px;">
+        İşletmenizi Zirveye <span class="grad-text">Taşıyacak</span> Araçlar
+      </h2>
+      <p style="font-size:1rem;color:rgba(241,240,245,.6);max-width:600px;margin:0 auto;">
+        Tüm işletme yönetimi için gereken araçlar, tek platformda
+      </p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">⚡</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">7/24 Anında Randevu</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">Gece yarısı bile randevu alabilirsiniz. Telefonla bekleme yok, SMS ile onayla.</div>
+      </div>
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">🔒</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">Güvenli & Ücretsiz</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">Ücretsiz başlayın, güvenli altyapı ve KVKK uyumlu verisi yönetimi.</div>
+      </div>
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">👥</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">Uzman Kadro Yönetimi</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">Personel ekleyin, çalışma saatleri ayarlayın, randevuları dağıtın.</div>
+      </div>
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">📦</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">Stok & Finansal Takip</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">Ürün stoku yönetin, gelir-gider takibi yapın, mali raporlar alın.</div>
+      </div>
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">📊</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">Detaylı İstatistikler</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">Gerçek zamanlı dashboard, randevu analizleri, müşteri verileriniz.</div>
+      </div>
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">📱</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">Otomatik SMS Hatırlatma</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">Müşterilere otomatik hatırlatma gönderin, kayıpları azaltın.</div>
+      </div>
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">📷</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">Fotoğraf Galerisi</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">İşletme fotoğraflarını yükleyin, müşterilere vitrin oluşturun.</div>
+      </div>
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">📋</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">Randevu Defteri</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">Detaylı randevu geçmişi, notlar, müşteri tercihlerini kaydedin.</div>
+      </div>
+      <div class="feat-card">
+        <div style="font-size:2.5rem;margin-bottom:16px;">💬</div>
+        <div style="font-weight:700;color:#f1f0f5;margin-bottom:8px;font-size:1.05rem;">WhatsApp Bot</div>
+        <div style="font-size:.85rem;color:rgba(241,240,245,.6);line-height:1.5;">Otomatik bot ile 7/24 müşteri sorularını yanıtlayın, randevu alın.</div>
       </div>
     </div>
   </div>
