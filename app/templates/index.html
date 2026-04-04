@@ -1721,8 +1721,8 @@ body::before {
 <style>
 /* ── Pricing Cards ── */
 .pricing-wrap {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
-  max-width: 860px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  max-width: 1200px; margin: 0 auto;
 }
 .pricing-box {
   background: rgba(18,12,30,.8);
@@ -1801,8 +1801,84 @@ body::before {
   box-shadow: 0 8px 32px rgba(124,58,237,.6);
   transform: translateY(-2px);
 }
+
+/* ── Premium Pro (Ultra) ── */
+.pricing-box.ultra {
+  border: 2px solid;
+  border-image: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4, #7c3aed) 1;
+  background: rgba(124,58,237,.12);
+  box-shadow: 0 0 80px rgba(124,58,237,.25),
+              0 0 40px rgba(236,72,153,.15),
+              inset 0 1px 0 rgba(255,255,255,.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  transform: scaleY(1.05);
+  position: relative;
+  animation: ultraGlow 3s ease-in-out infinite;
+}
+
+@keyframes ultraGlow {
+  0%, 100% {
+    box-shadow: 0 0 60px rgba(124,58,237,.2),
+                0 0 30px rgba(236,72,153,.1),
+                inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  50% {
+    box-shadow: 0 0 100px rgba(124,58,237,.35),
+                0 0 60px rgba(236,72,153,.25),
+                inset 0 1px 0 rgba(255,255,255,.15);
+  }
+}
+
+.pricing-box.ultra::before {
+  content: '✨ EN GELİŞMİŞ';
+  position: absolute; top: 18px; right: -28px;
+  background: linear-gradient(135deg, #ec4899, #06b6d4);
+  color: white; font-size: .65rem; font-weight: 800;
+  padding: 5px 40px; transform: rotate(38deg);
+  letter-spacing: .08em; z-index: 2;
+  box-shadow: 0 0 20px rgba(236,72,153,.6);
+}
+
+.pricing-box.ultra:hover {
+  transform: scaleY(1.08) translateY(-10px);
+  box-shadow: 0 0 120px rgba(124,58,237,.4),
+              0 0 60px rgba(236,72,153,.3),
+              inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+.pricing-box.ultra .pricing-btn {
+  background: linear-gradient(135deg, #ec4899, #7c3aed, #06b6d4);
+  background-size: 200% auto;
+  border-color: transparent;
+  box-shadow: 0 0 30px rgba(236,72,153,.4),
+              0 4px 20px rgba(124,58,237,.4);
+  animation: ultraBtn 2s ease infinite;
+}
+
+@keyframes ultraBtn {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+.pricing-box.ultra .pricing-btn:hover {
+  box-shadow: 0 0 50px rgba(236,72,153,.6),
+              0 8px 40px rgba(124,58,237,.5);
+  transform: translateY(-3px);
+}
+
+.pricing-box.ultra .pricing-name {
+  color: #f1f0f5;
+  background: linear-gradient(135deg, #ec4899, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 @media(max-width: 640px) {
   .pricing-wrap { grid-template-columns: 1fr; }
+  .pricing-box.ultra { transform: scaleY(1.02); }
+  .pricing-box.ultra:hover { transform: scaleY(1.04) translateY(-8px); }
 }
 
 /* ── Salon List Cards ── */
@@ -2049,10 +2125,11 @@ body::before {
       <div class="pricing-period">/ aylık · KDV dahil</div>
       <div class="pricing-divider"></div>
       <ul class="pricing-features">
-        <li>Limitsiz Randevu Sistemi</li>
-        <li>Online Randevu Sistemi</li>
-        <li>Özel QR Kod</li>
-        <li>Özel Müşteri Temsilcisi</li>
+        <li>📊 Max 1 Personel Kaydı</li>
+        <li>📅 Aylık 100 Randevu</li>
+        <li>💬 Online Randevu Sistemi</li>
+        <li>🔗 Özel QR Kod</li>
+        <li>👤 Özel Müşteri Temsilcisi</li>
       </ul>
       <a href="/kayit" class="pricing-btn">Hemen Başla →</a>
     </div>
@@ -2062,22 +2139,46 @@ body::before {
       <div class="pricing-name">Premium</div>
       <div class="pricing-free">✓ ilk 15 gün ücretsiz</div>
       <div class="pricing-amount">
-        <span class="pricing-num">899</span>
+        <span class="pricing-num">999</span>
         <span class="pricing-currency">₺</span>
       </div>
       <div class="pricing-period">/ aylık · KDV dahil</div>
       <div class="pricing-divider"></div>
       <ul class="pricing-features">
-        <li>Limitsiz Randevu Sistemi</li>
-        <li>Online Randevu Sistemi</li>
-        <li>Özel QR Kod</li>
-        <li>Özel Müşteri Temsilcisi</li>
-        <li>SMS Bildirim Sistemi</li>
-        <li>Muhasebe Kaydı</li>
-        <li>Sınırsız Personel Kaydı</li>
-        <li>Gelişmiş Personel Yetki Sistemi</li>
+        <li>👥 Max 3 Personel Kaydı</li>
+        <li>📅 Aylık 300 Randevu</li>
+        <li>💬 Online Randevu Sistemi</li>
+        <li>📱 SMS Bildirim Sistemi</li>
+        <li>📊 Muhasebe Kaydı</li>
+        <li>🔐 Gelişmiş Personel Yetki</li>
+        <li>⏰ Haftasonı/Tatil Yönetimi</li>
+        <li>🎯 Müşteri Analiz Raporları</li>
       </ul>
       <a href="/kayit" class="pricing-btn">Premium'a Geç →</a>
+    </div>
+
+    <!-- PREMIUM PRO (ULTRA) -->
+    <div class="pricing-box ultra reveal reveal-left reveal-delay-2">
+      <div class="pricing-label">PREMIUM PRO PAKET</div>
+      <div class="pricing-name">Premium Pro</div>
+      <div class="pricing-free">✓ ilk 30 gün ücretsiz</div>
+      <div class="pricing-amount">
+        <span class="pricing-num">1499</span>
+        <span class="pricing-currency">₺</span>
+      </div>
+      <div class="pricing-period">/ aylık · KDV dahil</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>👥 ∞ Sınırsız Personel</li>
+        <li>📅 ∞ Sınırsız Randevu</li>
+        <li>💬 WhatsApp Bot Entegrasyonu</li>
+        <li>🤖 AI Müşteri Hizmetleri</li>
+        <li>📊 Gelişmiş İstatistikler & Analiz</li>
+        <li>🎯 Müşteri Segmentasyonu</li>
+        <li>⚡ Öncelikli Teknik Destek</li>
+        <li>🔐 Gelişmiş Güvenlik Özellikleri</li>
+      </ul>
+      <a href="/kayit" class="pricing-btn">Pro'ya Geçiş Yap ★</a>
     </div>
   </div>
 </div>
