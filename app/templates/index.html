@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block title %}RandevuCum — Online Randevu Sistemi{% endblock %}
+{% block seo_description %}RandevuCum - Kuaför, berber, güzellik, SPA ve daha pek çok hizmet için online randevu sistemi. Türkiye'nin en gelişmiş platformu.{% endblock %}
+{% block og_title %}RandevuCum — Online Randevu Sistemi{% endblock %}
+{% block og_description %}Kuaför, berber, güzellik, SPA ve diğer hizmetler için online randevu al. Türkiye'nin en güvenli ve hızlı randevu platformu.{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -2288,7 +2291,7 @@ body::before {
                style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 14px;color:var(--text);font-size:.85rem;width:180px;"
                placeholder="Yeniden ara..." onkeydown="if(event.key==='Enter'){ hsSvc.value=this.value; doHeroSearch(); }">
         <button class="qs-btn" style="width:auto;padding:8px 16px;font-size:.82rem;border-radius:10px;"
-                onclick="hsSvc.value=document.getElementById('rpSearchInput').value; doHeroSearch()">Ara →</button>
+                onclick="const inp=document.getElementById('rpSearchInput'); if(inp && hsSvc) { hsSvc.value=inp.value; doHeroSearch(); }">Ara →</button>
       </div>
     </div>
 
@@ -2356,12 +2359,14 @@ function buildScItem(icon, label, onClick) {
   return d;
 }
 function closeScDrops() {
-  document.getElementById('scCityDrop').classList.remove('show');
+  const el = document.getElementById('scCityDrop');
+  if (el) el.classList.remove('show');
 }
 
 const scCityEl = document.getElementById('scCity');
 const scCityDrop = document.getElementById('scCityDrop');
 function updateScCityDrop() {
+  if (!scCityEl) return;
   const v = scCityEl.value.toLowerCase();
   scCityDrop.innerHTML = '';
   const hits = scCityList.filter(d => d.label.toLowerCase().includes(v) || v === '');
@@ -2381,7 +2386,9 @@ document.addEventListener('click', e => {
 // Kategori → URL map (slug → /kategori/slug)
 function doScSearch() {
   closeScDrops();
-  const kat  = document.getElementById('scKat').value.trim();
+  const katEl = document.getElementById('scKat');
+  if (!katEl || !scCityEl) return;
+  const kat  = katEl.value.trim();
   const city = scCityEl.value.trim();
 
   // Kategori seçildiyse direkt o sayfaya git
@@ -2406,7 +2413,8 @@ const observer = new IntersectionObserver(entries => {
   rootMargin: '0px 0px -50px 0px'
 });
 // Tüm reveal varyasyonlarını observe et (.reveal, .reveal-left, .reveal-right, vb.)
-document.querySelectorAll('[class*="reveal"]').forEach(el => observer.observe(el));
+const revealEls = document.querySelectorAll('[class*="reveal"]');
+if (revealEls) revealEls.forEach(el => observer.observe(el));
 
 // ── BENTO MOUSE GLOW ───────────────────────────
 function trackMouse(e, card) {
@@ -2419,7 +2427,9 @@ function trackMouse(e, card) {
 
 // ── MAGNETIC HOVER — btn-glow + hs-btn ────────
 function applyMagnetic(selector, strength) {
-  document.querySelectorAll(selector).forEach(btn => {
+  const elements = document.querySelectorAll(selector);
+  if (!elements.length) return;
+  elements.forEach(btn => {
     btn.addEventListener('mousemove', e => {
       const r = btn.getBoundingClientRect();
       const x = (e.clientX - r.left - r.width  / 2) * strength;
@@ -2489,6 +2499,7 @@ function buildDrop(icon, label, onClick) {
 const hsSvcEl    = document.getElementById('hsSvc');
 const hsSvcDrop  = document.getElementById('hsSvcDrop');
 function updateSvcDrop() {
+  if (!hsSvcEl || !hsSvcDrop) return;
   const v = hsSvcEl.value.toLowerCase();
   hsSvcDrop.innerHTML = '';
   const hits = serviceList.filter(s => s.label.toLowerCase().includes(v) || v === '');
@@ -2505,6 +2516,7 @@ hsSvcEl.addEventListener('focus', updateSvcDrop);
 const hsCityEl   = document.getElementById('hsCity');
 const hsCityDrop = document.getElementById('hsCityDrop');
 function updateCityDrop() {
+  if (!hsCityEl || !hsCityDrop) return;
   const v = hsCityEl.value.toLowerCase();
   hsCityDrop.innerHTML = '';
   const hits = districtList.filter(d => d.label.toLowerCase().includes(v) || v === '');
@@ -2556,6 +2568,7 @@ function doHeroSearch() {
 
   // Landing blur + fade out
   const landing = document.getElementById('landing');
+  if (!landing) return;
   landing.style.transition = 'opacity .3s ease, transform .3s ease, filter .3s ease';
   landing.style.opacity    = '0';
   landing.style.transform  = 'scale(.98) translateY(-8px)';
@@ -2565,16 +2578,23 @@ function doHeroSearch() {
     landing.style.display = 'none';
 
     const rp = document.getElementById('searchResultsPage');
+    const rpTitle = document.getElementById('rpTitle');
+    const rpMeta = document.getElementById('rpMeta');
+    const rpLoading = document.getElementById('rpLoading');
+    const rpGrid = document.getElementById('rpGrid');
+
+    if (!rp || !rpTitle || !rpMeta || !rpLoading || !rpGrid) return;
+
     rp.style.display = 'block';
-    document.getElementById('rpTitle').textContent = title;
-    document.getElementById('rpMeta').textContent  = `${results.length} işletme bulundu`;
-    document.getElementById('rpLoading').style.display = 'flex';
-    document.getElementById('rpGrid').innerHTML = '';
+    rpTitle.textContent = title;
+    rpMeta.textContent  = `${results.length} işletme bulundu`;
+    rpLoading.style.display = 'flex';
+    rpGrid.innerHTML = '';
 
     // Kısa loading → stagger
     setTimeout(() => {
-      document.getElementById('rpLoading').style.display = 'none';
-      const grid = document.getElementById('rpGrid');
+      rpLoading.style.display = 'none';
+      const grid = rpGrid;
 
       if(!results.length) {
         grid.innerHTML = `<div class="rp-empty">
@@ -2587,7 +2607,8 @@ function doHeroSearch() {
 
       window._rpResults = results;  // sort/filter için sakla
       window._rpCatFilter = '';
-      document.getElementById('rpSortBar').style.display = 'flex';
+      const rpSortBar = document.getElementById('rpSortBar');
+      if (rpSortBar) rpSortBar.style.display = 'flex';
       renderCards(results, grid);
     }, 620);
   }, 290);
@@ -2703,7 +2724,12 @@ function renderCards(list, grid) {
 
 // ── Sort & Filter ─────────────────────────────
 function applySortFilter() {
-  const sort = document.getElementById('rpSort').value;
+  const rpSort = document.getElementById('rpSort');
+  const rpMeta = document.getElementById('rpMeta');
+  const rpGrid = document.getElementById('rpGrid');
+  if (!rpSort || !rpMeta || !rpGrid) return;
+
+  const sort = rpSort.value;
   let list = (_rpResults || []).filter(b =>
     !window._rpCatFilter || b.cat === window._rpCatFilter ||
     b.cat.includes(window._rpCatFilter)
@@ -2711,37 +2737,46 @@ function applySortFilter() {
   if(sort === 'price-asc')  list = [...list].sort((a,b) => a.price - b.price);
   if(sort === 'price-desc') list = [...list].sort((a,b) => b.price - a.price);
   if(sort === 'rating')     list = [...list].sort((a,b) => b.rating - a.rating);
-  document.getElementById('rpMeta').textContent = `${list.length} işletme bulundu`;
-  renderCards(list, document.getElementById('rpGrid'));
+  rpMeta.textContent = `${list.length} işletme bulundu`;
+  renderCards(list, rpGrid);
 }
 
 function filterCat(btn, cat) {
   window._rpCatFilter = cat;
-  document.querySelectorAll('.rp-filter-chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
+  const chips = document.querySelectorAll('.rp-filter-chip');
+  if (chips.length) chips.forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
   applySortFilter();
 }
 
 // ── Geri dön ──
 function backToHome() {
-  document.getElementById('searchResultsPage').style.display = 'none';
-  document.getElementById('rpSortBar').style.display = 'none';
-  document.getElementById('rpSort').value = 'default';
-  window._rpCatFilter = '';
-  document.querySelectorAll('.rp-filter-chip').forEach((c,i) => {
-    c.classList.toggle('active', i===0);
-  });
+  const searchResultsPage = document.getElementById('searchResultsPage');
+  const rpSortBar = document.getElementById('rpSortBar');
+  const rpSort = document.getElementById('rpSort');
   const landing = document.getElementById('landing');
-  landing.style.display = 'block';
-  requestAnimationFrame(() => {
-    landing.style.transition = 'opacity .4s ease, transform .4s ease, filter .4s ease';
-    landing.style.opacity    = '1';
-    landing.style.transform  = '';
-    landing.style.filter     = '';
-  });
+
+  if (searchResultsPage) searchResultsPage.style.display = 'none';
+  if (rpSortBar) rpSortBar.style.display = 'none';
+  if (rpSort) rpSort.value = 'default';
+
+  window._rpCatFilter = '';
+  const chips = document.querySelectorAll('.rp-filter-chip');
+  if (chips.length) chips.forEach((c,i) => c.classList.toggle('active', i===0));
+
+  if (landing) {
+    landing.style.display = 'block';
+    requestAnimationFrame(() => {
+      landing.style.transition = 'opacity .4s ease, transform .4s ease, filter .4s ease';
+      landing.style.opacity    = '1';
+      landing.style.transform  = '';
+      landing.style.filter     = '';
+    });
+  }
+
   history.pushState({}, '', '/');
-  hsSvcEl.value  = '';
-  hsCityEl.value = '';
+  if (hsSvcEl) hsSvcEl.value  = '';
+  if (hsCityEl) hsCityEl.value = '';
 }
 window.addEventListener('popstate', e => { if(!e.state?.search) backToHome(); });
 

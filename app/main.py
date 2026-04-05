@@ -1,7 +1,10 @@
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import asyncio
+import time
+from collections import defaultdict
 from .database import engine, SessionLocal, get_db
 from . import models
 from .routes import auth, panel, booking, categories, staff_portal, admin, whatsapp
@@ -138,6 +141,35 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="RandevuCum", lifespan=lifespan)
 
+# ── Rate Limiting (In-Memory) ──
+_rate_limit_store = defaultdict(list)  # IP → [timestamps]
+RATE_LIMIT_REQUESTS = 100  # requests per minute
+RATE_LIMIT_WINDOW = 60  # seconds
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        # Get client IP
+        client_ip = request.client.host if request.client else "unknown"
+
+        # Limit only auth endpoints to prevent brute force
+        if request.url.path in ["/giris", "/kayit", "/personel/giris"]:
+            now = time.time()
+            # Clean old timestamps
+            _rate_limit_store[client_ip] = [ts for ts in _rate_limit_store[client_ip] if now - ts < RATE_LIMIT_WINDOW]
+
+            # Check rate limit
+            if len(_rate_limit_store[client_ip]) >= RATE_LIMIT_REQUESTS:
+                return JSONResponse(
+                    status_code=429,
+                    content={"detail": "Çok fazla giriş denemesi. Lütfen 1 dakika sonra tekrar deneyin."}
+                )
+
+            # Add current timestamp
+            _rate_limit_store[client_ip].append(now)
+
+        response = await call_next(request)
+        return response
+
 # ── Security Headers Middleware ──
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
@@ -149,6 +181,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=()"
         return response
 
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.mount("/static", StaticFiles(directory=str(_BASE / "app" / "static")), name="static")
 
