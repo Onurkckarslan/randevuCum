@@ -3,8 +3,12 @@
 
 {% block extra_head %}
 <style>
-body { background: #0d0d16 !important; color: #f1f0f5 !important; }
-.panel-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+body { background: #0d0d16 !important; color: #f1f0f5 !important; overflow-y: hidden !important; }
+.panel-container { max-width: 1400px; margin: 0 auto; padding: 20px; height: 100vh; overflow-y: auto; overflow-x: hidden; }
+.panel-container::-webkit-scrollbar { width: 8px; }
+.panel-container::-webkit-scrollbar-track { background: rgba(255,255,255,.05); }
+.panel-container::-webkit-scrollbar-thumb { background: rgba(124,58,237,.4); border-radius: 4px; }
+.panel-container::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,.6); }
 .page-header { margin-bottom: 28px; }
 .page-title { font-size: 1.8rem; font-weight: 900; color: #f1f0f5; margin-bottom: 4px; }
 .page-subtitle { font-size: .9rem; color: rgba(196,181,253,.5); }
