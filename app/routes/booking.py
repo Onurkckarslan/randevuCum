@@ -169,6 +169,7 @@ async def book_appointment(
     customer_name: str = Form(...),
     customer_phone: str = Form(...),
     notes: str = Form(""),
+    end_date: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     print(f"[BOOK] ✅ Form validation başarılı!")
@@ -206,6 +207,7 @@ async def book_appointment(
             customer_phone=customer_phone,
             date=selected_date,
             time=selected_time,
+            end_date=end_date,
             notes=notes,
             status="bekliyor"
         )

@@ -495,18 +495,54 @@ async function loadSlots(prefix) {
         }
         return;
     }
-    const isRental = "{{ biz.category }}" === "rent-a-car";
-    if (isRental) {
+    const isDayBased = ["rent-a-car", "otel-pansiyon"].includes("{{ biz.category }}");
+    if (isDayBased) {
         const staffSel = document.getElementById(prefix + "-staffSelect");
         const staffId = staffSel?.value || "";
-        document.getElementById(prefix + "-f-sid").value = selSvc.id;
-        document.getElementById(prefix + "-f-stid").value = staffId;
-        document.getElementById(prefix + "-f-date").value = date;
-        document.getElementById(prefix + "-f-time").value = "09:00";
-        const staffName = staffSel?.options[staffSel.selectedIndex]?.text || "";
-        document.getElementById(prefix + "-summary").textContent = `${selSvc.name} · ${date.split("-").reverse().join(".")}` + (selSvc.price ? ` · ${selSvc.price} TL` : "") + (staffName ? ` · ${staffName}` : "");
-        document.getElementById(prefix + "-step3").style.display = "block";
-        document.getElementById(prefix + "-step3").scrollIntoView({ behavior: "smooth", block: "nearest" });
+        const endDateWrap = document.getElementById(prefix + "-enddate-wrap");
+        const endDatePicker = document.getElementById(prefix + "-endDatePicker");
+
+        // Bitiş tarihi picker'ını göster
+        if (endDateWrap) endDateWrap.style.display = "block";
+
+        // Minimum bitiş tarihi = başlangıç tarihi + 1 gün
+        if (endDatePicker) {
+            const minDate = new Date(date);
+            minDate.setDate(minDate.getDate() + 1);
+            endDatePicker.min = minDate.toISOString().split('T')[0];
+            endDatePicker.value = "";
+        }
+
+        // End date seçilince işleme başla
+        if (endDatePicker) {
+            endDatePicker.onchange = function() {
+                if (!this.value) return;
+
+                const dayDiff = Math.ceil((new Date(this.value) - new Date(date)) / (1000 * 60 * 60 * 24));
+                const total = dayDiff * (selSvc.price || 0);
+
+                // Summary kutusu güncelle
+                document.getElementById(prefix + "-rental-days").textContent = dayDiff;
+                document.getElementById(prefix + "-rental-total").textContent = total.toLocaleString("tr-TR");
+                document.getElementById(prefix + "-rental-summary").style.display = "block";
+
+                // Form alanlarını doldur
+                document.getElementById(prefix + "-f-sid").value = selSvc.id;
+                document.getElementById(prefix + "-f-stid").value = staffId;
+                document.getElementById(prefix + "-f-date").value = date;
+                document.getElementById(prefix + "-f-time").value = "09:00";
+                document.getElementById(prefix + "-f-enddate").value = this.value;
+
+                // Summary text
+                const dayLabel = "{{ biz.category }}" === "otel-pansiyon" ? "gece" : "gün";
+                document.getElementById(prefix + "-summary").textContent =
+                    `${selSvc.name} · ${dayDiff} ${dayLabel} · ${total.toLocaleString("tr-TR")} ₺`;
+
+                // Step 3 göster
+                document.getElementById(prefix + "-step3").style.display = "block";
+                document.getElementById(prefix + "-step3").scrollIntoView({ behavior: "smooth", block: "nearest" });
+            };
+        }
         return;
     }
     const staffId = staffSel?.value || "";
@@ -878,7 +914,7 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
     <div class="step-card" id="d-step2" style="display:none;">
         <div class="step-header">
             <div class="step-num">2</div>
-            <div><div class="fw-bold">{% if biz.category == "rent-a-car" %}Tarih Seçin{% else %}Tarih & Saat{% endif %}</div><small class="text-muted" id="d-svc-label"></small></div>
+            <div><div class="fw-bold">{% if biz.category == "rent-a-car" %}Kiralama Tarihleri{% elif biz.category == "otel-pansiyon" %}Konaklama Tarihleri{% else %}Tarih & Saat{% endif %}</div><small class="text-muted" id="d-svc-label"></small></div>
         </div>
         <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
             <input type="date" id="d-datePicker" class="form-control" style="max-width:160px;">
@@ -893,7 +929,21 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
             {% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
         </select>
         {% endif %}
-        {% if biz.category != "rent-a-car" %}
+        <!-- Rent A Car / Otel Pansiyon - Bitiş Tarihi -->
+        {% if biz.category == "rent-a-car" or biz.category == "otel-pansiyon" %}
+        <div id="d-enddate-wrap" style="display:none; margin-top:14px;">
+            <label class="form-label fw-semibold">{% if biz.category == "otel-pansiyon" %}Çıkış Tarihi{% else %}Teslim Tarihi{% endif %}</label>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <input type="date" id="d-endDatePicker" class="form-control" style="max-width:160px;">
+            </div>
+            <div id="d-rental-summary" style="display:none; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.3); border-radius:10px; padding:12px; margin-top:10px; font-size:.9rem; font-weight:600; color:#c4b5fd;">
+              <span id="d-rental-days">0</span> {% if biz.category == "otel-pansiyon" %}gece{% else %}gün{% endif %} · <span id="d-rental-total">0</span> ₺
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Mevcut sistem - Saat Slotu -->
+        {% if biz.category != "rent-a-car" and biz.category != "otel-pansiyon" %}
         <div class="slots-wrapper" id="d-slotsWrapper">
           <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
           <div id="d-slots" class="d-flex flex-wrap gap-2 mb-2"><small class="text-muted">Tarih seçin...</small></div>
@@ -916,6 +966,7 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
             <input type="hidden" name="staff_id" id="d-f-stid">
             <input type="hidden" name="selected_date" id="d-f-date">
             <input type="hidden" name="selected_time" id="d-f-time">
+            <input type="hidden" name="end_date" id="d-f-enddate">
             <div class="mb-3"><label class="form-label">Ad Soyad</label><input type="text" name="customer_name" class="form-control" placeholder="Ayşe Yılmaz" required></div>
             <div class="mb-3"><label class="form-label">Telefon</label><input type="tel" name="customer_phone" class="form-control" placeholder="0555 123 45 67" required></div>
             <div class="mb-3"><label class="form-label">Not <small class="text-muted">(isteğe bağlı)</small></label><textarea name="notes" class="form-control" rows="1" style="resize:none;"></textarea></div>
@@ -957,7 +1008,7 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
         </div>
         <!-- Adım 2 -->
         <div id="m-step2">
-            <label class="form-label fw-semibold">Tarih</label>
+            <label class="form-label fw-semibold">{% if biz.category == "rent-a-car" %}Başlangıç Tarihi{% elif biz.category == "otel-pansiyon" %}Giriş Tarihi{% else %}Tarih{% endif %}</label>
             <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
                 <input type="date" id="m-datePicker" class="form-control" style="max-width:160px;">
                 <button type="button" class="date-shortcut" onclick="setDate('m','today')">Bugün</button>
@@ -971,10 +1022,27 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
                 {% for s in staff %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
             </select>
             {% endif %}
+
+            <!-- Rent A Car / Otel Pansiyon - Bitiş Tarihi (Mobile) -->
+            {% if biz.category == "rent-a-car" or biz.category == "otel-pansiyon" %}
+            <div id="m-enddate-wrap" style="display:none; margin-top:14px; margin-bottom:14px;">
+                <label class="form-label fw-semibold">{% if biz.category == "otel-pansiyon" %}Çıkış Tarihi{% else %}Teslim Tarihi{% endif %}</label>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <input type="date" id="m-endDatePicker" class="form-control" style="max-width:160px;">
+                </div>
+                <div id="m-rental-summary" style="display:none; background:rgba(124,58,237,.12); border:1px solid rgba(124,58,237,.3); border-radius:10px; padding:12px; margin-top:10px; font-size:.9rem; font-weight:600; color:#c4b5fd;">
+                  <span id="m-rental-days">0</span> {% if biz.category == "otel-pansiyon" %}gece{% else %}gün{% endif %} · <span id="m-rental-total">0</span> ₺
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Mevcut sistem - Saat Slotu (Mobile) -->
+            {% if biz.category != "rent-a-car" and biz.category != "otel-pansiyon" %}
             <div class="slots-wrapper" id="m-slotsWrapper">
               <div class="fw-semibold small text-muted mb-2">Müsait Saatler</div>
               <div id="m-slots" class="d-flex flex-wrap gap-2 mb-3"><small class="text-muted">Tarih seçin...</small></div>
             </div>
+            {% endif %}
         </div>
         <!-- Adım 3 -->
         <div id="m-step3" style="display:none;">
@@ -987,6 +1055,7 @@ document.querySelectorAll('[class*="reveal"]').forEach(el => {
                 <input type="hidden" name="staff_id" id="m-f-stid">
                 <input type="hidden" name="selected_date" id="m-f-date">
                 <input type="hidden" name="selected_time" id="m-f-time">
+                <input type="hidden" name="end_date" id="m-f-enddate">
                 <div class="mb-3"><label class="form-label">Ad Soyad</label><input type="text" name="customer_name" class="form-control" placeholder="Ayşe Yılmaz" required></div>
                 <div class="mb-3"><label class="form-label">Telefon</label><input type="tel" name="customer_phone" class="form-control" placeholder="0555 123 45 67" required></div>
                 <div class="mb-3"><label class="form-label">Not <small class="text-muted">(isteğe bağlı)</small></label><textarea name="notes" class="form-control" rows="1" style="resize:none;"></textarea></div>

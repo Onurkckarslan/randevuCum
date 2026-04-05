@@ -42,11 +42,13 @@ async def lifespan(app: FastAPI):
             if "role" not in cols:
                 db.execute(text("ALTER TABLE staff ADD COLUMN role VARCHAR(20) DEFAULT 'personel'"))
 
-        # ── Add is_paid to appointments ──
+        # ── Add is_paid and end_date to appointments ──
         if "appointments" in inspector.get_table_names():
             cols = [col["name"] for col in inspector.get_columns("appointments")]
             if "is_paid" not in cols:
                 db.execute(text("ALTER TABLE appointments ADD COLUMN is_paid BOOLEAN DEFAULT FALSE"))
+            if "end_date" not in cols:
+                db.execute(text("ALTER TABLE appointments ADD COLUMN end_date VARCHAR(10)"))
 
         # ── Add whatsapp_enabled and whatsapp_phone to businesses ──
         if "businesses" in inspector.get_table_names():
