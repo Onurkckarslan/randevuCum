@@ -64,6 +64,14 @@ async def register(
     db: Session = Depends(get_db)
 ):
     try:
+        # Terms acceptance check
+        terms_accepted = request.form.get("terms_accepted")
+        if not terms_accepted:
+            logger.warning(f"[REGISTER] Terms not accepted")
+            return templates.TemplateResponse("business/register.html", {
+                "request": request, "error": "Kullanım koşullarını ve gizlilik politikasını kabul etmelisiniz."
+            })
+
         # Input validation
         email = email.strip().lower()
         name = name.strip()
@@ -179,34 +187,38 @@ async def login_page(request: Request):
 @router.post("/giris", response_class=HTMLResponse)
 async def login(
     request: Request,
-    email: str = Form(...),
+    identifier: str = Form(...),
     password: str = Form(...),
     db: Session = Depends(get_db)
 ):
     try:
-        email = email.strip().lower()
+        identifier = identifier.strip().lower()
         password = password.strip()
 
-        if not email or not password:
-            logger.warning(f"[LOGIN] Empty email or password attempt")
+        if not identifier or not password:
+            logger.warning(f"[LOGIN] Empty identifier or password attempt")
             return templates.TemplateResponse("business/login.html", {
-                "request": request, "error": "E-posta ve şifre gerekli."
+                "request": request, "error": "E-posta/telefon ve şifre gerekli."
             })
 
-        biz = db.query(Business).filter(Business.email == email).first()
+        # Login with email or phone
+        from sqlalchemy import or_
+        biz = db.query(Business).filter(
+            or_(Business.email == identifier, Business.phone == identifier)
+        ).first()
         if not biz:
-            logger.warning(f"[LOGIN] Business not found: {email}")
+            logger.warning(f"[LOGIN] Business not found: {identifier}")
             return templates.TemplateResponse("business/login.html", {
-                "request": request, "error": "E-posta veya şifre hatalı."
+                "request": request, "error": "E-posta/telefon veya şifre hatalı."
             })
 
         if not verify_password(password, biz.password_hash):
-            logger.warning(f"[LOGIN] Wrong password for: {email}")
+            logger.warning(f"[LOGIN] Wrong password for: {identifier}")
             return templates.TemplateResponse("business/login.html", {
-                "request": request, "error": "E-posta veya şifre hatalı."
+                "request": request, "error": "E-posta/telefon veya şifre hatalı."
             })
 
-        logger.info(f"[LOGIN] SUCCESS: {email} (ID: {biz.id})")
+        logger.info(f"[LOGIN] SUCCESS: {identifier} (ID: {biz.id})")
         response = safe_redirect("/panel", request)
         response.set_cookie(
             "token",

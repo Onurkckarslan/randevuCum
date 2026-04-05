@@ -63,8 +63,8 @@ body { background: #0d0d16 !important; }
     {% endif %}
 
     <form method="post" action="/giris">
-      <label class="auth-label">E-POSTA</label>
-      <input type="email" name="email" class="auth-input" placeholder="ornek@email.com" autocomplete="email" required autofocus>
+      <label class="auth-label">E-POSTA VEYA TELEFON</label>
+      <input type="text" name="identifier" class="auth-input" placeholder="0555 123 45 67 veya ornek@email.com" autocomplete="username" required autofocus>
       <label class="auth-label">ŞİFRE</label>
       <input type="password" name="password" class="auth-input" placeholder="••••••••" autocomplete="current-password" required>
       <button type="submit" class="auth-btn"><i class="bi bi-box-arrow-in-right me-2"></i>Giriş Yap</button>
