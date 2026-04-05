@@ -2616,28 +2616,77 @@ function renderCards(list, grid) {
   }
   list.forEach((biz, i) => {
     const bg = catBg[biz.cat] || 'linear-gradient(135deg,#4c1d95,#7c3aed)';
-    const tags = biz.services.slice(0,3).map(s => `<span class="rp-svc-tag">${s}</span>`).join('');
-    const stars = '⭐'.repeat(Math.round(biz.rating));
+
+    // Create safe DOM structure instead of innerHTML
     const a = document.createElement('a');
-    a.href      = '/' + biz.slug;
+    a.href = '/' + biz.slug;
     a.className = 'rp-card';
     a.style.animationDelay = (i * 65) + 'ms';
-    a.innerHTML = `
-      <div class="rp-photo">
-        <div class="rp-photo-placeholder" style="background:${bg};">${biz.icon}</div>
-        <div class="rp-photo-overlay"></div>
-        <span class="rp-cat-badge-photo">${biz.cat}</span>
-        <span class="rp-rating-photo">⭐ ${biz.rating}</span>
-      </div>
-      <div class="rp-body">
-        <div class="rp-name">${biz.name}</div>
-        <div class="rp-location">📍 ${biz.district}</div>
-        <div class="rp-service-tags">${tags}</div>
-        <div class="rp-divider"></div>
-        <div class="rp-footer">
-          <span class="rp-book-btn">Randevu Al →</span>
-        </div>
-      </div>`;
+
+    // Photo section
+    const photo = document.createElement('div');
+    photo.className = 'rp-photo';
+
+    const photoPlaceholder = document.createElement('div');
+    photoPlaceholder.className = 'rp-photo-placeholder';
+    photoPlaceholder.style.background = bg;
+    photoPlaceholder.textContent = biz.icon;
+
+    const photoOverlay = document.createElement('div');
+    photoOverlay.className = 'rp-photo-overlay';
+
+    const catBadge = document.createElement('span');
+    catBadge.className = 'rp-cat-badge-photo';
+    catBadge.textContent = biz.cat;
+
+    const ratingBadge = document.createElement('span');
+    ratingBadge.className = 'rp-rating-photo';
+    ratingBadge.textContent = '⭐ ' + biz.rating;
+
+    photo.appendChild(photoPlaceholder);
+    photo.appendChild(photoOverlay);
+    photo.appendChild(catBadge);
+    photo.appendChild(ratingBadge);
+
+    // Body section
+    const body = document.createElement('div');
+    body.className = 'rp-body';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'rp-name';
+    nameEl.textContent = biz.name;  // XSS-safe textContent
+
+    const locEl = document.createElement('div');
+    locEl.className = 'rp-location';
+    locEl.textContent = '📍 ' + biz.district;  // XSS-safe textContent
+
+    const tagsEl = document.createElement('div');
+    tagsEl.className = 'rp-service-tags';
+    biz.services.slice(0,3).forEach(s => {
+      const tag = document.createElement('span');
+      tag.className = 'rp-svc-tag';
+      tag.textContent = s;
+      tagsEl.appendChild(tag);
+    });
+
+    const divider = document.createElement('div');
+    divider.className = 'rp-divider';
+
+    const footer = document.createElement('div');
+    footer.className = 'rp-footer';
+    const bookBtn = document.createElement('span');
+    bookBtn.className = 'rp-book-btn';
+    bookBtn.textContent = 'Randevu Al →';
+    footer.appendChild(bookBtn);
+
+    body.appendChild(nameEl);
+    body.appendChild(locEl);
+    body.appendChild(tagsEl);
+    body.appendChild(divider);
+    body.appendChild(footer);
+
+    a.appendChild(photo);
+    a.appendChild(body);
     grid.appendChild(a);
   });
   // Magnetic on book buttons

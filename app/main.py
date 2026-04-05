@@ -10,6 +10,7 @@ from .auth import get_current_business_id
 from .models import Business
 from pathlib import Path
 from sqlalchemy.orm import Session
+from starlette.middleware.base import BaseHTTPMiddleware
 
 _BASE = Path(__file__).parent.parent
 
@@ -136,6 +137,19 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="RandevuCum", lifespan=lifespan)
+
+# ── Security Headers Middleware ──
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=()"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
 app.mount("/static", StaticFiles(directory=str(_BASE / "app" / "static")), name="static")
 
 from fastapi.exceptions import RequestValidationError
