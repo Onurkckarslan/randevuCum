@@ -64,8 +64,9 @@ async def register(
     db: Session = Depends(get_db)
 ):
     try:
-        # Terms acceptance check
-        terms_accepted = request.form.get("terms_accepted")
+        # Terms acceptance check (FastAPI async form handling)
+        form = await request.form()
+        terms_accepted = form.get("terms_accepted")
         if not terms_accepted:
             logger.warning(f"[REGISTER] Terms not accepted")
             return templates.TemplateResponse("business/register.html", {

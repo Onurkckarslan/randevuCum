@@ -374,6 +374,63 @@ KATEGORILER = {
         },
         "is_rental": True,
     },
+    "oto-yikama": {
+        "slug": "oto-yikama", "db": "oto-yikama", "isim": "Oto Yıkama", "emoji": "🚿",
+        "title": "Uşak Oto Yıkama — Randevu Al | RandevuCum",
+        "aciklama": "Uşak'taki oto yıkama merkezlerinden online randevu alın. Dış yıkama, iç temizlik ve balmumu.",
+        "ilgili": ["otopark"],
+        "hizmetler": ["dis-yikama", "ic-temizlik", "motor-temizlik"],
+        "icerik": {
+            "h2": "Oto Yıkama Merkezleri",
+            "paragraflar": [
+                "Aracınızın bakımı ve temizliği için profesyonel oto yıkama merkezleri en güvenilir seçeneklerdir.",
+                "Dış yıkamadan iç temizliğine, motor yıkamalarından özel balmumu uygulamalarına kadar geniş bir hizmet yelpazesi.",
+                "Online randevu sistemi ile sıraya girmeden aracınızın bakımını yaptırın.",
+            ],
+            "sss": [
+                {"s": "Oto yıkama ne sıklıkla yapılmalı?", "c": "Haftada bir veya 15 günde bir oto yıkama önerilir."},
+                {"s": "Balmumu ne işe yarar?", "c": "Balmumu, araç boyasını korur ve yağmurdan kaynaklanan hasarları azaltır."},
+            ],
+        },
+    },
+    "otopark": {
+        "slug": "otopark", "db": "otopark", "isim": "Otopark", "emoji": "🅿️",
+        "title": "Uşak Otopark — Randevu Al | RandevuCum",
+        "aciklama": "Uşak'taki otopark alanlarına online rezervasyon yapın. Güvenli ve uygun fiyatlı otopark hizmetleri.",
+        "ilgili": ["oto-yikama"],
+        "hizmetler": ["saatlik-otopark", "gunluk-otopark"],
+        "icerik": {
+            "h2": "Otopark Hizmetleri",
+            "paragraflar": [
+                "Şehir merkezinde güvenli ve rahat otopark alanları bulunması her zaman sorun olmuştur.",
+                "Online otopark rezervasyon sistemi ile aracınızın park ettiği yeri önceden belirleyin, saat başında ücret ödeyin.",
+            ],
+            "sss": [
+                {"s": "Otopark ücretleri nasıl hesaplanır?", "c": "Çoğu otopark saatlik tarife üzerinden ücretlendirilir."},
+                {"s": "Gece parkı daha mı ucuzdur?", "c": "Evet, gece parkı genellikle daha avantajlı fiyatlara sunulur."},
+            ],
+        },
+    },
+    "otel-pansiyon": {
+        "slug": "otel-pansiyon", "db": "otel-pansiyon", "isim": "Otel & Pansiyon", "emoji": "🏨",
+        "title": "Uşak Otelleri — Konaklama Yeri Bul | RandevuCum",
+        "aciklama": "Uşak'taki oteller ve pansiyonlara online rezervasyon yapın. Konforlu konaklama, uygun fiyatlar.",
+        "ilgili": [],
+        "hizmetler": ["standart-oda", "suite-oda", "deluxe-oda"],
+        "icerik": {
+            "h2": "Otel & Pansiyon Hizmetleri",
+            "paragraflar": [
+                "Uşak'ta rahat ve güvenli bir şekilde konaklamak için birçok otel ve pansiyon seçeneği mevcuttur.",
+                "Her bütçeye uygun oda tipleri ve hizmetler sunan oteller ve pansiyonlardan seçim yapın.",
+                "Online rezervasyon sistemi ile istediğiniz tarihlerde en uygun fiyatlı odayı ayırtın.",
+            ],
+            "sss": [
+                {"s": "Check-in saati kaçta?", "c": "Genellikle öğleden sonra 14:00-15:00'te check-in yapılır."},
+                {"s": "İptal politikası nedir?", "c": "Çoğu otel konaklama tarihinden 24 saat öncesine kadar ücretsiz iptal imkanı sunar."},
+            ],
+        },
+        "is_daily": True,
+    },
 }
 
 # ─── HİZMET VERİSİ ──────────────────────────────────────────────────────────
