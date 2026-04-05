@@ -50,10 +50,20 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; overflow-y: hi
 .btn-add { background: linear-gradient(135deg, #7c3aed, #ec4899); color: white; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; font-size: .9rem; }
 .btn-add:hover { opacity: .9; transform: translateY(-1px); }
 
-.customers-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; }
+.customers-table-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  cursor: grab;
+  user-select: none;
+}
+.customers-table-wrapper.dragging { cursor: grabbing; }
+.customers-table-wrapper::-webkit-scrollbar { display: none; }
+.customers-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; white-space: nowrap; }
 .customers-table thead { background: rgba(255,255,255,.05); }
-.customers-table th { padding: 14px 16px; text-align: left; font-size: .9rem; font-weight: 700; color: rgba(196,181,253,.7); border-bottom: 1px solid rgba(255,255,255,.08); }
-.customers-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .9rem; }
+.customers-table th { padding: 14px 16px; text-align: left; font-size: .9rem; font-weight: 700; color: rgba(196,181,253,.7); border-bottom: 1px solid rgba(255,255,255,.08); white-space: nowrap; }
+.customers-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .9rem; white-space: nowrap; }
 .customers-table tr:hover { background: rgba(124,58,237,.08); }
 .customers-table a { color: #a78bfa; text-decoration: none; font-weight: 600; }
 .customers-table a:hover { color: #c4b5fd; text-decoration: underline; }
@@ -193,6 +203,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; overflow-y: hi
   </div>
 
   {% if customers %}
+  <div class="customers-table-wrapper" id="tableWrapper">
   <table class="customers-table" id="customersTable">
     <thead>
       <tr>
@@ -248,6 +259,7 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; overflow-y: hi
       {% endfor %}
     </tbody>
   </table>
+  </div>
 
   {% else %}
   <div class="empty-state">
@@ -269,6 +281,61 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; overflow-y: hi
 </div>
 
 <script>
+// ── Tablo Drag Functionality ──
+document.addEventListener('DOMContentLoaded', () => {
+  const tableWrapper = document.getElementById('tableWrapper');
+  if (!tableWrapper) return;
+
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  tableWrapper.addEventListener('mousedown', (e) => {
+    isDown = true;
+    startX = e.pageX - tableWrapper.offsetLeft;
+    scrollLeft = tableWrapper.scrollLeft;
+    tableWrapper.classList.add('dragging');
+  });
+
+  tableWrapper.addEventListener('mouseleave', () => {
+    isDown = false;
+    tableWrapper.classList.remove('dragging');
+  });
+
+  tableWrapper.addEventListener('mouseup', () => {
+    isDown = false;
+    tableWrapper.classList.remove('dragging');
+  });
+
+  tableWrapper.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - tableWrapper.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    tableWrapper.scrollLeft = scrollLeft - walk;
+  });
+
+  // Touch support for mobile
+  tableWrapper.addEventListener('touchstart', (e) => {
+    isDown = true;
+    startX = e.touches[0].pageX - tableWrapper.offsetLeft;
+    scrollLeft = tableWrapper.scrollLeft;
+    tableWrapper.classList.add('dragging');
+  });
+
+  tableWrapper.addEventListener('touchend', () => {
+    isDown = false;
+    tableWrapper.classList.remove('dragging');
+  });
+
+  tableWrapper.addEventListener('touchmove', (e) => {
+    if (!isDown) return;
+    const x = e.touches[0].pageX - tableWrapper.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    tableWrapper.scrollLeft = scrollLeft - walk;
+  });
+});
+
 function filterCustomers() {
   const input = document.getElementById("searchInput").value.toLowerCase();
   const table = document.getElementById("customersTable");
