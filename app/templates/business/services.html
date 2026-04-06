@@ -114,37 +114,78 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
 {% endblock %}
 
 {% block content %}
+{% set cat = biz.category %}
+{% set is_day_based = cat in ["rent-a-car", "otel-pansiyon"] %}
+
 <!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h5 class="panel-page-title mb-0">✂️ Hizmetler</h5>
+  <h5 class="panel-page-title mb-0">
+    {% if cat == "rent-a-car" %}🚗 Araçlarım
+    {% elif cat == "otel-pansiyon" %}🏨 Oda Tipleri
+    {% elif cat == "oto-yikama" %}🚿 Hizmetler
+    {% elif cat == "otopark" %}🅿️ Park Seçenekleri
+    {% else %}✂️ Hizmetler{% endif %}
+  </h5>
   <a href="/panel" class="panel-back-btn">← Panel</a>
 </div>
 
 <!-- Yeni Hizmet Ekle -->
 <div class="panel-card mb-4">
   <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.55);margin-bottom:18px;">
-    ➕ YENİ HİZMET EKLE
+    ➕ YENİ
+    {% if cat == "rent-a-car" %}ARAÇ EKLE
+    {% elif cat == "otel-pansiyon" %}ODA TİPİ EKLE
+    {% elif cat == "oto-yikama" %}HİZMET EKLE
+    {% elif cat == "otopark" %}PAKET EKLE
+    {% else %}HİZMET EKLE{% endif %}
   </div>
   <form method="post" action="/panel/hizmet-ekle">
     <div class="d-flex gap-3 align-items-end flex-wrap">
 
       <div style="flex:2; min-width:180px;">
-        <label class="panel-label">Hizmet Adı</label>
+        <label class="panel-label">
+          {% if cat == "rent-a-car" %}Araç Modeli
+          {% elif cat == "otel-pansiyon" %}Oda Tipi
+          {% elif cat == "oto-yikama" %}Hizmet Adı
+          {% elif cat == "otopark" %}Paket Adı
+          {% else %}Hizmet Adı{% endif %}
+        </label>
         <input type="text" name="name" class="panel-input" style="width:100%;"
-               placeholder="örn: Saç Kesimi, Fön..." required>
+               placeholder="
+               {%- if cat == "rent-a-car" %}örn: BMW 3 Serisi, VW Passat, Ford Focus
+               {%- elif cat == "otel-pansiyon" %}örn: Standart Oda, Suite Oda, Deluxe Oda
+               {%- elif cat == "oto-yikama" %}örn: Dış Yıkama, İç+Dış Yıkama, Balmumu
+               {%- elif cat == "otopark" %}örn: Saatlik Park, Günlük Park, Haftalık Park
+               {%- else %}örn: Saç Kesimi, Fön
+               {%- endif %}" required>
       </div>
 
+      {% if not is_day_based %}
       <div style="flex:1; min-width:140px;">
-        <label class="panel-label">İşlem Süresi</label>
+        <label class="panel-label">
+          {% if cat == "otopark" %}Süre
+          {% else %}İşlem Süresi{% endif %}
+        </label>
         <div class="input-group panel-input-group">
           <input type="number" name="duration" class="form-control"
-                 placeholder="30" value="30" min="10">
-          <span class="input-group-text">dak.</span>
+                 placeholder="{% if cat == 'otopark' %}1{% else %}30{% endif %}"
+                 value="{% if cat == 'otopark' %}1{% else %}30{% endif %}" min="1">
+          <span class="input-group-text">{% if cat == 'otopark' %}saat{% else %}dak.{% endif %}</span>
         </div>
       </div>
+      {% else %}
+      <!-- Gizli duration alanı (Rent A Car / Otel için zorunlu) -->
+      <input type="hidden" name="duration" value="1">
+      {% endif %}
 
       <div style="flex:1; min-width:130px;">
-        <label class="panel-label">Ücret</label>
+        <label class="panel-label">Ücret /
+          {%- if cat == "otel-pansiyon" %}Gece
+          {%- elif cat == "rent-a-car" %}Gün
+          {%- elif cat == "otopark" %}Saat
+          {%- else %}Birim
+          {%- endif %}
+        </label>
         <div class="input-group panel-input-group">
           <input type="number" name="price" class="form-control"
                  placeholder="150" value="0" min="0">
@@ -165,9 +206,25 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
   <table class="panel-table">
     <thead>
       <tr>
-        <th>Hizmet Adı</th>
-        <th>İşlem Süresi</th>
-        <th>Ücret</th>
+        <th>
+          {% if cat == "rent-a-car" %}Araç Modeli
+          {% elif cat == "otel-pansiyon" %}Oda Tipi
+          {% elif cat == "oto-yikama" %}Hizmet Adı
+          {% elif cat == "otopark" %}Paket Adı
+          {% else %}Hizmet Adı{% endif %}
+        </th>
+        <th>
+          {% if is_day_based %}—
+          {% elif cat == "otopark" %}Süre
+          {% else %}İşlem Süresi{% endif %}
+        </th>
+        <th>Ücret /
+          {%- if cat == "otel-pansiyon" %} Gece
+          {%- elif cat == "rent-a-car" %} Gün
+          {%- elif cat == "otopark" %} Saat
+          {%- else %} Birim
+          {%- endif %}
+        </th>
         <th></th>
       </tr>
     </thead>
@@ -176,9 +233,14 @@ body { background: #0d0d16 !important; color: #f1f0f5 !important; }
     <tr>
       <td style="font-weight:700;">{{ svc.name }}</td>
       <td>
+        {% if is_day_based %}
+        <span style="color:rgba(196,181,253,.4); font-size:.82rem;">—</span>
+        {% else %}
         <span class="svc-badge">
-          <i class="bi bi-clock me-1"></i>{{ svc.duration }} dakika
+          <i class="bi bi-clock me-1"></i>{{ svc.duration }}
+          {% if cat == "otopark" %}saat{% else %}dakika{% endif %}
         </span>
+        {% endif %}
       </td>
       <td>
         {% if svc.price %}
