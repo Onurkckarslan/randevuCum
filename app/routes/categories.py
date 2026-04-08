@@ -924,6 +924,14 @@ async def r_kurumsal(request: Request, db: Session = Depends(get_db)):
 async def r_medikal(request: Request, db: Session = Depends(get_db)):
     return await category_page("saglik-medikal", request, db)
 
+@router.get("/otopark", response_class=HTMLResponse)
+async def r_otopark(request: Request, db: Session = Depends(get_db)):
+    return await category_page("otopark", request, db)
+
+@router.get("/rent-a-car", response_class=HTMLResponse)
+async def r_rent_a_car(request: Request, db: Session = Depends(get_db)):
+    return await category_page("rent-a-car", request, db)
+
 # ── HİZMET KISA URL'LERİ ────────────────────────────────────────────────────
 @router.get("/sac-kesimi", response_class=HTMLResponse)
 async def r_sac_kesimi(request: Request, db: Session = Depends(get_db)):
