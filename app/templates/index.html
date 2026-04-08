@@ -1394,7 +1394,7 @@ body::before {
     </p>
     <div class="d-none d-md-flex gap-3" style="animation:fadeIn .8s .5s both;">
       <a href="/kayit" class="btn-glow">✦ Kaydol</a>
-      <a href="/kuaforler" class="btn-ghost">İşletmeleri Gör →</a>
+      <button onclick="openLeadModal()" class="btn-ghost" style="border:none;background:none;cursor:pointer;">BİLGİ AL →</button>
     </div>
   </div>
 
@@ -2305,6 +2305,153 @@ body::before {
   </div>
 </div>
 </section>
+
+<!-- ═══ BİLGİ AL MODAL ═══ -->
+<div id="leadModalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:9999;animation:fadeIn .3s ease;">
+  <div id="leadModal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;background:rgba(10,10,15,.95);border:1px solid rgba(124,58,237,.3);border-radius:20px;padding:40px;z-index:10000;box-shadow:0 20px 60px rgba(124,58,237,.3);backdrop-filter:blur(10px);animation:slideUp .4s cubic-bezier(.34,1.56,.64,1);">
+
+    <!-- FORM CONTENT -->
+    <div id="formContent">
+      <div style="margin-bottom:24px;">
+        <h2 style="font-size:1.8rem;font-weight:900;color:#f1f0f5;margin:0 0 8px;letter-spacing:-0.5px;">BİLGİ AL</h2>
+        <p style="color:rgba(241,240,245,.6);margin:0;font-size:.95rem;">İşletmeniz için çözümü keşfedin</p>
+      </div>
+
+      <form id="leadForm" style="display:flex;flex-direction:column;gap:16px;">
+        <!-- Ad Soyad -->
+        <div>
+          <label style="display:block;margin-bottom:8px;color:#c4b5fd;font-weight:600;font-size:.9rem;">Ad Soyad *</label>
+          <input type="text" name="full_name" required placeholder="Adınız" style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(124,58,237,.2);border-radius:10px;color:#f1f0f5;font-size:.95rem;transition:all .2s;"
+                 onfocus="this.style.borderColor='rgba(124,58,237,.5)';this.style.background='rgba(124,58,237,.08)'"
+                 onblur="this.style.borderColor='rgba(124,58,237,.2)';this.style.background='rgba(255,255,255,.05)'">
+        </div>
+
+        <!-- İşletme Adı / Sektör -->
+        <div>
+          <label style="display:block;margin-bottom:8px;color:#c4b5fd;font-weight:600;font-size:.9rem;">İşletme Adı / Sektör *</label>
+          <input type="text" name="business_name" required placeholder="İşletme adınız" style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(124,58,237,.2);border-radius:10px;color:#f1f0f5;font-size:.95rem;transition:all .2s;"
+                 onfocus="this.style.borderColor='rgba(124,58,237,.5)';this.style.background='rgba(124,58,237,.08)'"
+                 onblur="this.style.borderColor='rgba(124,58,237,.2)';this.style.background='rgba(255,255,255,.05)'">
+        </div>
+
+        <!-- Telefon Numarası -->
+        <div>
+          <label style="display:block;margin-bottom:8px;color:#c4b5fd;font-weight:600;font-size:.9rem;">Telefon Numarası *</label>
+          <input type="tel" name="phone" required placeholder="05XXXXXXXXX" style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(124,58,237,.2);border-radius:10px;color:#f1f0f5;font-size:.95rem;transition:all .2s;"
+                 onfocus="this.style.borderColor='rgba(124,58,237,.5)';this.style.background='rgba(124,58,237,.08)'"
+                 onblur="this.style.borderColor='rgba(124,58,237,.2)';this.style.background='rgba(255,255,255,.05)'">
+        </div>
+
+        <!-- Mesaj -->
+        <div>
+          <label style="display:block;margin-bottom:8px;color:#c4b5fd;font-weight:600;font-size:.9rem;">Kısa Mesaj (Opsiyonel)</label>
+          <textarea name="message" placeholder="Bize anlatmak istediğiniz bir şey var mı?" style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(124,58,237,.2);border-radius:10px;color:#f1f0f5;font-size:.95rem;resize:none;min-height:80px;transition:all .2s;font-family:inherit;"
+                    onfocus="this.style.borderColor='rgba(124,58,237,.5)';this.style.background='rgba(124,58,237,.08)'"
+                    onblur="this.style.borderColor='rgba(124,58,237,.2)';this.style.background='rgba(255,255,255,.05)'"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" style="margin-top:8px;padding:14px 24px;background:linear-gradient(135deg,#7c3aed,#ec4899);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;transition:all .3s;box-shadow:0 10px 30px rgba(124,58,237,.3);"
+                onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 15px 40px rgba(124,58,237,.4)'"
+                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 10px 30px rgba(124,58,237,.3)'">
+          GÖNDERİ
+        </button>
+      </form>
+    </div>
+
+    <!-- SUCCESS CONTENT -->
+    <div id="successContent" style="display:none;text-align:center;animation:fadeIn .5s ease;">
+      <div style="font-size:4rem;margin-bottom:20px;">✅</div>
+      <h2 style="font-size:1.6rem;font-weight:900;color:#f1f0f5;margin-bottom:12px;">Bilgileriniz Alındı!</h2>
+      <p style="color:rgba(241,240,245,.7);margin-bottom:24px;line-height:1.6;">Ekibimiz en kısa sürede sizinle iletişime geçecek. Birlikte başarılı olacağız! 🚀</p>
+      <button onclick="closeLeadModal()" style="padding:12px 28px;background:linear-gradient(135deg,#7c3aed,#ec4899);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;">Kapat</button>
+    </div>
+
+    <!-- Close Button -->
+    <button onclick="closeLeadModal()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;background:rgba(124,58,237,.2);border:none;border-radius:50%;color:#c4b5fd;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;"
+            onmouseover="this.style.background='rgba(124,58,237,.4)'"
+            onmouseout="this.style.background='rgba(124,58,237,.2)'">×</button>
+  </div>
+</div>
+
+<!-- MODAL STYLES & JS -->
+<style>
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, -40%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}
+</style>
+
+<script>
+function openLeadModal() {
+  const overlay = document.getElementById('leadModalOverlay');
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLeadModal() {
+  const overlay = document.getElementById('leadModalOverlay');
+  overlay.style.display = 'none';
+  document.body.style.overflow = 'auto';
+  // Reset form & view
+  document.getElementById('formContent').style.display = 'block';
+  document.getElementById('successContent').style.display = 'none';
+  document.getElementById('leadForm').reset();
+}
+
+document.getElementById('leadForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(document.getElementById('leadForm'));
+  const data = {
+    full_name: formData.get('full_name'),
+    business_name: formData.get('business_name'),
+    phone: formData.get('phone'),
+    message: formData.get('message') || ''
+  };
+
+  try {
+    const response = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+      // Show success message
+      document.getElementById('formContent').style.display = 'none';
+      document.getElementById('successContent').style.display = 'block';
+      // Auto close after 4 seconds
+      setTimeout(() => closeLeadModal(), 4000);
+    } else {
+      const err = await response.json();
+      alert('Hata: ' + (err.detail || 'Form gönderilemedi'));
+    }
+  } catch (err) {
+    console.error('Form gönderme hatası:', err);
+    alert('Bağlantı hatası, lütfen tekrar deneyin');
+  }
+});
+
+// Modal overlay'a tıklayınca kapat
+document.getElementById('leadModalOverlay')?.addEventListener('click', (e) => {
+  if (e.target.id === 'leadModalOverlay') {
+    closeLeadModal();
+  }
+});
+</script>
 
 <!-- ═══ FOOTER ═══ -->
 <footer class="lp-footer">

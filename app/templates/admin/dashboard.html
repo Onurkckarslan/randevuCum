@@ -155,6 +155,10 @@ tr:hover td { background: rgba(255,255,255,.02); }
   <a class="nav-item" href="/admin?filter=premium"><span class="ico">⭐</span> Premium İşletmeler</a>
   <a class="nav-item" href="/admin?filter=temel"><span class="ico">📦</span> Temel İşletmeler</a>
   <a class="nav-item" href="/admin?filter=inactive"><span class="ico">⛔</span> Pasif İşletmeler</a>
+  <a class="nav-item" href="/admin/leads" style="position:relative;">
+    <span class="ico">📋</span> Bilgi Talepleri
+    {% if unread_leads > 0 %}<span style="position:absolute;right:8px;top:6px;background:#ef4444;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;">{{ unread_leads }}</span>{% endif %}
+  </a>
   <div class="sidebar-bottom">
     <a href="/admin/logout" class="logout-btn">🚪 Çıkış Yap</a>
   </div>

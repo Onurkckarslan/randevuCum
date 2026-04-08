@@ -7,7 +7,7 @@ import time
 from collections import defaultdict
 from .database import engine, SessionLocal, get_db
 from . import models
-from .routes import auth, panel, booking, categories, staff_portal, admin, whatsapp
+from .routes import auth, panel, booking, categories, staff_portal, admin, whatsapp, leads
 from .scheduler import scheduler_loop
 from .auth import get_current_business_id
 from .models import Business
@@ -226,6 +226,7 @@ templates.TemplateResponse = _patched_response
 
 app.include_router(auth.router)         # EN ÖNCE — /giris, /kayit vb.
 app.include_router(admin.router)        # Sonra admin
+app.include_router(leads.router)        # Lead API endpoint
 app.include_router(panel.router)
 app.include_router(categories.router)
 app.include_router(whatsapp.router)     # WhatsApp webhook

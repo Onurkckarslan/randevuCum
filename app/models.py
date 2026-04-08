@@ -223,3 +223,17 @@ class WhatsAppConversation(Base):
     service  = relationship("Service")
     staff    = relationship("Staff")
 
+
+class Lead(Base):
+    """Lead Generation - Bilgi Talepleri"""
+    __tablename__ = "leads"
+
+    id              = Column(Integer, primary_key=True, index=True)
+    full_name       = Column(String(100), nullable=False)
+    business_name   = Column(String(150), nullable=False)
+    phone           = Column(String(20), nullable=False)
+    message         = Column(Text, nullable=True)
+    status          = Column(String(30), default="beklemede")  # beklemede | arandi | sozlesme_imzalandi
+    is_read         = Column(Boolean, default=False)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+

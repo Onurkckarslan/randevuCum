@@ -17,7 +17,9 @@
       "Bash(curl -s http://localhost:8000/kamil-akbulut-studio)",
       "Bash(pkill -f 'python run.py')",
       "Bash(curl:*)",
-      "Bash(grep -n \"@router.get.*\\\\/{\" app/routes/*.py)"
+      "Bash(grep -n \"@router.get.*\\\\/{\" app/routes/*.py)",
+      "WebFetch(domain:www.randevucum.com)",
+      "Bash(git push:*)"
     ]
   }
 }

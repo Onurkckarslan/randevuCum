@@ -61,6 +61,23 @@ for f in db_files:
     else:
         print(f"{f}: logo_url zaten var")
 
+    # ── LEADS TABLOSU ──
+    try:
+        cur.execute("SELECT 1 FROM leads LIMIT 1")
+        print(f"{f}: leads tablosu zaten var")
+    except sqlite3.OperationalError:
+        cur.execute("""CREATE TABLE leads (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            full_name TEXT NOT NULL,
+            business_name TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            message TEXT,
+            status TEXT DEFAULT 'beklemede',
+            is_read INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""")
+        print(f"{f}: leads tablosu oluşturuldu")
+
     conn.commit()
     conn.close()
     print(f"{f}: OK")

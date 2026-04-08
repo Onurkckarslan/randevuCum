@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from ..database import get_db
-from ..models import Business, Appointment, Service, Staff
+from ..models import Business, Appointment, Service, Staff, Lead
 from ..templates_config import templates
 from datetime import datetime, timedelta
 from typing import Optional
@@ -70,6 +70,8 @@ async def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     now = datetime.utcnow()
     month_start = now.replace(day=1, hour=0, minute=0, second=0)
     month_appt  = db.query(Appointment).filter(Appointment.created_at >= month_start).count()
+    # Okunmamış lead sayısı
+    unread_leads = db.query(Lead).filter(Lead.is_read == False).count()
     return templates.TemplateResponse("admin/dashboard.html", {
         "request": request,
         "businesses": businesses,
@@ -79,6 +81,7 @@ async def admin_dashboard(request: Request, db: Session = Depends(get_db)):
         "temel_cnt": temel_cnt,
         "active_cnt": active_cnt,
         "month_appt": month_appt,
+        "unread_leads": unread_leads,
         "now": now,
     })
 
@@ -285,3 +288,49 @@ async def admin_change_password(
 async def admin_system_status(request: Request):
     require_admin(request)
     return await get_system_status()
+
+# ── LEAD YÖNETIM ───────────────────────────────────────────────────────────────
+@router.get("/leads", response_class=HTMLResponse)
+async def admin_leads_list(request: Request, db: Session = Depends(get_db)):
+    require_admin(request)
+    leads = db.query(Lead).order_by(Lead.created_at.desc()).all()
+    unread_count = db.query(Lead).filter(Lead.is_read == False).count()
+    return templates.TemplateResponse("admin/leads.html", {
+        "request": request,
+        "leads": leads,
+        "unread_count": unread_count,
+    })
+
+@router.post("/leads/{lead_id}/status")
+async def admin_update_lead_status(
+    lead_id: int, request: Request,
+    status: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    require_admin(request)
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    if not lead:
+        raise HTTPException(404)
+
+    # Durum seçeneklerini doğrula
+    valid_statuses = ["beklemede", "arandi", "sozlesme_imzalandi"]
+    if status not in valid_statuses:
+        raise HTTPException(400, detail="Geçersiz durum")
+
+    lead.status = status
+    db.commit()
+    return RedirectResponse("/admin/leads", status_code=302)
+
+@router.post("/leads/{lead_id}/read")
+async def admin_mark_lead_read(
+    lead_id: int, request: Request,
+    db: Session = Depends(get_db)
+):
+    require_admin(request)
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    if not lead:
+        raise HTTPException(404)
+
+    lead.is_read = True
+    db.commit()
+    return RedirectResponse("/admin/leads", status_code=302)

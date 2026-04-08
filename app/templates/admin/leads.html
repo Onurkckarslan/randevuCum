@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilgi Talepleri — Admin Panel</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f; --surface: rgba(18,12,30,.9); --card: rgba(255,255,255,.04);
+  --border: rgba(255,255,255,.08); --violet: #7c3aed; --pink: #ec4899;
+  --cyan: #06b6d4; --green: #10b981; --text: #f1f0f5; --muted: rgba(241,240,245,.5);
+}
+body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; top: 0; left: 0; width: 240px; height: 100vh;
+  background: rgba(12,8,24,.97); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 24px 0; z-index: 100;
+}
+.sidebar-logo {
+  padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+}
+.sidebar-logo .name { font-size: 1.1rem; font-weight: 900; color: #fff; }
+.sidebar-logo .name span { color: #a78bfa; }
+.sidebar-logo .sub { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; color: var(--muted); text-decoration: none;
+  font-size: .88rem; font-weight: 600; transition: all .15s; cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover, .nav-item.active { background: rgba(124,58,237,.12); color: #c4b5fd; border-left: 3px solid var(--violet); }
+.nav-item .ico { width: 20px; text-align: center; font-size: 1rem; }
+.nav-section { font-size: .65rem; font-weight: 800; letter-spacing: .1em; color: rgba(196,181,253,.3); padding: 16px 20px 6px; }
+.sidebar-bottom { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); }
+.logout-btn {
+  display: flex; align-items: center; gap: 8px;
+  color: rgba(239,68,68,.7); font-size: .85rem; font-weight: 600;
+  text-decoration: none; transition: color .15s;
+}
+.logout-btn:hover { color: #fca5a5; }
+
+/* Main content */
+.main { margin-left: 240px; padding: 32px; min-height: 100vh; }
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-size: 1.6rem; font-weight: 900; letter-spacing: -.5px; }
+.page-header p { color: var(--muted); font-size: .88rem; margin-top: 4px; }
+
+/* Table */
+.table-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden;
+}
+.table-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+}
+.table-header h2 { font-size: 1rem; font-weight: 800; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; padding: 12px 16px; font-size: .72rem; font-weight: 800;
+  letter-spacing: .08em; color: var(--muted);
+  border-bottom: 1px solid var(--border); background: rgba(0,0,0,.2);
+}
+td { padding: 14px 16px; font-size: .85rem; border-bottom: 1px solid rgba(255,255,255,.04); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.02); }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: 20px; padding: 4px 12px; font-size: .72rem; font-weight: 800;
+}
+.status-beklemede { background: rgba(251,191,36,.15); border: 1px solid rgba(251,191,36,.3); color: #fbbf24; }
+.status-arandi { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.3); color: #34d399; }
+.status-sozlesme_imzalandi { background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); color: #60a5fa; }
+
+.read-badge {
+  display: inline-block; border-radius: 20px; padding: 3px 10px; font-size: .7rem; font-weight: 700;
+}
+.read-unread { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; }
+.read-read { background: rgba(241,240,245,.05); border: 1px solid rgba(241,240,245,.1); color: var(--muted); }
+
+.btn-action {
+  display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: .75rem; font-weight: 700;
+  text-decoration: none; transition: all .15s; cursor: pointer; border: none; font-family: inherit;
+}
+.btn-view { background: rgba(124,58,237,.2); color: #c4b5fd; }
+.btn-view:hover { background: rgba(124,58,237,.35); color: #e9d5ff; }
+
+/* Empty state */
+.empty-state {
+  padding: 60px 20px; text-align: center;
+}
+.empty-state-icon { font-size: 3rem; margin-bottom: 16px; }
+.empty-state-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+.empty-state-text { color: var(--muted); font-size: .88rem; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">Randevu<span>Cum</span></div>
+    <div class="sub">🛡️ Admin Paneli</div>
+  </div>
+  <div class="nav-section">MENÜ</div>
+  <a class="nav-item" href="/admin"><span class="ico">📊</span> Dashboard</a>
+  <a class="nav-item" href="/admin?filter=premium"><span class="ico">⭐</span> Premium İşletmeler</a>
+  <a class="nav-item" href="/admin?filter=temel"><span class="ico">📦</span> Temel İşletmeler</a>
+  <a class="nav-item" href="/admin?filter=inactive"><span class="ico">⛔</span> Pasif İşletmeler</a>
+  <a class="nav-item active" href="/admin/leads"><span class="ico">📋</span> Bilgi Talepleri</a>
+  <div class="sidebar-bottom">
+    <a href="/admin/logout" class="logout-btn">🚪 Çıkış Yap</a>
+  </div>
+</nav>
+
+<!-- Main -->
+<div class="main">
+  <div class="page-header">
+    <div>
+      <h1>Bilgi Talepleri</h1>
+      <p>{{ leads|length }} başvuru | {{ unread_count }} okunmamış</p>
+    </div>
+  </div>
+
+  <!-- Table -->
+  {% if leads %}
+  <div class="table-card">
+    <div class="table-header">
+      <h2>📋 Gelen Başvurular</h2>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Durum</th>
+          <th>Ad Soyad</th>
+          <th>İşletme / Sektör</th>
+          <th>Telefon</th>
+          <th>Mesaj</th>
+          <th>Tarih</th>
+          <th>İşlem</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lead in leads %}
+        <tr style="{% if not lead.is_read %}background:rgba(255,255,255,.02);{% endif %}">
+          <td>
+            <span class="read-badge {% if lead.is_read %}read-read{% else %}read-unread{% endif %}">
+              {% if lead.is_read %}✓ Okundu{% else %}● Okunmamış{% endif %}
+            </span>
+          </td>
+          <td><strong>{{ lead.full_name }}</strong></td>
+          <td>{{ lead.business_name }}</td>
+          <td><code style="background:rgba(124,58,237,.1);padding:4px 8px;border-radius:6px;font-size:.8rem;">{{ lead.phone }}</code></td>
+          <td>
+            {% if lead.message %}
+              <span title="{{ lead.message }}" style="color:var(--muted);">{{ lead.message[:40] }}{% if lead.message|length > 40 %}...{% endif %}</span>
+            {% else %}
+              <span style="color:rgba(241,240,245,.3);">—</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--muted);font-size:.8rem;">{{ lead.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+          <td>
+            <form method="POST" action="/admin/leads/{{ lead.id }}/status" style="display:inline;">
+              <select name="status" style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:6px;padding:4px 8px;color:#c4b5fd;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;" onchange="this.form.submit();">
+                <option value="beklemede" {% if lead.status == 'beklemede' %}selected{% endif %}>🟡 Beklemede</option>
+                <option value="arandi" {% if lead.status == 'arandi' %}selected{% endif %}>🟢 Arandı</option>
+                <option value="sozlesme_imzalandi" {% if lead.status == 'sozlesme_imzalandi' %}selected{% endif %}>🔵 Sözleşme İmzalandı</option>
+              </select>
+            </form>
+            {% if not lead.is_read %}
+            <form method="POST" action="/admin/leads/{{ lead.id }}/read" style="display:inline;margin-left:8px;">
+              <button type="submit" class="btn-action btn-view">Okundu İşaretle</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="table-card">
+    <div class="empty-state">
+      <div class="empty-state-icon">📋</div>
+      <div class="empty-state-title">Başvuru Yok</div>
+      <div class="empty-state-text">Henüz hiç bilgi talebi alınmamış</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+</body>
+</html>
