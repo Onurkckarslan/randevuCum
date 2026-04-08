@@ -760,6 +760,9 @@ body::before {
   .hs-btn { width: 100%; justify-content: center; border-radius: 12px; }
   .rp-grid { grid-template-columns: 1fr 1fr; }
 }
+@media(min-width:769px) {
+  #heroButtons { flex-direction: row !important; }
+}
 @media(max-width:992px) {
   .hero-portal { padding: 80px 0 60px; }
   .bc1,.bc2,.bc3,.bc4,.bc5 { grid-column:span 12; }
@@ -1533,7 +1536,7 @@ body::before {
     <p class="hero-sub" style="animation:fadeIn .8s .3s both;">
       Binlerce onaylı uzman ve işletme arasından size en uygun olanı seçin, saniyeler içinde kolayca randevu oluşturun.
     </p>
-    <div class="d-none d-md-flex gap-3" style="animation:fadeIn .8s .5s both;">
+    <div class="d-flex gap-3 flex-column d-md-flex-row" style="animation:fadeIn .8s .5s both;width:100%;" id="heroButtons">
       <a href="/kayit" class="btn-glow">✦ Kaydol</a>
       <button onclick="openLeadModal()" class="btn-ghost" style="border:none;background:none;cursor:pointer;">BİLGİ AL →</button>
     </div>
