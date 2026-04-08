@@ -79,7 +79,7 @@ body::before {
   border-bottom: 1px solid var(--border) !important;
   box-shadow: none !important;
 }
-.navbar-brand { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+.navbar-brand { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-weight: 700; }
 /* Gradient span — CSS override'dan koru */
 .navbar-brand .cum-grad {
   background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #06b6d4 100%);
@@ -88,10 +88,35 @@ body::before {
   background-clip: text !important;
   color: transparent !important;
 }
-.navbar .nav-link { color: var(--muted) !important; }
-.navbar .nav-link:hover { color: var(--text) !important; opacity: 1 !important; }
+.navbar .nav-link {
+  color: var(--muted) !important;
+  font-size: 13px !important;
+  font-weight: 450 !important;
+  letter-spacing: 0.5px !important;
+  padding: 8px 16px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+}
+.navbar .nav-link:hover {
+  color: var(--text) !important;
+  opacity: 1 !important;
+}
+.navbar .nav-link:hover::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124,58,237,.8), transparent);
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+  from { width: 0; left: 50%; }
+  to { width: calc(100% - 32px); left: 16px; }
+}
 .dropdown-menu { background: rgba(19,19,26,.97) !important; border:1px solid var(--border) !important; }
-.dropdown-item { color: var(--muted) !important; }
+.dropdown-item { color: var(--muted) !important; font-size: 13px !important; font-weight: 450 !important; letter-spacing: 0.5px !important; }
 .dropdown-item:hover { background: var(--card) !important; color: var(--text) !important; }
 .btn-primary { background: var(--violet) !important; border-color: var(--violet) !important; }
 .btn-outline-primary { border-color: var(--violet) !important; color: var(--violet) !important; }
