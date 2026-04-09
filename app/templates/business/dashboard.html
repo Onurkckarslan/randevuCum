@@ -46,7 +46,7 @@ body { background: #0d0d16 !important; }
 .staff-stat { color: #a78bfa; font-weight: 700; }
 .staff-empty { text-align: center; padding: 40px 20px; color: rgba(196,181,253,.5); }
 
-.menu-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-top: 20px; margin-bottom: 20px; }
 .menu-card { background: rgba(255,255,255,.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 16px; text-align: center; text-decoration: none; color: inherit; transition: all .2s; cursor: pointer; }
 .menu-card:hover { background: rgba(255,255,255,.08); border-color: rgba(124,58,237,.3); transform: translateY(-2px); }
 .menu-card-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
@@ -55,7 +55,7 @@ body { background: #0d0d16 !important; }
 @media(max-width: 768px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .stat-value { font-size: 1.4rem; }
-  .menu-grid { display: grid; }
+  .menu-grid { grid-template-columns: repeat(3, 1fr); }
 }
 </style>
 {% endblock %}
@@ -175,7 +175,7 @@ body { background: #0d0d16 !important; }
 </div>
 {% endblock %}
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const slug = "{{ biz.slug }}";
@@ -188,55 +188,48 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
 
-  function addLogoToQR() {
-    setTimeout(function() {
-      try {
-        const canvas = container.querySelector("canvas");
-        if (!canvas) {
-          console.warn("Canvas not found - QR generated without logo");
-          return;
-        }
-
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        let logoLoadTimeout;
-
-        img.onload = function() {
-          clearTimeout(logoLoadTimeout);
-          try {
-            const size = Math.floor(canvas.width * 0.22);
-            const x = (canvas.width - size) / 2;
-            const y = (canvas.height - size) / 2;
-
-            // Draw white background for logo
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(x - 2, y - 2, size + 4, size + 4);
-
-            // Draw logo
-            ctx.drawImage(img, x, y, size, size);
-          } catch(e) {
-            console.warn("Logo drawing error:", e);
-          }
-        };
-
-        img.onerror = function() {
-          clearTimeout(logoLoadTimeout);
-          console.warn("Logo failed to load, showing QR without logo");
-        };
-
-        // Set timeout for logo load
-        logoLoadTimeout = setTimeout(function() {
-          console.warn("Logo load timeout");
-          img.onload = null;
-          img.onerror = null;
-        }, 2000);
-
-        img.src = "/static/qr-logo.png";
-      } catch(e) {
-        console.error("addLogoToQR error:", e);
+  function addLogoToQR(canvas) {
+    try {
+      if (!canvas) {
+        console.warn("Canvas not provided for logo");
+        return;
       }
-    }, 200);
+
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+
+      img.onload = function() {
+        try {
+          const size = Math.floor(canvas.width * 0.24);
+          const x = (canvas.width - size) / 2;
+          const y = (canvas.height - size) / 2;
+
+          // Draw white square background
+          ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+          ctx.fillRect(x - 3, y - 3, size + 6, size + 6);
+          ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x - 3, y - 3, size + 6, size + 6);
+
+          // Draw logo with rotation for effect
+          ctx.save();
+          ctx.translate(x + size / 2, y + size / 2);
+          ctx.drawImage(img, -size / 2, -size / 2, size, size);
+          ctx.restore();
+        } catch(e) {
+          console.warn("Logo drawing error:", e);
+        }
+      };
+
+      img.onerror = function() {
+        console.warn("Logo failed to load");
+      };
+
+      img.src = "/static/qr-logo.png";
+    } catch(e) {
+      console.error("addLogoToQR error:", e);
+    }
   }
 
   function generateQR() {
@@ -244,44 +237,57 @@ document.addEventListener('DOMContentLoaded', function() {
       if (placeholder) placeholder.remove();
       container.innerHTML = "";
 
-      if (typeof QRCode === 'undefined') {
-        throw new Error("QRCode library not available");
+      // Use the modern QRCode.toCanvas method
+      if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
+        QRCode.toCanvas(container, bizUrl, {
+          errorCorrectionLevel: 'H',
+          type: 'image/png',
+          quality: 1,
+          margin: 1,
+          width: 110,
+          color: {
+            dark: '#000000',
+            light: '#ffffff'
+          }
+        }, function(error) {
+          if (error) {
+            console.error("QRCode.toCanvas error:", error);
+            container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">QR kod oluşturulamadı</div>';
+            return;
+          }
+          // Add logo after a brief delay
+          const canvas = container.querySelector('canvas');
+          if (canvas) {
+            setTimeout(() => addLogoToQR(canvas), 100);
+          }
+        });
+      } else {
+        throw new Error("QRCode library not properly loaded");
       }
-
-      new QRCode(container, {
-        text: bizUrl,
-        width: 110,
-        height: 110,
-        colorDark: "#000",
-        colorLight: "#fff",
-        correctLevel: QRCode.CorrectLevel.M
-      });
-
-      addLogoToQR();
     } catch(e) {
-      console.error("QR generation failed:", e);
-      container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">QR kodunu oluşturulamadı. Lütfen sayfayı yenileyin.</div>';
+      console.error("QR generation error:", e);
+      container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">QR kütüphanesi yüklenemedi</div>';
     }
   }
 
-  // Load QR library with fallback
-  function loadQRLibrary() {
-    if (typeof QRCode !== 'undefined') {
-      generateQR();
-    } else {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/qrcode-js@latest/qrcode.min.js';
-      script.async = true;
-      script.onload = generateQR;
-      script.onerror = function() {
-        console.error("QRCode library failed to load");
-        container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">Kütüphane yüklenemedi</div>';
-      };
-      document.head.appendChild(script);
-    }
+  // Wait for library
+  function initQR() {
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    const checkLib = setInterval(() => {
+      if (typeof QRCode !== 'undefined') {
+        clearInterval(checkLib);
+        generateQR();
+      } else if (attempts++ > maxAttempts) {
+        clearInterval(checkLib);
+        console.error("QRCode library failed to load after multiple attempts");
+        container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">QR yükleme başarısız</div>';
+      }
+    }, 100);
   }
 
-  loadQRLibrary();
+  initQR();
 
   // Helper for text copy
   function copyToClipboard(text) {
@@ -294,25 +300,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(textarea);
     textarea.focus();
     textarea.select();
-    const success = document.execCommand("copy");
+    document.execCommand("copy");
     document.body.removeChild(textarea);
-    return Promise.resolve(success);
+    return Promise.resolve();
   }
 
   // Global functions
   window.downloadQR = function() {
     try {
-      const sourceCanvas = container.querySelector("canvas");
-      if (!sourceCanvas) {
-        alert("QR kodu henüz hazır değil");
+      const canvas = container.querySelector("canvas");
+      if (!canvas) {
+        alert("QR kodu henüz hazır değil, lütfen bekleyin");
         return;
       }
-      const canvas = document.createElement("canvas");
-      canvas.width = canvas.height = 512;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, 512, 512);
-      ctx.drawImage(sourceCanvas, 0, 0, 512, 512);
       const link = document.createElement("a");
       link.href = canvas.toDataURL("image/png");
       link.download = slug + "-qr.png";
@@ -332,32 +332,22 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.innerHTML = originalHTML;
         btn.classList.remove("copied");
       }, 2500);
-    }).catch(e => {
-      console.error("Copy error:", e);
-    });
+    }).catch(() => alert("Kopyalama başarısız"));
   };
 
   window.shareWhatsApp = function() {
-    try {
-      window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + bizUrl);
-    } catch(e) {
-      console.error("Share error:", e);
-    }
+    window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + bizUrl);
   };
 
   window.shareNative = function() {
-    try {
-      if (navigator.share) {
-        navigator.share({
-          title: "Randevu",
-          text: "Online randevu: " + bizUrl,
-          url: bizUrl
-        }).catch(e => console.error("Native share error:", e));
-      } else {
-        copyToClipboard(bizUrl);
-      }
-    } catch(e) {
-      console.error("Share error:", e);
+    if (navigator.share) {
+      navigator.share({
+        title: "Randevu",
+        text: "Online randevu: " + bizUrl,
+        url: bizUrl
+      }).catch(() => copyToClipboard(bizUrl));
+    } else {
+      copyToClipboard(bizUrl);
     }
   };
 });
