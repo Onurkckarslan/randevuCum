@@ -250,71 +250,68 @@ body { background: #0d0d16 !important; }
 {% endblock %}
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const slug = "{{ biz.slug }}";
-  const bizUrl = "https://www.randevucum.com/" + slug;
+const slug = "{{ biz.slug }}";
+const bizUrl = "https://www.randevucum.com/" + slug;
 
-  // Helper for text copy
-  function copyToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text);
-    }
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.style.cssText = "position:fixed;left:-9999px;opacity:0";
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
-    return Promise.resolve();
+// Helper for text copy
+function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
   }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.cssText = "position:fixed;left:-9999px;opacity:0";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+  return Promise.resolve();
+}
 
-  // Global functions
-  window.downloadQR = function() {
-    try {
-      const qrImg = document.getElementById("qrCodeImg");
-      if (!qrImg || !qrImg.src) {
-        alert("QR kodu yüklenemedi");
-        return;
-      }
-      const link = document.createElement("a");
-      link.href = qrImg.src;
-      link.download = slug + "-qr.png";
-      link.click();
-    } catch(e) {
-      console.error("Download error:", e);
-      alert("İndirme başarısız");
+function downloadQR() {
+  try {
+    const qrImg = document.getElementById("qrCodeImg");
+    if (!qrImg || !qrImg.src) {
+      alert("QR kodu yüklenemedi");
+      return;
     }
-  };
+    const link = document.createElement("a");
+    link.href = qrImg.src;
+    link.download = slug + "-qr.png";
+    link.click();
+  } catch(e) {
+    console.error("Download error:", e);
+    alert("İndirme başarısız");
+  }
+}
 
-  window.copyLink = function(btn, url) {
-    copyToClipboard(url).then(() => {
-      const originalHTML = btn.innerHTML;
-      btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Kopyalandı!';
-      btn.classList.add("copied");
-      setTimeout(() => {
-        btn.innerHTML = originalHTML;
-        btn.classList.remove("copied");
-      }, 2500);
-    }).catch(() => alert("Kopyalama başarısız"));
-  };
+function copyLink(btn, url) {
+  copyToClipboard(url).then(() => {
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Kopyalandı!';
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.classList.remove("copied");
+    }, 2500);
+  }).catch(() => alert("Kopyalama başarısız"));
+}
 
-  window.shareWhatsApp = function() {
-    window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + bizUrl);
-  };
+function shareWhatsApp() {
+  window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + bizUrl);
+}
 
-  window.shareNative = function() {
-    if (navigator.share) {
-      navigator.share({
-        title: "Randevu",
-        text: "Online randevu: " + bizUrl,
-        url: bizUrl
-      }).catch(() => copyToClipboard(bizUrl));
-    } else {
-      copyToClipboard(bizUrl);
-    }
-  };
-});
+function shareNative() {
+  if (navigator.share) {
+    navigator.share({
+      title: "Randevu",
+      text: "Online randevu: " + bizUrl,
+      url: bizUrl
+    }).catch(() => copyToClipboard(bizUrl));
+  } else {
+    copyToClipboard(bizUrl);
+  }
+}
 </script>
 {% endblock %}
