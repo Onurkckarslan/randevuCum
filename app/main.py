@@ -28,6 +28,30 @@ async def lifespan(app: FastAPI):
         # Helper to check if column exists
         inspector = inspect(engine)
 
+        # ── PRIORITY 1: Add subscription fields to businesses (BEFORE any queries!) ──
+        if "businesses" in inspector.get_table_names():
+            cols = [col["name"] for col in inspector.get_columns("businesses")]
+
+            subscription_cols = {
+                "subscription_status": "VARCHAR(20) DEFAULT 'trial'",
+                "paytr_card_token": "VARCHAR(255)",
+                "card_last4": "VARCHAR(4)",
+                "card_brand": "VARCHAR(20)",
+                "next_billing_date": "TIMESTAMP",
+                "payment_failed_count": "INTEGER DEFAULT 0"
+            }
+
+            for col_name, col_type in subscription_cols.items():
+                if col_name not in cols:
+                    try:
+                        query = f"ALTER TABLE businesses ADD COLUMN {col_name} {col_type}"
+                        db.execute(text(query))
+                        db.commit()  # Commit immediately for safety
+                        print(f"[Migration] ✅ Column added: {col_name}")
+                    except Exception as col_err:
+                        db.rollback()
+                        print(f"[Migration] Column {col_name} may already exist: {str(col_err)}")
+
         # ── Add s3_url to business_photos ──
         if "business_photos" in inspector.get_table_names():
             cols = [col["name"] for col in inspector.get_columns("business_photos")]
@@ -134,28 +158,6 @@ async def lifespan(app: FastAPI):
             cols = [col["name"] for col in inspector.get_columns("whatsapp_conversations")]
             if "selected_staff_id" not in cols:
                 db.execute(text("ALTER TABLE whatsapp_conversations ADD COLUMN selected_staff_id INTEGER"))
-
-        # ── Add subscription fields to businesses ──
-        if "businesses" in inspector.get_table_names():
-            cols = [col["name"] for col in inspector.get_columns("businesses")]
-
-            subscription_cols = {
-                "subscription_status": "VARCHAR(20) DEFAULT 'trial'",
-                "paytr_card_token": "VARCHAR(255)",
-                "card_last4": "VARCHAR(4)",
-                "card_brand": "VARCHAR(20)",
-                "next_billing_date": "TIMESTAMP",
-                "payment_failed_count": "INTEGER DEFAULT 0"
-            }
-
-            for col_name, col_type in subscription_cols.items():
-                if col_name not in cols:
-                    try:
-                        query = f"ALTER TABLE businesses ADD COLUMN {col_name} {col_type}"
-                        db.execute(text(query))
-                        print(f"[Migration] ✅ Column added: {col_name}")
-                    except Exception as col_err:
-                        print(f"[Migration] Column {col_name} may already exist or error: {str(col_err)}")
 
         # ── Create payments table if not exists ──
         if "payments" not in inspector.get_table_names():
