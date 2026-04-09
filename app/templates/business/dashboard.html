@@ -46,7 +46,17 @@ body { background: #0d0d16 !important; }
 .staff-stat { color: #a78bfa; font-weight: 700; }
 .staff-empty { text-align: center; padding: 40px 20px; color: rgba(196,181,253,.5); }
 
-@media(max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .stat-value { font-size: 1.4rem; } }
+.menu-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+.menu-card { background: rgba(255,255,255,.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 16px; text-align: center; text-decoration: none; color: inherit; transition: all .2s; cursor: pointer; }
+.menu-card:hover { background: rgba(255,255,255,.08); border-color: rgba(124,58,237,.3); transform: translateY(-2px); }
+.menu-card-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+.menu-card-label { font-size: .7rem; font-weight: 700; color: rgba(196,181,253,.7); line-height: 1.3; }
+
+@media(max-width: 768px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-value { font-size: 1.4rem; }
+  .menu-grid { display: grid; }
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -77,20 +87,59 @@ body { background: #0d0d16 !important; }
   </div>
 </div>
 
+<!-- MOBILE MENU GRID -->
+<div class="menu-grid">
+  <a href="/panel/randevular" class="menu-card"><span class="menu-card-icon">📅</span><span class="menu-card-label">Tüm Randevular</span></a>
+  <a href="/panel/randevu-defteri" class="menu-card"><span class="menu-card-icon">📋</span><span class="menu-card-label">Günlük Randevu</span></a>
+  <a href="/panel/hizmetler" class="menu-card"><span class="menu-card-icon">✂️</span><span class="menu-card-label">Hizmet Yönetimi</span></a>
+  <a href="/panel/personel" class="menu-card"><span class="menu-card-icon">👥</span><span class="menu-card-label">Personel</span></a>
+  <a href="/panel/calisma-saatleri" class="menu-card"><span class="menu-card-icon">⏰</span><span class="menu-card-label">Çalışma Saatleri</span></a>
+  <a href="/panel/istatistikler" class="menu-card"><span class="menu-card-icon">📈</span><span class="menu-card-label">İstatistikler</span></a>
+  <a href="/panel/gelir-takibi" class="menu-card"><span class="menu-card-icon">💰</span><span class="menu-card-label">Gelir & Gider</span></a>
+  <a href="/panel/urun-stok" class="menu-card"><span class="menu-card-icon">📦</span><span class="menu-card-label">Ürün & Stok</span></a>
+  <a href="/panel/musteri-sadakati" class="menu-card"><span class="menu-card-icon">⭐</span><span class="menu-card-label">Müşteri Sadakat</span></a>
+  <a href="/panel/whatsapp" class="menu-card"><span class="menu-card-icon">💬</span><span class="menu-card-label">WhatsApp Botu</span></a>
+  <a href="/panel/fotolar" class="menu-card"><span class="menu-card-icon">📷</span><span class="menu-card-label">Fotoğraflar</span></a>
+  <a href="/panel/profil" class="menu-card"><span class="menu-card-icon">⚙️</span><span class="menu-card-label">Profil & Ayarlar</span></a>
+</div>
+
 <div class="link-qr-card mb-4">
-  <div class="d-flex align-items-center gap-4 flex-wrap">
+  <div style="display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;">
+    <!-- QR CODE -->
     <div style="background:#fff;border-radius:16px;padding:10px;display:inline-flex;"><div id="qrCodeContainer" style="width:110px;height:110px;display:flex;align-items:center;justify-content:center;"><div id="qrPlaceholder" style="font-size:.65rem;color:#9ca3af;">Yükleniyor</div></div></div>
-    <div style="flex:1;min-width:200px;">
+
+    <!-- URL VE PAYLAŞ -->
+    <div style="flex:1;">
       <div style="font-size:.68rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.6);margin-bottom:6px;">MÜŞTERİ RANDEVU LİNKİ</div>
       <div class="d-flex align-items-center gap-2 flex-wrap mb-3"><a href="/{{ biz.slug }}" target="_blank" class="lqc-url">www.randevucum.com/{{ biz.slug }}</a><button class="lqc-copy-btn" id="copyBtn" onclick="copyLink(this, 'https://www.randevucum.com/{{ biz.slug }}')"><i class="bi bi-copy me-1"></i>Kopyala</button></div>
-      <div class="d-flex gap-2 flex-wrap"><button class="lqc-dl-btn" onclick="downloadQR()"><i class="bi bi-download me-1"></i>QR İndir</button></div>
+      <div class="d-flex gap-2 flex-wrap mb-3"><button class="lqc-dl-btn" onclick="downloadQR()"><i class="bi bi-download me-1"></i>QR İndir</button></div>
+      <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.6);margin-bottom:10px;margin-top:14px;">HIZLI PAYLAŞ</div>
+      <div class="share-btns">
+        <button class="share-btn" style="background:#25d366;" onclick="shareWhatsApp()"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.407A9.945 9.945 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.946 7.946 0 01-4.054-1.108l-.29-.173-2.956.835.798-2.878-.19-.303A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg></button>
+        <button class="share-btn" style="background:linear-gradient(135deg,#7c3aed,#ec4899);" onclick="shareNative()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+      </div>
     </div>
-  </div>
-  <div style="height:1px;background:rgba(255,255,255,.1);margin:18px 0;"></div>
-  <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.6);margin-bottom:12px;">HIZLI PAYLAŞ</div>
-  <div class="share-btns">
-    <button class="share-btn" style="background:#25d366;" onclick="shareWhatsApp()"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.407A9.945 9.945 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.946 7.946 0 01-4.054-1.108l-.29-.173-2.956.835.798-2.878-.19-.303A7.96 7.96 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg></button>
-    <button class="share-btn" style="background:linear-gradient(135deg,#7c3aed,#ec4899);" onclick="shareNative()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+
+    <!-- SUBSCRIPTION INFO -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;min-width:160px;padding:16px;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(236,72,153,.08));border:1px solid rgba(124,58,237,.2);border-radius:14px;text-align:center;">
+      <div style="font-size:2rem;">{% if biz.plan_type == 'premium' %}👑{% elif biz.plan_type == 'standard' %}⭐{% else %}📦{% endif %}</div>
+      <div>
+        <div style="font-size:.7rem;color:rgba(196,181,253,.5);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">ABONELIK</div>
+        <div style="font-size:.95rem;font-weight:900;color:#e9d5ff;margin-bottom:8px;">
+          {% if biz.plan_type == 'premium' %}Premium
+          {% elif biz.plan_type == 'standard' %}Standard
+          {% else %}Temel{% endif %}
+        </div>
+      </div>
+      <div style="height:1px;width:100%;background:rgba(255,255,255,.1);"></div>
+      <div>
+        <div style="font-size:.7rem;color:rgba(196,181,253,.5);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">KALAN</div>
+        <div style="font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,#34d399,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+          {% if biz.subscription_end_date %}{{ (biz.subscription_end_date - now().date()).days }}{% else %}∞{% endif %}
+        </div>
+        <div style="font-size:.65rem;color:rgba(196,181,253,.5);margin-top:2px;">gün</div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="today-box">

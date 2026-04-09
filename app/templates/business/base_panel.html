@@ -92,7 +92,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-s
     </div>
   </div>
   <div class="nav-section">MENÜ</div>
-  <a class="nav-item {% if request.path == '/panel' %}active{% endif %}" href="/panel"><span class="ico">📊</span> <span>Özet Kontrolü</span></a>
+  <a class="nav-item {% if request.path == '/panel' %}active{% endif %}" href="/panel"><span class="ico">🏠</span> <span>Anasayfa</span></a>
   <a class="nav-item {% if '/randevular' in request.path %}active{% endif %}" href="/panel/randevular"><span class="ico">📅</span> <span>Tüm Randevular</span></a>
   <a class="nav-item {% if '/randevu-defteri' in request.path %}active{% endif %}" href="/panel/randevu-defteri"><span class="ico">📋</span> <span>Günlük Randevu Defteri</span></a>
   <a class="nav-item {% if '/hizmetler' in request.path %}active{% endif %}" href="/panel/hizmetler"><span class="ico">✂️</span> <span>Hizmet Yönetimi</span></a>
