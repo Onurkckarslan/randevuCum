@@ -138,34 +138,44 @@ async def lifespan(app: FastAPI):
         # ── Add subscription fields to businesses ──
         if "businesses" in inspector.get_table_names():
             cols = [col["name"] for col in inspector.get_columns("businesses")]
-            if "subscription_status" not in cols:
-                db.execute(text("ALTER TABLE businesses ADD COLUMN subscription_status VARCHAR(20) DEFAULT 'trial'"))
-            if "paytr_card_token" not in cols:
-                db.execute(text("ALTER TABLE businesses ADD COLUMN paytr_card_token VARCHAR(255)"))
-            if "card_last4" not in cols:
-                db.execute(text("ALTER TABLE businesses ADD COLUMN card_last4 VARCHAR(4)"))
-            if "card_brand" not in cols:
-                db.execute(text("ALTER TABLE businesses ADD COLUMN card_brand VARCHAR(20)"))
-            if "next_billing_date" not in cols:
-                db.execute(text("ALTER TABLE businesses ADD COLUMN next_billing_date TIMESTAMP"))
-            if "payment_failed_count" not in cols:
-                db.execute(text("ALTER TABLE businesses ADD COLUMN payment_failed_count INTEGER DEFAULT 0"))
+
+            subscription_cols = {
+                "subscription_status": "VARCHAR(20) DEFAULT 'trial'",
+                "paytr_card_token": "VARCHAR(255)",
+                "card_last4": "VARCHAR(4)",
+                "card_brand": "VARCHAR(20)",
+                "next_billing_date": "TIMESTAMP",
+                "payment_failed_count": "INTEGER DEFAULT 0"
+            }
+
+            for col_name, col_type in subscription_cols.items():
+                if col_name not in cols:
+                    try:
+                        query = f"ALTER TABLE businesses ADD COLUMN {col_name} {col_type}"
+                        db.execute(text(query))
+                        print(f"[Migration] ✅ Column added: {col_name}")
+                    except Exception as col_err:
+                        print(f"[Migration] Column {col_name} may already exist or error: {str(col_err)}")
 
         # ── Create payments table if not exists ──
         if "payments" not in inspector.get_table_names():
-            db.execute(text("""
-                CREATE TABLE payments (
-                    id SERIAL PRIMARY KEY,
-                    business_id INTEGER NOT NULL,
-                    amount INTEGER NOT NULL,
-                    plan_type VARCHAR(20),
-                    status VARCHAR(20) DEFAULT 'pending',
-                    paytr_ref_no VARCHAR(100),
-                    error_msg VARCHAR(255),
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    paid_at TIMESTAMP
-                )
-            """))
+            try:
+                db.execute(text("""
+                    CREATE TABLE payments (
+                        id SERIAL PRIMARY KEY,
+                        business_id INTEGER NOT NULL,
+                        amount INTEGER NOT NULL,
+                        plan_type VARCHAR(20),
+                        status VARCHAR(20) DEFAULT 'pending',
+                        paytr_ref_no VARCHAR(100),
+                        error_msg VARCHAR(255),
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        paid_at TIMESTAMP
+                    )
+                """))
+                print("[Migration] ✅ Payments table created")
+            except Exception as tbl_err:
+                print(f"[Migration] Payments table creation error: {str(tbl_err)}")
 
         db.commit()
         print("[Migration] ✅ Tüm migration'lar başarıyla tamamlandı")
