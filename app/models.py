@@ -39,15 +39,15 @@ class Business(Base):
     customer_profiles = relationship("CustomerProfile", back_populates="business", cascade="all, delete")
     expenses      = relationship("Expense", back_populates="business", cascade="all, delete")
     whatsapp_conversations = relationship("WhatsAppConversation", cascade="all, delete")
-    # payments      = relationship("Payment", back_populates="business", cascade="all, delete")
+    payments      = relationship("Payment", back_populates="business", cascade="all, delete")
 
-    # # ── Abonelik Sistemi (PayTR) — GEÇİCİ DISABLED ──
-    # subscription_status    = Column(String(20), default="trial")     # trial|active|suspended|cancelled
-    # paytr_card_token       = Column(String(255), nullable=True)      # PayTR recurring payment token
-    # card_last4             = Column(String(4), nullable=True)        # Son 4 hane gösterimi
-    # card_brand             = Column(String(20), nullable=True)       # Visa / Mastercard
-    # next_billing_date      = Column(DateTime, nullable=True)         # Sonraki ödeme tarihi
-    # payment_failed_count   = Column(Integer, default=0)              # Başarısız ödeme sayısı
+    # ── Abonelik Sistemi (PayTR) ──
+    subscription_status    = Column(String(20), default="trial")     # trial|active|suspended|cancelled
+    paytr_card_token       = Column(String(255), nullable=True)      # PayTR recurring payment token
+    card_last4             = Column(String(4), nullable=True)        # Son 4 hane gösterimi
+    card_brand             = Column(String(20), nullable=True)       # Visa / Mastercard
+    next_billing_date      = Column(DateTime, nullable=True)         # Sonraki ödeme tarihi
+    payment_failed_count   = Column(Integer, default=0)              # Başarısız ödeme sayısı
 
 
 class Service(Base):
@@ -249,19 +249,19 @@ class Lead(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
 
 
-# class Payment(Base):  # GEÇİCİ DISABLED
-#     """Ödeme İşlemleri - PayTR Entegrasyonu"""
-#     __tablename__ = "payments"
-#
-#     id              = Column(Integer, primary_key=True, index=True)
-#     business_id     = Column(Integer, ForeignKey("businesses.id"), nullable=False)
-#     amount          = Column(Integer, nullable=False)                 # Kuruş cinsinden (99900 = 999 TL)
-#     plan_type       = Column(String(20))                              # Hangi plan için ödeme
-#     status          = Column(String(20), default="pending")           # pending|completed|failed
-#     paytr_ref_no    = Column(String(100), nullable=True)              # PayTR işlem referans no
-#     error_msg       = Column(String(255), nullable=True)              # Hata mesajı
-#     created_at      = Column(DateTime, default=datetime.utcnow)
-#     paid_at         = Column(DateTime, nullable=True)
-#
-#     business        = relationship("Business", back_populates="payments")
+class Payment(Base):
+    """Ödeme İşlemleri - PayTR Entegrasyonu"""
+    __tablename__ = "payments"
+
+    id              = Column(Integer, primary_key=True, index=True)
+    business_id     = Column(Integer, ForeignKey("businesses.id"), nullable=False)
+    amount          = Column(Integer, nullable=False)                 # Kuruş cinsinden (99900 = 999 TL)
+    plan_type       = Column(String(20))                              # Hangi plan için ödeme
+    status          = Column(String(20), default="pending")           # pending|completed|failed
+    paytr_ref_no    = Column(String(100), nullable=True)              # PayTR işlem referans no
+    error_msg       = Column(String(255), nullable=True)              # Hata mesajı
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    paid_at         = Column(DateTime, nullable=True)
+
+    business        = relationship("Business", back_populates="payments")
 
