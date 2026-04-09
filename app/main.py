@@ -187,7 +187,8 @@ async def lifespan(app: FastAPI):
     finally:
         db.close()
 
-    asyncio.create_task(scheduler_loop())
+    # Scheduler'ı geçici disable et (migration sorunları düzeltilene kadar)
+    # asyncio.create_task(scheduler_loop())
     yield
 
 app = FastAPI(title="RandevuCum", lifespan=lifespan)
