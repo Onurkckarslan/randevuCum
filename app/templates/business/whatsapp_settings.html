@@ -2,7 +2,12 @@
 {% block title %}WhatsApp Bot Ayarları — {{ biz.name }}{% endblock %}
 {% block extra_head %}
 <style>
-.whatsapp-card { background: rgba(37,211,102,.08); border: 2px solid rgba(37,211,102,.25); border-radius: 16px; padding: 24px; }
+body { background: #0d0d16 !important; }
+.panel-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+.page-header { margin-bottom: 28px; }
+.page-title { font-size: 1.6rem; font-weight: 900; color: #f1f0f5; margin: 0; }
+.page-subtitle { font-size: .9rem; color: rgba(196,181,253,.5); margin-top: 4px; }
+.whatsapp-card { background: rgba(37,211,102,.08); border: 2px solid rgba(37,211,102,.25); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
 .whatsapp-card h2 { color: #25d366; margin-bottom: 16px; font-weight: 800; }
 .toggle-switch { display: inline-flex; align-items: center; gap: 12px; }
 .switch { position: relative; width: 50px; height: 28px; background: rgba(255,255,255,.1); border-radius: 14px; cursor: pointer; transition: all .3s; }
@@ -10,16 +15,35 @@
 .switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: left .3s; }
 .switch.active::after { left: 24px; }
 .info-box { background: rgba(99,102,241,.12); border-left: 4px solid #6366f1; padding: 16px; border-radius: 8px; margin: 16px 0; }
-.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.08); flex-wrap: wrap; gap: 12px; }
 .stat-row:last-child { border-bottom: none; }
+.how-it-works { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+.how-it-works h5 { color: #f1f0f5; font-weight: 800; margin-bottom: 16px; }
+.step { display: flex; gap: 12px; margin-bottom: 16px; }
+.step:last-child { margin-bottom: 0; }
+.step-num { background: #7c3aed; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0; }
+.step-num.complete { background: #25d366; }
+.step-content strong { color: #f1f0f5; display: block; margin-bottom: 4px; }
+.step-content span { color: rgba(196,181,253,.6); font-size: .9rem; }
+.back-btn { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); color: #c4b5fd; border-radius: 10px; padding: 8px 16px; font-size: .85rem; font-weight: 600; text-decoration: none; transition: background .15s; display: inline-block; margin-top: 20px; }
+.back-btn:hover { background: rgba(255,255,255,.13); color: #e9d5ff; }
+
+@media(max-width: 768px) {
+  .panel-container { padding: 16px; }
+  .page-title { font-size: 1.3rem; }
+  .whatsapp-card { padding: 16px; }
+  .stat-row { flex-direction: column; align-items: flex-start; }
+  .step { margin-bottom: 12px; }
+}
 </style>
 {% endblock %}
 {% block content %}
 
-<div class="container mt-4">
-  <div class="mb-4">
-    <h4 style="color:#f1f0f5;font-weight:800;">💬 WhatsApp Bot Ayarları</h4>
-    <small style="color:rgba(196,181,253,.5);">Müşterilerin WhatsApp üzerinden randevu almasını sağlayın</small>
+<div class="panel-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">💬 WhatsApp Bot Ayarları</h1>
+    <p class="page-subtitle">Müşterilerin WhatsApp üzerinden randevu almasını sağlayın</p>
   </div>
 
   <!-- WhatsApp Status Card -->
@@ -83,55 +107,46 @@
   </div>
 
   <!-- How It Works -->
-  <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;">
-    <h5 style="color:#f1f0f5;font-weight:800;margin-bottom:16px;">📖 Nasıl Çalışır?</h5>
+  <div class="how-it-works">
+    <h5>📖 Nasıl Çalışır?</h5>
 
-    <div style="margin-bottom:16px;">
-      <div style="display:flex;gap:12px;margin-bottom:12px;">
-        <div style="background:#7c3aed;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">1</div>
-        <div>
-          <strong style="color:#f1f0f5;">Müşteri Mesaj Yazar</strong><br>
-          <span style="color:rgba(196,181,253,.6);font-size:.9rem;">Müşteri "Randevu Al" yazarak başlar</span>
-        </div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>Müşteri Mesaj Yazar</strong>
+        <span>Müşteri "Randevu Al" yazarak başlar</span>
       </div>
     </div>
 
-    <div style="margin-bottom:16px;">
-      <div style="display:flex;gap:12px;margin-bottom:12px;">
-        <div style="background:#7c3aed;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">2</div>
-        <div>
-          <strong style="color:#f1f0f5;">Hizmet Seçer</strong><br>
-          <span style="color:rgba(196,181,253,.6);font-size:.9rem;">Bot hizmetlerin listesini gösterir, müşteri seçer</span>
-        </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>Hizmet Seçer</strong>
+        <span>Bot hizmetlerin listesini gösterir, müşteri seçer</span>
       </div>
     </div>
 
-    <div style="margin-bottom:16px;">
-      <div style="display:flex;gap:12px;margin-bottom:12px;">
-        <div style="background:#7c3aed;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">3</div>
-        <div>
-          <strong style="color:#f1f0f5;">Tarih & Saat Seçer</strong><br>
-          <span style="color:rgba(196,181,253,.6);font-size:.9rem;">Uygun tarihleri, sonra uygun saatleri seçer</span>
-        </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>Tarih & Saat Seçer</strong>
+        <span>Uygun tarihleri, sonra uygun saatleri seçer</span>
       </div>
     </div>
 
-    <div style="margin-bottom:0;">
-      <div style="display:flex;gap:12px;">
-        <div style="background:#25d366;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0;">✓</div>
-        <div>
-          <strong style="color:#25d366;">Randevu Onaylandı!</strong><br>
-          <span style="color:rgba(196,181,253,.6);font-size:.9rem;">Randevu sisteme kaydedilir ve SMS bildirim gider</span>
-        </div>
+    <div class="step">
+      <div class="step-num complete">✓</div>
+      <div class="step-content">
+        <strong style="color:#25d366;">Randevu Onaylandı!</strong>
+        <span>Randevu sisteme kaydedilir ve SMS bildirim gider</span>
       </div>
     </div>
   </div>
 
-  <div style="margin-top:24px;">
-    <a href="/panel" class="btn btn-outline-primary">← Geri Dön</a>
-  </div>
+  <a href="/panel" class="back-btn">← Geri Dön</a>
 </div>
 
+{% block extra_js %}
 <script>
 function toggleWhatsApp() {
   const form = document.getElementById('whatsappForm');
@@ -141,5 +156,6 @@ function toggleWhatsApp() {
   form.submit();
 }
 </script>
+{% endblock %}
 
 {% endblock %}
