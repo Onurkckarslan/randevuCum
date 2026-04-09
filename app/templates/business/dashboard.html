@@ -46,16 +46,59 @@ body { background: #0d0d16 !important; }
 .staff-stat { color: #a78bfa; font-weight: 700; }
 .staff-empty { text-align: center; padding: 40px 20px; color: rgba(196,181,253,.5); }
 
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-top: 20px; margin-bottom: 20px; }
-.menu-card { background: rgba(255,255,255,.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 16px; text-align: center; text-decoration: none; color: inherit; transition: all .2s; cursor: pointer; }
-.menu-card:hover { background: rgba(255,255,255,.08); border-color: rgba(124,58,237,.3); transform: translateY(-2px); }
-.menu-card-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
-.menu-card-label { font-size: .7rem; font-weight: 700; color: rgba(196,181,253,.7); line-height: 1.3; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 24px; margin-bottom: 20px; }
+.menu-card { background: linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(16px); border: 1.5px solid rgba(255,255,255,.12); border-radius: 16px; padding: 18px 14px; text-align: center; text-decoration: none; color: inherit; transition: all .3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; position: relative; overflow: hidden; }
+.menu-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,.05) 50%, transparent 70%); opacity: 0; transition: opacity .3s; }
+.menu-card:hover { transform: translateY(-6px) scale(1.02); border-color: rgba(124,58,237,.5); box-shadow: 0 0 24px rgba(124,58,237,.3), inset 0 1px 0 rgba(255,255,255,.1); }
+.menu-card:hover::before { opacity: 1; }
+.menu-card-icon { font-size: 2rem; margin-bottom: 10px; display: block; transition: transform .3s; }
+.menu-card:hover .menu-card-icon { transform: scale(1.2) rotate(5deg); }
+.menu-card-label { font-size: .72rem; font-weight: 800; color: rgba(196,181,253,.8); line-height: 1.4; letter-spacing: .3px; }
+
+/* Neon colored cards */
+.menu-card:nth-child(1) { border-color: rgba(124,58,237,.3); }
+.menu-card:nth-child(1):hover { box-shadow: 0 0 30px rgba(124,58,237,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(124,58,237,.6); }
+.menu-card:nth-child(2) { border-color: rgba(236,72,153,.3); }
+.menu-card:nth-child(2):hover { box-shadow: 0 0 30px rgba(236,72,153,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(236,72,153,.6); }
+.menu-card:nth-child(3) { border-color: rgba(34,197,94,.3); }
+.menu-card:nth-child(3):hover { box-shadow: 0 0 30px rgba(34,197,94,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(34,197,94,.6); }
+.menu-card:nth-child(4) { border-color: rgba(59,130,246,.3); }
+.menu-card:nth-child(4):hover { box-shadow: 0 0 30px rgba(59,130,246,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(59,130,246,.6); }
+.menu-card:nth-child(5) { border-color: rgba(251,191,36,.3); }
+.menu-card:nth-child(5):hover { box-shadow: 0 0 30px rgba(251,191,36,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(251,191,36,.6); }
+.menu-card:nth-child(6) { border-color: rgba(6,182,212,.3); }
+.menu-card:nth-child(6):hover { box-shadow: 0 0 30px rgba(6,182,212,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(6,182,212,.6); }
+.menu-card:nth-child(7) { border-color: rgba(168,85,247,.3); }
+.menu-card:nth-child(7):hover { box-shadow: 0 0 30px rgba(168,85,247,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(168,85,247,.6); }
+.menu-card:nth-child(8) { border-color: rgba(249,115,22,.3); }
+.menu-card:nth-child(8):hover { box-shadow: 0 0 30px rgba(249,115,22,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(249,115,22,.6); }
+.menu-card:nth-child(9) { border-color: rgba(236,72,153,.3); }
+.menu-card:nth-child(9):hover { box-shadow: 0 0 30px rgba(236,72,153,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(236,72,153,.6); }
+.menu-card:nth-child(10) { border-color: rgba(34,197,94,.3); }
+.menu-card:nth-child(10):hover { box-shadow: 0 0 30px rgba(34,197,94,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(34,197,94,.6); }
+.menu-card:nth-child(11) { border-color: rgba(59,130,246,.3); }
+.menu-card:nth-child(11):hover { box-shadow: 0 0 30px rgba(59,130,246,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(59,130,246,.6); }
+.menu-card:nth-child(12) { border-color: rgba(251,191,36,.3); }
+.menu-card:nth-child(12):hover { box-shadow: 0 0 30px rgba(251,191,36,.4), inset 0 1px 0 rgba(255,255,255,.1); border-color: rgba(251,191,36,.6); }
 
 @media(max-width: 768px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .stat-value { font-size: 1.4rem; }
-  .menu-grid { grid-template-columns: repeat(3, 1fr); }
+  .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .menu-card { padding: 14px 10px; }
+  .menu-card-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .menu-card-label { font-size: .65rem; }
+}
+
+.qr-wrapper { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center; }
+.qr-actions { display: flex; flex-direction: column; gap: 8px; }
+.qr-action-btn { width: 48px; height: 48px; border-radius: 12px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.4rem; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+.qr-action-btn:hover { transform: scale(1.1); }
+
+@media(max-width: 768px) {
+  .qr-wrapper { grid-template-columns: 1fr; gap: 16px; }
+  .qr-actions { flex-direction: row; gap: 6px; }
+  .qr-action-btn { width: 40px; height: 40px; font-size: 1.2rem; }
 }
 </style>
 {% endblock %}
@@ -87,26 +130,16 @@ body { background: #0d0d16 !important; }
   </div>
 </div>
 
-<!-- MOBILE MENU GRID -->
-<div class="menu-grid">
-  <a href="/panel/randevular" class="menu-card"><span class="menu-card-icon">📅</span><span class="menu-card-label">Tüm Randevular</span></a>
-  <a href="/panel/randevu-defteri" class="menu-card"><span class="menu-card-icon">📋</span><span class="menu-card-label">Günlük Randevu</span></a>
-  <a href="/panel/hizmetler" class="menu-card"><span class="menu-card-icon">✂️</span><span class="menu-card-label">Hizmet Yönetimi</span></a>
-  <a href="/panel/personel" class="menu-card"><span class="menu-card-icon">👥</span><span class="menu-card-label">Personel</span></a>
-  <a href="/panel/calisma-saatleri" class="menu-card"><span class="menu-card-icon">⏰</span><span class="menu-card-label">Çalışma Saatleri</span></a>
-  <a href="/panel/istatistikler" class="menu-card"><span class="menu-card-icon">📈</span><span class="menu-card-label">İstatistikler</span></a>
-  <a href="/panel/gelir-takibi" class="menu-card"><span class="menu-card-icon">💰</span><span class="menu-card-label">Gelir & Gider</span></a>
-  <a href="/panel/urun-stok" class="menu-card"><span class="menu-card-icon">📦</span><span class="menu-card-label">Ürün & Stok</span></a>
-  <a href="/panel/musteri-sadakati" class="menu-card"><span class="menu-card-icon">⭐</span><span class="menu-card-label">Müşteri Sadakat</span></a>
-  <a href="/panel/whatsapp" class="menu-card"><span class="menu-card-icon">💬</span><span class="menu-card-label">WhatsApp Botu</span></a>
-  <a href="/panel/fotolar" class="menu-card"><span class="menu-card-icon">📷</span><span class="menu-card-label">Fotoğraflar</span></a>
-  <a href="/panel/profil" class="menu-card"><span class="menu-card-icon">⚙️</span><span class="menu-card-label">Profil & Ayarlar</span></a>
-</div>
-
 <div class="link-qr-card mb-4">
-  <div style="display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;">
-    <!-- QR CODE -->
-    <div style="background:#fff;border-radius:16px;padding:10px;display:inline-flex;"><div id="qrCodeContainer" style="width:110px;height:110px;display:flex;align-items:center;justify-content:center;"><div id="qrPlaceholder" style="font-size:.65rem;color:#9ca3af;">Yükleniyor</div></div></div>
+  <div class="qr-wrapper">
+    <!-- QR CODE + ACTIONS -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <div style="background:#fff;border-radius:16px;padding:10px;display:inline-flex;"><div id="qrCodeContainer" style="width:110px;height:110px;display:flex;align-items:center;justify-content:center;"><div id="qrPlaceholder" style="font-size:.65rem;color:#9ca3af;">Yükleniyor</div></div></div>
+      <div class="qr-actions">
+        <button class="qr-action-btn" style="background:#25d366;color:white;" onclick="shareWhatsApp()" title="WhatsApp'a paylaş">💬</button>
+        <button class="qr-action-btn" style="background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;" onclick="copyLink(this, 'https://www.randevucum.com/{{ biz.slug }}')" title="Linki kopyala">🔗</button>
+      </div>
+    </div>
 
     <!-- URL VE PAYLAŞ -->
     <div style="flex:1;">
@@ -142,6 +175,23 @@ body { background: #0d0d16 !important; }
     </div>
   </div>
 </div>
+
+<!-- MENU GRID (Desktop & Mobile) -->
+<div class="menu-grid">
+  <a href="/panel/randevular" class="menu-card"><span class="menu-card-icon">📅</span><span class="menu-card-label">Tüm Randevular</span></a>
+  <a href="/panel/randevu-defteri" class="menu-card"><span class="menu-card-icon">📋</span><span class="menu-card-label">Günlük Randevu</span></a>
+  <a href="/panel/hizmetler" class="menu-card"><span class="menu-card-icon">✂️</span><span class="menu-card-label">Hizmet Yönetimi</span></a>
+  <a href="/panel/personel" class="menu-card"><span class="menu-card-icon">👥</span><span class="menu-card-label">Personel</span></a>
+  <a href="/panel/calisma-saatleri" class="menu-card"><span class="menu-card-icon">⏰</span><span class="menu-card-label">Çalışma Saatleri</span></a>
+  <a href="/panel/istatistikler" class="menu-card"><span class="menu-card-icon">📈</span><span class="menu-card-label">İstatistikler</span></a>
+  <a href="/panel/gelir-takibi" class="menu-card"><span class="menu-card-icon">💰</span><span class="menu-card-label">Gelir & Gider</span></a>
+  <a href="/panel/urun-stok" class="menu-card"><span class="menu-card-icon">📦</span><span class="menu-card-label">Ürün & Stok</span></a>
+  <a href="/panel/musteri-sadakati" class="menu-card"><span class="menu-card-icon">⭐</span><span class="menu-card-label">Müşteri Sadakat</span></a>
+  <a href="/panel/whatsapp" class="menu-card"><span class="menu-card-icon">💬</span><span class="menu-card-label">WhatsApp Botu</span></a>
+  <a href="/panel/fotolar" class="menu-card"><span class="menu-card-icon">📷</span><span class="menu-card-label">Fotoğraflar</span></a>
+  <a href="/panel/profil" class="menu-card"><span class="menu-card-icon">⚙️</span><span class="menu-card-label">Profil & Ayarlar</span></a>
+</div>
+
 <div class="today-box">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
     <span style="font-weight:800;color:#f1f0f5;font-size:.95rem;">📅 Bugünün Randevuları</span>
