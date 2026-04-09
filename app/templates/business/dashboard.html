@@ -314,18 +314,19 @@ function copyLink(btn, url) {
 
 function shareWhatsApp() {
   const urlWithoutWWW = "https://randevucum.com/" + slug;
-  window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + urlWithoutWWW);
+  window.location.href = "https://wa.me/?text=" + encodeURIComponent(urlWithoutWWW);
 }
 
 function shareNative() {
+  const urlWithoutWWW = "https://randevucum.com/" + slug;
   if (navigator.share) {
     navigator.share({
       title: "Randevu",
-      text: "Online randevu: " + bizUrl,
-      url: bizUrl
-    }).catch(() => copyToClipboard(bizUrl));
+      text: urlWithoutWWW,
+      url: urlWithoutWWW
+    }).catch(() => copyToClipboard(urlWithoutWWW));
   } else {
-    copyToClipboard(bizUrl);
+    copyToClipboard(urlWithoutWWW);
   }
 }
 </script>
