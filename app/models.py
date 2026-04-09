@@ -39,15 +39,15 @@ class Business(Base):
     customer_profiles = relationship("CustomerProfile", back_populates="business", cascade="all, delete")
     expenses      = relationship("Expense", back_populates="business", cascade="all, delete")
     whatsapp_conversations = relationship("WhatsAppConversation", cascade="all, delete")
-    payments      = relationship("Payment", back_populates="business", cascade="all, delete")
+    # payments      = relationship("Payment", back_populates="business", cascade="all, delete")
 
-    # ── Abonelik Sistemi (PayTR) ──
-    subscription_status    = Column(String(20), default="trial")     # trial|active|suspended|cancelled
-    paytr_card_token       = Column(String(255), nullable=True)      # PayTR recurring payment token
-    card_last4             = Column(String(4), nullable=True)        # Son 4 hane gösterimi
-    card_brand             = Column(String(20), nullable=True)       # Visa / Mastercard
-    next_billing_date      = Column(DateTime, nullable=True)         # Sonraki ödeme tarihi
-    payment_failed_count   = Column(Integer, default=0)              # Başarısız ödeme sayısı
+    # # ── Abonelik Sistemi (PayTR) — GEÇİCİ DISABLED ──
+    # subscription_status    = Column(String(20), default="trial")     # trial|active|suspended|cancelled
+    # paytr_card_token       = Column(String(255), nullable=True)      # PayTR recurring payment token
+    # card_last4             = Column(String(4), nullable=True)        # Son 4 hane gösterimi
+    # card_brand             = Column(String(20), nullable=True)       # Visa / Mastercard
+    # next_billing_date      = Column(DateTime, nullable=True)         # Sonraki ödeme tarihi
+    # payment_failed_count   = Column(Integer, default=0)              # Başarısız ödeme sayısı
 
 
 class Service(Base):
