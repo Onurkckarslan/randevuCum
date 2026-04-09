@@ -1920,20 +1920,32 @@ body::before {
     <!-- CSS KEYFRAMES FOR LAPTOP -->
     <style>
       @keyframes laptopFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-16px); }
+        0%, 100% { transform: translateY(0) scale(1); }
+        25% { transform: translateY(-12px) scale(0.99); }
+        50% { transform: translateY(-18px) scale(1); }
+        75% { transform: translateY(-10px) scale(0.99); }
       }
       @keyframes float1 {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-18px); }
+        0%, 100% { transform: translateY(0); opacity: 1; }
+        20% { opacity: 0.9; }
+        50% { transform: translateY(-20px); opacity: 1; }
+        80% { opacity: 0.9; }
       }
       @keyframes float2 {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(16px); }
+        0%, 100% { transform: translateY(0); opacity: 1; }
+        25% { opacity: 0.95; }
+        50% { transform: translateY(18px); opacity: 1; }
+        75% { opacity: 0.95; }
       }
       @keyframes float3 {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-14px); }
+        0%, 100% { transform: translateY(0); opacity: 1; }
+        30% { opacity: 0.92; }
+        50% { transform: translateY(-16px); opacity: 1; }
+        70% { opacity: 0.92; }
+      }
+      @keyframes glowPulse {
+        0%, 100% { filter: drop-shadow(0 0 20px rgba(255,255,255,0)) drop-shadow(0 8px 24px rgba(124,58,237,.2)); }
+        50% { filter: drop-shadow(0 0 40px rgba(124,58,237,.3)) drop-shadow(0 12px 36px rgba(124,58,237,.3)); }
       }
     </style>
     </div>
