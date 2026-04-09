@@ -249,8 +249,10 @@ async def validation_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(status_code=422, content={"detail": exc.errors()})
 
 from .templates_config import templates
+from datetime import datetime
 
 templates.env.globals["enumerate"] = enumerate
+templates.env.globals["now"] = lambda: datetime.utcnow()
 
 # current_business'i global Jinja2 context processor olarak ekle
 _orig_response = templates.TemplateResponse.__func__ if hasattr(templates.TemplateResponse, '__func__') else None
