@@ -1687,18 +1687,18 @@ body::before {
     </img>
 
     <!-- ═══ HAREKETLI LAPTOP MOCKUP (MASAÜSTÜ) ═══ -->
-    <div style="width:100%;margin:140px auto 0;padding:0 40px;display:none;overflow:hidden;" class="d-md-block">
-      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:60px;align-items:center;">
+    <div style="width:100%;margin:140px auto 0;padding:0 40px;display:none;" class="d-md-block">
+      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
 
-      <!-- LEFT COLUMN: 7/12 - LAPTOP AREA (Zero clipping) -->
-      <div style="grid-column:span 7;position:relative;width:100%;height:auto;overflow:visible;">
+      <!-- LEFT COLUMN: LAPTOP -->
+      <div style="position:relative;width:100%;height:auto;">
 
-      <!-- LAPTOP FRAME (100% fits column, transform:none) -->
-      <div style="width:100%;max-width:650px;position:relative;height:auto;
+      <!-- LAPTOP FRAME -->
+      <div style="width:100%;max-width:550px;position:relative;height:auto;
                   border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
                   box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
-                  overflow:visible;z-index:50;will-change:transform;transform:translateX(0);
-                  animation:laptopFloat 6s ease-in-out infinite;margin:0;">
+                  overflow:hidden;z-index:50;will-change:transform;
+                  animation:laptopFloat 6s ease-in-out infinite;margin:0 auto;"
 
         <!-- LAPTOP SCREEN — Dashboard UI -->
         <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,15,.97),rgba(15,12,25,.97));
@@ -1764,87 +1764,63 @@ body::before {
           </div>
         </div>
 
-        <!-- LAPTOP BODY (Inside frame) -->
-        <div style="position:absolute;left:0;bottom:-16px;width:100%;height:16px;
+        <!-- LAPTOP BODY -->
+        <div style="position:absolute;left:0;bottom:-12px;width:100%;height:12px;
                     background:#1a1a1a;border-radius:0 0 12px 12px;border:2px solid #0f0f0f;z-index:49;"></div>
 
-        <!-- LAPTOP TRACKPAD (Inside frame, centered) -->
-        <div style="position:absolute;left:50%;bottom:-28px;width:80%;max-width:240px;height:12px;
-                    background:#2a2a2a;border-radius:3px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);
+        <!-- LAPTOP TRACKPAD -->
+        <div style="position:absolute;left:50%;bottom:-22px;width:75%;max-width:200px;height:10px;
+                    background:#2a2a2a;border-radius:2px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);
                     transform:translateX(-50%);"></div>
       </div>
 
-      <!-- FLOATING CARDS - 44x44 (Responsive, container-bound) -->
-      <!-- Top-Left: WhatsApp -->
-      <div style="position:absolute;left:0;top:10px;width:44px;height:44px;
+      <!-- FLOATING CARDS (Positioned within left column) -->
+      <div style="position:absolute;left:-20px;top:20px;width:40px;height:40px;
                   background:rgba(37,211,102,.12);backdrop-filter:blur(10px);border:1px solid rgba(37,211,102,.3);
                   border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
+                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
                   animation:float1 5s ease-in-out infinite;
-                  box-shadow:0 8px 32px rgba(37,211,102,.2);">
-        💬
-        <div style="font-size:5px;font-weight:700;color:#34d399;text-align:center;">WhatsApp</div>
-      </div>
+                  box-shadow:0 8px 32px rgba(37,211,102,.2);">💬</div>
 
-      <!-- Right: Analitik -->
-      <div style="position:absolute;right:0;top:20px;width:44px;height:44px;
+      <div style="position:absolute;right:-20px;top:30px;width:40px;height:40px;
                   background:rgba(6,182,212,.12);backdrop-filter:blur(10px);border:1px solid rgba(6,182,212,.3);
                   border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
+                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
                   animation:float2 4s ease-in-out infinite;animation-delay:.5s;
-                  box-shadow:0 8px 32px rgba(6,182,212,.2);">
-        📊
-        <div style="font-size:5px;font-weight:700;color:#67e8f9;">Analitik</div>
-      </div>
+                  box-shadow:0 8px 32px rgba(6,182,212,.2);">📊</div>
 
-      <!-- Left: Gelir -->
-      <div style="position:absolute;left:0;top:120px;width:44px;height:44px;
+      <div style="position:absolute;left:-20px;top:140px;width:40px;height:40px;
                   background:rgba(251,191,36,.12);backdrop-filter:blur(10px);border:1px solid rgba(251,191,36,.3);
                   border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
+                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
                   animation:float3 6s ease-in-out infinite;animation-delay:1s;
-                  box-shadow:0 8px 32px rgba(251,191,36,.2);">
-        💰
-        <div style="font-size:5px;font-weight:700;color:#fbbf24;">Gelir</div>
-      </div>
+                  box-shadow:0 8px 32px rgba(251,191,36,.2);">💰</div>
 
-      <!-- Right-Bottom: Rating -->
-      <div style="position:absolute;right:0;bottom:40px;width:44px;height:44px;
+      <div style="position:absolute;right:-20px;bottom:60px;width:40px;height:40px;
                   background:rgba(168,85,247,.12);backdrop-filter:blur(10px);border:1px solid rgba(168,85,247,.3);
                   border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
+                  font-size:1rem;z-index:60;gap:2px;will-change:transform;
                   animation:float1 4.5s ease-in-out infinite;animation-delay:.8s;
-                  box-shadow:0 8px 32px rgba(168,85,247,.25);">
-        ⭐
-        <div style="font-size:5px;font-weight:700;color:#c4b5fd;">4.9</div>
-      </div>
+                  box-shadow:0 8px 32px rgba(168,85,247,.25);">⭐</div>
 
-      <!-- Top-Center: Randevu -->
-      <div style="position:absolute;left:50%;top:5px;transform:translateX(-50%);width:44px;height:44px;
+      <div style="position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:40px;height:40px;
                   background:rgba(124,58,237,.12);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.3);
                   border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
+                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
                   animation:float2 3.5s ease-in-out infinite;animation-delay:1.2s;
-                  box-shadow:0 8px 32px rgba(124,58,237,.25);">
-        📅
-        <div style="font-size:5px;font-weight:700;color:#c4b5fd;text-align:center;">Randevu</div>
-      </div>
+                  box-shadow:0 8px 32px rgba(124,58,237,.25);">📅</div>
 
-      <!-- Bottom-Right Corner: Personel -->
-      <div style="position:absolute;right:0;bottom:10px;width:44px;height:44px;
+      <div style="position:absolute;right:-20px;bottom:20px;width:40px;height:40px;
                   background:rgba(14,165,233,.12);backdrop-filter:blur(10px);border:1px solid rgba(14,165,233,.3);
                   border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
+                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
                   animation:float3 5.5s ease-in-out infinite;animation-delay:1s;
-                  box-shadow:0 8px 32px rgba(14,165,233,.2);">
-        👥
-        <div style="font-size:5px;font-weight:700;color:#0ea5e9;text-align:center;">Personel</div>
-      </div>
+                  box-shadow:0 8px 32px rgba(14,165,233,.2);">👥</div>
 
       </div>
 
-      <!-- RIGHT COLUMN: 5/12 (42%) - INFO BLOCK (Right-aligned, centered) -->
-      <div style="grid-column:span 5;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:24px;text-align:right;padding-left:20px;">
+      <!-- RIGHT COLUMN: TEXT & FEATURES -->
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:28px;text-align:right;"
         <!-- Gradient Heading -->
         <h2 style="background:linear-gradient(135deg,#ec4899 0%,#7c3aed 100%);-webkit-background-clip:text;
                    -webkit-text-fill-color:transparent;background-clip:text;font-size:2.2rem;font-weight:900;
@@ -1916,19 +1892,20 @@ body::before {
                    display:block;z-index:10;position:relative;animation:fadeInUp .8s .4s both;">
       </img>
 
-      <!-- ═══ HAREKETLI TELEFON MOCKUP ═══ -->
-      <div style="position:relative;width:100%;max-width:320px;height:440px;margin:0 auto;overflow:visible;">
+      <!-- ═══ HAREKETLI TELEFON MOCKUP (iPhone 15 Pro) ═══ -->
+      <div style="position:relative;width:100%;max-width:340px;height:480px;margin:0 auto;overflow:visible;">
 
-        <!-- PHONE FRAME -->
-        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:160px;height:310px;
-                    border-radius:36px;background:#1a1a2e;border:8px solid #0f0f1a;
-                    box-shadow:0 20px 60px rgba(124,58,237,.3),inset 0 1px 0 rgba(255,255,255,.1);
+        <!-- PHONE FRAME (iPhone 15 Pro Style) -->
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:180px;height:360px;
+                    border-radius:50px;background:linear-gradient(135deg, #1f1f23, #131315);border:10px solid #0a0a0a;
+                    box-shadow:0 0 0 0.5px rgba(255,255,255,.1), 0 25px 70px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05);
                     overflow:hidden;z-index:50;will-change:transform;
-                    animation:phoneFloat 4s ease-in-out infinite;">
+                    animation:phoneFloat 4s ease-in-out infinite;"
 
-          <!-- NOTCH -->
-          <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:100px;height:24px;
-                      background:#0f0f1a;border-radius:0 0 20px 20px;z-index:2;border:1px solid rgba(124,58,237,.2);"></div>
+          <!-- DYNAMIC ISLAND (iPhone 15 Pro) -->
+          <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);width:70px;height:28px;
+                      background:linear-gradient(180deg,#0a0a0f,#0f0f15);border-radius:20px;z-index:100;
+                      border:0.5px solid rgba(255,255,255,.1);box-shadow:inset 0 1px 3px rgba(0,0,0,.8);"></div>
 
           <!-- PHONE SCREEN — Randevu UI -->
           <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,15,.98),rgba(15,12,25,.98));
