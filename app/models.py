@@ -21,8 +21,10 @@ class Business(Base):
     description   = Column(Text)
     is_active     = Column(Boolean, default=True)
     created_at    = Column(DateTime, default=datetime.utcnow)
-    plan          = Column(String(20), default="temel")        # temel | premium
-    plan_expires_at = Column(DateTime, nullable=True)          # None = süresiz
+    plan          = Column(String(20), default="temel")        # temel | premium (eski alan, compat.)
+    plan_expires_at = Column(DateTime, nullable=True)          # None = süresiz (eski alan, compat.)
+    plan_type     = Column(String(20), default="temel")        # temel | standard | premium
+    subscription_end_date = Column(DateTime, nullable=True)    # Abonelik bitiş tarihi
     whatsapp_enabled = Column(Boolean, default=False)          # WhatsApp aktif mi?
     whatsapp_phone = Column(String(20), nullable=True)         # Twilio WhatsApp numarası
     business_code = Column(String(6), unique=True, nullable=True)  # 6 haneli işletme kimlik no
@@ -37,6 +39,15 @@ class Business(Base):
     customer_profiles = relationship("CustomerProfile", back_populates="business", cascade="all, delete")
     expenses      = relationship("Expense", back_populates="business", cascade="all, delete")
     whatsapp_conversations = relationship("WhatsAppConversation", cascade="all, delete")
+    payments      = relationship("Payment", back_populates="business", cascade="all, delete")
+
+    # ── Abonelik Sistemi (PayTR) ──
+    subscription_status    = Column(String(20), default="trial")     # trial|active|suspended|cancelled
+    paytr_card_token       = Column(String(255), nullable=True)      # PayTR recurring payment token
+    card_last4             = Column(String(4), nullable=True)        # Son 4 hane gösterimi
+    card_brand             = Column(String(20), nullable=True)       # Visa / Mastercard
+    next_billing_date      = Column(DateTime, nullable=True)         # Sonraki ödeme tarihi
+    payment_failed_count   = Column(Integer, default=0)              # Başarısız ödeme sayısı
 
 
 class Service(Base):
@@ -236,4 +247,21 @@ class Lead(Base):
     status          = Column(String(30), default="beklemede")  # beklemede | arandi | sozlesme_imzalandi
     is_read         = Column(Boolean, default=False)
     created_at      = Column(DateTime, default=datetime.utcnow)
+
+
+class Payment(Base):
+    """Ödeme İşlemleri - PayTR Entegrasyonu"""
+    __tablename__ = "payments"
+
+    id              = Column(Integer, primary_key=True, index=True)
+    business_id     = Column(Integer, ForeignKey("businesses.id"), nullable=False)
+    amount          = Column(Integer, nullable=False)                 # Kuruş cinsinden (99900 = 999 TL)
+    plan_type       = Column(String(20))                              # Hangi plan için ödeme
+    status          = Column(String(20), default="pending")           # pending|completed|failed
+    paytr_ref_no    = Column(String(100), nullable=True)              # PayTR işlem referans no
+    error_msg       = Column(String(255), nullable=True)              # Hata mesajı
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    paid_at         = Column(DateTime, nullable=True)
+
+    business        = relationship("Business", back_populates="payments")
 

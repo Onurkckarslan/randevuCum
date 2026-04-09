@@ -1,0 +1,335 @@
+{% extends "business/base_panel.html" %}
+{% block title %}Abonelik & Ödeme — {{ biz.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+.billing-container { max-width: 900px; }
+.billing-card {
+  background: rgba(255,255,255,.04); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 18px;
+  padding: 24px; margin-bottom: 20px; position: relative; overflow: hidden;
+}
+.billing-card h2 {
+  font-size: 1.2rem; font-weight: 800; color: #f1f0f5; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.billing-card h2 .emoji { font-size: 1.5rem; }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+  border-radius: 12px; font-weight: 700; font-size: .9rem; margin-bottom: 12px;
+}
+.status-trial { background: rgba(251,191,36,.15); color: #fbbf24; border: 1px solid rgba(251,191,36,.25); }
+.status-active { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.25); }
+.status-suspended { background: rgba(239,68,68,.15); color: #fca5a5; border: 1px solid rgba(239,68,68,.25); }
+.status-cancelled { background: rgba(107,114,128,.15); color: #d1d5db; border: 1px solid rgba(107,114,128,.25); }
+
+.info-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;
+}
+.info-item {
+  background: rgba(255,255,255,.02); padding: 12px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.info-label { font-size: .75rem; font-weight: 800; color: rgba(196,181,253,.5); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+.info-value { font-size: 1.1rem; font-weight: 900; color: #e9d5ff; }
+.info-subtext { font-size: .8rem; color: rgba(196,181,253,.4); margin-top: 4px; }
+
+.card-display {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 16px;
+  padding: 20px; margin: 12px 0; font-family: 'Courier New', monospace;
+  border: 1px solid rgba(148,163,184,.2);
+}
+.card-number { font-size: 1.1rem; letter-spacing: 2px; color: #e2e8f0; margin-bottom: 12px; }
+.card-details { display: flex; justify-content: space-between; font-size: .9rem; color: #cbd5e1; }
+
+.button-group { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.btn {
+  padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer;
+  font-weight: 700; font-size: .9rem; transition: all .2s;
+  font-family: inherit;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #ec4899); color: white;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+.btn-secondary {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #e9d5ff;
+}
+.btn-secondary:hover { background: rgba(255,255,255,.15); }
+.btn-danger {
+  background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); color: #fca5a5;
+}
+.btn-danger:hover { background: rgba(239,68,68,.25); }
+
+.payment-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.payment-table thead { background: rgba(255,255,255,.05); }
+.payment-table th {
+  padding: 12px; text-align: left; font-size: .85rem; font-weight: 700;
+  color: rgba(196,181,253,.7); border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.payment-table td {
+  padding: 12px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .9rem;
+}
+.payment-table tr:hover { background: rgba(255,255,255,.03); }
+
+.status-completed { color: #34d399; }
+.status-failed { color: #fca5a5; }
+.status-pending { color: #fbbf24; }
+
+.empty-state {
+  text-align: center; padding: 40px 20px; color: rgba(196,181,253,.4);
+}
+.empty-state i { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+
+@media (max-width: 768px) {
+  .billing-card { padding: 16px; }
+  .info-grid { grid-template-columns: 1fr; }
+  .button-group { flex-direction: column; }
+  .btn { width: 100%; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="billing-container">
+  <!-- Page Header -->
+  <div class="page-header" style="margin-bottom: 28px;">
+    <h1>💳 Abonelik & Ödeme</h1>
+    <p>Abonelik planını yönet, kart bilgisini ekle/değiştir</p>
+  </div>
+
+  <!-- 1. ABONELIK DURUMU -->
+  <div class="billing-card">
+    <h2><span class="emoji">{{ status_display[biz.subscription_status][0] }}</span> Abonelik Durumu</h2>
+
+    <div class="status-badge status-{{ biz.subscription_status }}">
+      {{ status_display[biz.subscription_status][1] }}
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Plan</div>
+        <div class="info-value">
+          {% if biz.plan_type == 'premium' %}👑 Premium
+          {% elif biz.plan_type == 'premium_pro' %}👑 Premium Pro
+          {% else %}📦 Temel{% endif %}
+        </div>
+      </div>
+
+      <div class="info-item">
+        <div class="info-label">Kalan Süre</div>
+        <div class="info-value">
+          {% if biz.subscription_end_date %}
+            {{ (biz.subscription_end_date.date() - now().date()).days }} gün
+          {% else %}
+            —
+          {% endif %}
+        </div>
+        {% if biz.subscription_end_date %}
+        <div class="info-subtext">{{ biz.subscription_end_date.strftime('%d.%m.%Y') }} tarihine kadar</div>
+        {% endif %}
+      </div>
+
+      <div class="info-item">
+        <div class="info-label">Sonraki Ödeme</div>
+        <div class="info-value">
+          {% if biz.next_billing_date %}
+            {{ biz.next_billing_date.strftime('%d.%m.%Y') }}
+          {% else %}
+            —
+          {% endif %}
+        </div>
+        {% if biz.plan_type == 'premium' %}
+        <div class="info-subtext">999 ₺/ay</div>
+        {% elif biz.plan_type == 'premium_pro' %}
+        <div class="info-subtext">1.499 ₺/ay</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ÖDEME YÖNTEMİ -->
+  <div class="billing-card">
+    <h2><span class="emoji">💳</span> Ödeme Yöntemi</h2>
+
+    {% if has_card %}
+      <div class="card-display">
+        <div class="card-number">●●●● ●●●● ●●●● {{ biz.card_last4 }}</div>
+        <div class="card-details">
+          <span>{{ biz.card_brand or 'Kart' }}</span>
+          <span>Süresi dolmadı</span>
+        </div>
+      </div>
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="changeCard()">
+          <i class="bi bi-arrow-repeat me-2"></i> Kartı Değiştir
+        </button>
+        <button class="btn btn-danger" onclick="removeCard()">
+          <i class="bi bi-trash me-2"></i> Kartı Sil
+        </button>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <i class="bi bi-credit-card"></i>
+        <p>Henüz ödeme yöntemi eklenmedi</p>
+        <button class="btn btn-primary" onclick="addCard()" style="margin-top: 12px;">
+          <i class="bi bi-plus-lg me-2"></i> Kart Ekle
+        </button>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- 3. ÖDEME GEÇMİŞİ -->
+  <div class="billing-card">
+    <h2><span class="emoji">📋</span> Ödeme Geçmişi</h2>
+
+    {% if payments %}
+      <table class="payment-table">
+        <thead>
+          <tr>
+            <th>Tarih</th>
+            <th>Tutar</th>
+            <th>Plan</th>
+            <th>Durum</th>
+            <th>Referans</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payment in payments %}
+          <tr>
+            <td>{{ payment.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+            <td>
+              {% if payment.status == 'completed' %}
+                {{ (payment.amount / 100) | round(2, 'ceil') }} ₺
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td>
+              {% if payment.plan_type == 'premium' %}👑 Premium
+              {% elif payment.plan_type == 'premium_pro' %}👑 Premium Pro
+              {% else %}📦 {{ payment.plan_type }}{% endif %}
+            </td>
+            <td>
+              {% if payment.status == 'completed' %}
+                <span class="status-completed">✓ Başarılı</span>
+              {% elif payment.status == 'failed' %}
+                <span class="status-failed">✗ Başarısız</span>
+              {% else %}
+                <span class="status-pending">⏳ Beklemede</span>
+              {% endif %}
+            </td>
+            <td style="font-family: monospace; font-size: .8rem; color: rgba(196,181,253,.4);">
+              {{ payment.paytr_ref_no[:16] }}...
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>Henüz ödeme yapılmamış</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- 4. ABONELIK İPTAL -->
+  {% if biz.subscription_status != 'cancelled' %}
+  <div class="billing-card" style="border-color: rgba(239,68,68,.15); background: rgba(239,68,68,.05);">
+    <h2 style="color: #fca5a5;"><span class="emoji">⚠️</span> Aboneliği İptal Et</h2>
+    <p style="color: rgba(196,181,253,.6); font-size: .9rem; margin-bottom: 12px;">
+      Aboneliği iptal ederseniz, mevcut dönem sonunda erişim kesilecektir.
+      Sonraki ödeme tahsil edilmeyecektir.
+    </p>
+    <button class="btn btn-danger" onclick="cancelSubscription()">
+      <i class="bi bi-x-circle me-2"></i> Aboneliği İptal Et
+    </button>
+  </div>
+  {% endif %}
+</div>
+
+<!-- PayTR Iframe -->
+<script src="https://www.paytr.com/js/iframeResizer.min.js"></script>
+
+<script>
+async function addCard() {
+  try {
+    const res = await fetch('/panel/billing/start-payment', { method: 'POST' });
+    const data = await res.json();
+
+    if (!data.token) {
+      alert('Hata: Token alınamadı');
+      return;
+    }
+
+    // PayTR iframe'i aç
+    const iframeWindow = window.open(
+      `https://www.paytr.com/odeme/payment?token=${data.token}`,
+      'PayTR',
+      'width=700,height=800'
+    );
+
+    // Polling: window kapanıp kapanmadığını kontrol et
+    const checkInterval = setInterval(() => {
+      if (iframeWindow.closed) {
+        clearInterval(checkInterval);
+        // Sayfayı yenile (webhook gelecek)
+        setTimeout(() => location.reload(), 1000);
+      }
+    }, 500);
+
+  } catch (error) {
+    console.error('Kart ekleme hatası:', error);
+    alert('Hata: ' + error.message);
+  }
+}
+
+function changeCard() {
+  if (confirm('Kartı değiştireceksiniz. Devam etmek istediğinizden emin misiniz?')) {
+    addCard();
+  }
+}
+
+async function removeCard() {
+  if (!confirm('Kartı sileceksiniz. Devam etmek istediğinizden emin misiniz?')) {
+    return;
+  }
+
+  try {
+    const res = await fetch('/panel/billing/remove-card', { method: 'POST' });
+    const data = await res.json();
+
+    if (data.status === 'ok') {
+      alert('Kart silindi');
+      location.reload();
+    } else {
+      alert('Hata: ' + (data.message || 'Bilinmeyen hata'));
+    }
+  } catch (error) {
+    alert('Hata: ' + error.message);
+  }
+}
+
+async function cancelSubscription() {
+  if (!confirm('⚠️ Aboneliğinizi iptal etmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.')) {
+    return;
+  }
+
+  try {
+    const res = await fetch('/panel/billing/cancel', { method: 'POST' });
+    const data = await res.json();
+
+    if (data.status === 'ok') {
+      alert('Abonelik iptal edildi');
+      location.reload();
+    } else {
+      alert('Hata: ' + (data.message || 'Bilinmeyen hata'));
+    }
+  } catch (error) {
+    alert('Hata: ' + error.message);
+  }
+}
+</script>
+{% endblock %}

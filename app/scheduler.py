@@ -84,11 +84,74 @@ async def check_expired_plans():
         db.close()
 
 
+async def check_subscriptions():
+    """PayTR Abonelik kontrol — Trial biten işletmeleri yönet."""
+    db: Session = SessionLocal()
+    try:
+        now = datetime.utcnow()
+
+        # 1. Trial biten, kart eklenmemiş → Suspend
+        expired_trials_no_card = db.query(Business).filter(
+            Business.subscription_status == "trial",
+            Business.subscription_end_date != None,
+            Business.subscription_end_date < now,
+            (Business.paytr_card_token == None) | (Business.paytr_card_token == "")
+        ).all()
+
+        for biz in expired_trials_no_card:
+            biz.subscription_status = "suspended"
+            biz.plan_type = "temel"
+            print(f"[Scheduler] Trial süresi doldu, kart yok, suspend: {biz.name} (ID: {biz.id})")
+
+        if expired_trials_no_card:
+            db.commit()
+
+        # 2. Trial biten, kart var → Otomatik ilk ödeme dene
+        # (Şimdilik basit: status'u active yap, webhook ile gerçek ödeme olur)
+        trial_with_card = db.query(Business).filter(
+            Business.subscription_status == "trial",
+            Business.subscription_end_date != None,
+            Business.subscription_end_date < now,
+            Business.paytr_card_token != None,
+            Business.paytr_card_token != ""
+        ).all()
+
+        for biz in trial_with_card:
+            # Recurring ödeme API çağrısı yapılması gerekir, şimdilik skip
+            # (Frontend'de / webhook'da yapılıp, buradan manual tetikleyebiliriz)
+            biz.subscription_status = "active"
+            biz.next_billing_date = now + timedelta(days=30)
+            print(f"[Scheduler] Trial süresi doldu, kart var, active: {biz.name} (ID: {biz.id})")
+
+        if trial_with_card:
+            db.commit()
+
+        # 3. Active, ödeme başarısız too many times → Suspend
+        failed_subscriptions = db.query(Business).filter(
+            Business.subscription_status == "active",
+            Business.payment_failed_count >= 3
+        ).all()
+
+        for biz in failed_subscriptions:
+            biz.subscription_status = "suspended"
+            biz.plan_type = "temel"
+            print(f"[Scheduler] 3x ödeme başarısız, suspend: {biz.name} (ID: {biz.id})")
+
+        if failed_subscriptions:
+            db.commit()
+
+    except Exception as e:
+        print(f"[Scheduler] Abonelik kontrol hatası: {e}")
+    finally:
+        db.close()
+
+
 async def scheduler_loop():
     """Uygulama başladığında arka planda çalışır."""
-    print("[Scheduler] SMS hatırlatma + plan kontrol servisi başladı.")
+    print("[Scheduler] SMS hatırlatma + plan kontrol + abonelik servisi başladı.")
     while True:
         await check_reminders()
         await check_expired_plans()
+        await check_subscriptions()
         await asyncio.sleep(600)  # 10 dakikada bir kontrol
 

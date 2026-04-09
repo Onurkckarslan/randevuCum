@@ -7,7 +7,7 @@ import time
 from collections import defaultdict
 from .database import engine, SessionLocal, get_db
 from . import models
-from .routes import auth, panel, booking, categories, staff_portal, admin, whatsapp, leads
+from .routes import auth, panel, booking, categories, staff_portal, admin, whatsapp, leads, subscription
 from .scheduler import scheduler_loop
 from .auth import get_current_business_id
 from .models import Business
@@ -61,6 +61,10 @@ async def lifespan(app: FastAPI):
                 db.execute(text("ALTER TABLE businesses ADD COLUMN business_code VARCHAR(6) UNIQUE"))
             if "logo_url" not in cols:
                 db.execute(text("ALTER TABLE businesses ADD COLUMN logo_url VARCHAR(500)"))
+            if "plan_type" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN plan_type VARCHAR(20) DEFAULT 'temel'"))
+            if "subscription_end_date" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN subscription_end_date TIMESTAMP"))
 
             # ── Auto-assign business_code to NULL entries ──
             import random, string
@@ -130,6 +134,38 @@ async def lifespan(app: FastAPI):
             cols = [col["name"] for col in inspector.get_columns("whatsapp_conversations")]
             if "selected_staff_id" not in cols:
                 db.execute(text("ALTER TABLE whatsapp_conversations ADD COLUMN selected_staff_id INTEGER"))
+
+        # ── Add subscription fields to businesses ──
+        if "businesses" in inspector.get_table_names():
+            cols = [col["name"] for col in inspector.get_columns("businesses")]
+            if "subscription_status" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN subscription_status VARCHAR(20) DEFAULT 'trial'"))
+            if "paytr_card_token" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN paytr_card_token VARCHAR(255)"))
+            if "card_last4" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN card_last4 VARCHAR(4)"))
+            if "card_brand" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN card_brand VARCHAR(20)"))
+            if "next_billing_date" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN next_billing_date TIMESTAMP"))
+            if "payment_failed_count" not in cols:
+                db.execute(text("ALTER TABLE businesses ADD COLUMN payment_failed_count INTEGER DEFAULT 0"))
+
+        # ── Create payments table if not exists ──
+        if "payments" not in inspector.get_table_names():
+            db.execute(text("""
+                CREATE TABLE payments (
+                    id SERIAL PRIMARY KEY,
+                    business_id INTEGER NOT NULL,
+                    amount INTEGER NOT NULL,
+                    plan_type VARCHAR(20),
+                    status VARCHAR(20) DEFAULT 'pending',
+                    paytr_ref_no VARCHAR(100),
+                    error_msg VARCHAR(255),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    paid_at TIMESTAMP
+                )
+            """))
 
         db.commit()
     except Exception as e:
@@ -227,6 +263,7 @@ templates.TemplateResponse = _patched_response
 app.include_router(auth.router)         # EN ÖNCE — /giris, /kayit vb.
 app.include_router(admin.router)        # Sonra admin
 app.include_router(leads.router)        # Lead API endpoint
+app.include_router(subscription.router) # Abonelik & Ödeme
 app.include_router(panel.router)
 app.include_router(categories.router)
 app.include_router(whatsapp.router)     # WhatsApp webhook

@@ -144,7 +144,9 @@ async def register(
             password_hash=password_hash,
             address=address, district=district, city="Uşak",
             plan="temel",
-            plan_expires_at=datetime.utcnow() + timedelta(days=30),
+            plan_expires_at=datetime.utcnow() + timedelta(days=15),
+            plan_type="premium",
+            subscription_end_date=datetime.utcnow() + timedelta(days=15),
             business_code=generate_unique_code()
         )
 
