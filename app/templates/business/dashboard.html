@@ -189,46 +189,65 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function addLogoToQR() {
-    const canvas = container.querySelector("canvas");
-    if (!canvas) {
-      console.error("Canvas not found after QR generation");
-      return;
-    }
-
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-
-    img.onload = function() {
+    setTimeout(function() {
       try {
-        const size = canvas.width * 0.25;
-        const x = canvas.width / 2 - size / 2;
-        const y = canvas.height / 2 - size / 2;
-        ctx.clearRect(x - 2, y - 2, size + 4, size + 4);
-        ctx.drawImage(img, x, y, size, size);
+        const canvas = container.querySelector("canvas");
+        if (!canvas) {
+          console.warn("Canvas not found - QR generated without logo");
+          return;
+        }
+
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        let logoLoadTimeout;
+
+        img.onload = function() {
+          clearTimeout(logoLoadTimeout);
+          try {
+            const size = Math.floor(canvas.width * 0.22);
+            const x = (canvas.width - size) / 2;
+            const y = (canvas.height - size) / 2;
+
+            // Draw white background for logo
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(x - 2, y - 2, size + 4, size + 4);
+
+            // Draw logo
+            ctx.drawImage(img, x, y, size, size);
+          } catch(e) {
+            console.warn("Logo drawing error:", e);
+          }
+        };
+
+        img.onerror = function() {
+          clearTimeout(logoLoadTimeout);
+          console.warn("Logo failed to load, showing QR without logo");
+        };
+
+        // Set timeout for logo load
+        logoLoadTimeout = setTimeout(function() {
+          console.warn("Logo load timeout");
+          img.onload = null;
+          img.onerror = null;
+        }, 2000);
+
+        img.src = "/static/qr-logo.png";
       } catch(e) {
-        console.error("Error drawing logo:", e);
+        console.error("addLogoToQR error:", e);
       }
-    };
-
-    img.onerror = function() {
-      console.warn("Logo image failed to load");
-    };
-
-    img.src = "/static/qr-logo.png";
+    }, 200);
   }
 
   function generateQR() {
-    if (placeholder) placeholder.remove();
-    container.innerHTML = "";
-
-    if (typeof QRCode === 'undefined') {
-      console.error("QRCode library not loaded");
-      container.innerHTML = '<div style="color:#ef4444;font-size:0.7rem;">QR kütüphanesi yüklenemedi</div>';
-      return;
-    }
-
     try {
+      if (placeholder) placeholder.remove();
+      container.innerHTML = "";
+
+      if (typeof QRCode === 'undefined') {
+        throw new Error("QRCode library not available");
+      }
+
       new QRCode(container, {
         text: bizUrl,
         width: 110,
@@ -237,27 +256,32 @@ document.addEventListener('DOMContentLoaded', function() {
         colorLight: "#fff",
         correctLevel: QRCode.CorrectLevel.M
       });
-      setTimeout(addLogoToQR, 300);
+
+      addLogoToQR();
     } catch(e) {
-      console.error("QR generation error:", e);
-      container.innerHTML = '<div style="color:#ef4444;font-size:0.7rem;">QR oluşturulamadı</div>';
+      console.error("QR generation failed:", e);
+      container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">QR kodunu oluşturulamadı. Lütfen sayfayı yenileyin.</div>';
     }
   }
 
-  // Wait for QRCode library to load
-  if (typeof QRCode !== 'undefined') {
-    generateQR();
-  } else {
-    // Fallback: load from alternative CDN
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@latest/qrcode.min.js';
-    script.onload = generateQR;
-    script.onerror = function() {
-      console.error("Failed to load QRCode library");
-      container.innerHTML = '<div style="color:#ef4444;font-size:0.7rem;">Kütüphane yüklenemedi</div>';
-    };
-    document.head.appendChild(script);
+  // Load QR library with fallback
+  function loadQRLibrary() {
+    if (typeof QRCode !== 'undefined') {
+      generateQR();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/qrcode-js@latest/qrcode.min.js';
+      script.async = true;
+      script.onload = generateQR;
+      script.onerror = function() {
+        console.error("QRCode library failed to load");
+        container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">Kütüphane yüklenemedi</div>';
+      };
+      document.head.appendChild(script);
+    }
   }
+
+  loadQRLibrary();
 
   // Helper for text copy
   function copyToClipboard(text) {
@@ -266,19 +290,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const textarea = document.createElement("textarea");
     textarea.value = text;
-    textarea.style.cssText = "position:fixed;left:-9999px";
+    textarea.style.cssText = "position:fixed;left:-9999px;opacity:0";
     document.body.appendChild(textarea);
     textarea.focus();
     textarea.select();
-    document.execCommand("copy");
+    const success = document.execCommand("copy");
     document.body.removeChild(textarea);
-    return Promise.resolve();
+    return Promise.resolve(success);
   }
 
   // Global functions
   window.downloadQR = function() {
-    const sourceCanvas = container.querySelector("canvas");
-    if (sourceCanvas) {
+    try {
+      const sourceCanvas = container.querySelector("canvas");
+      if (!sourceCanvas) {
+        alert("QR kodu henüz hazır değil");
+        return;
+      }
       const canvas = document.createElement("canvas");
       canvas.width = canvas.height = 512;
       const ctx = canvas.getContext("2d");
@@ -289,33 +317,47 @@ document.addEventListener('DOMContentLoaded', function() {
       link.href = canvas.toDataURL("image/png");
       link.download = slug + "-qr.png";
       link.click();
+    } catch(e) {
+      console.error("Download error:", e);
+      alert("İndirme başarısız");
     }
   };
 
   window.copyLink = function(btn, url) {
     copyToClipboard(url).then(() => {
+      const originalHTML = btn.innerHTML;
       btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Kopyalandı!';
       btn.classList.add("copied");
       setTimeout(() => {
-        btn.innerHTML = '<i class="bi bi-copy me-1"></i>Kopyala';
+        btn.innerHTML = originalHTML;
         btn.classList.remove("copied");
       }, 2500);
+    }).catch(e => {
+      console.error("Copy error:", e);
     });
   };
 
   window.shareWhatsApp = function() {
-    window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + bizUrl);
+    try {
+      window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + bizUrl);
+    } catch(e) {
+      console.error("Share error:", e);
+    }
   };
 
   window.shareNative = function() {
-    if (navigator.share) {
-      navigator.share({
-        title: "Randevu",
-        text: "Online randevu: " + bizUrl,
-        url: bizUrl
-      }).catch(() => copyToClipboard(bizUrl));
-    } else {
-      copyToClipboard(bizUrl);
+    try {
+      if (navigator.share) {
+        navigator.share({
+          title: "Randevu",
+          text: "Online randevu: " + bizUrl,
+          url: bizUrl
+        }).catch(e => console.error("Native share error:", e));
+      } else {
+        copyToClipboard(bizUrl);
+      }
+    } catch(e) {
+      console.error("Share error:", e);
     }
   };
 });
