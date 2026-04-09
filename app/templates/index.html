@@ -1688,13 +1688,13 @@ body::before {
 
     <!-- ═══ HAREKETLI LAPTOP MOCKUP (MASAÜSTÜ) ═══ -->
     <div style="width:100%;margin:140px auto 0;padding:0 40px;display:none;overflow:hidden;" class="d-md-block">
-      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:55fr 45fr;gap:80px;align-items:center;">
+      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:40px;align-items:center;">
 
-      <!-- LEFT COLUMN: LAPTOP FRAME & ICONS (Flexible sizing, no clipping) -->
-      <div style="position:relative;width:100%;height:420px;overflow:visible;display:flex;justify-content:center;align-items:flex-start;">
+      <!-- LEFT COLUMN: 7/12 (58%) - LAPTOP FRAME & ICONS (No clipping) -->
+      <div style="grid-column:span 7;position:relative;width:100%;height:auto;min-height:420px;overflow:visible;display:flex;justify-content:flex-start;align-items:flex-start;padding-right:20px;">
 
-      <!-- LAPTOP FRAME (Responsive, no clipping) -->
-      <div style="position:relative;width:100%;max-width:520px;height:auto;min-height:320px;
+      <!-- LAPTOP FRAME (100% fit in column, no clipping) -->
+      <div style="position:relative;width:100%;max-width:650px;height:auto;min-height:340px;
                   border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
                   box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
                   overflow:hidden;z-index:50;will-change:transform;
@@ -1765,12 +1765,12 @@ body::before {
         </div>
       </div>
 
-      <!-- LAPTOP BODY (Alt kısım, sütun içinde) -->
-      <div style="position:absolute;left:50%;top:calc(100% - 8px);transform:translateX(-50%);width:100%;max-width:520px;height:16px;
+      <!-- LAPTOP BODY (Proportional to frame) -->
+      <div style="position:absolute;left:0;top:calc(100% - 8px);width:100%;max-width:650px;height:16px;
                   background:#1a1a1a;border-radius:0 0 12px 12px;border:2px solid #0f0f0f;z-index:49;"></div>
 
-      <!-- LAPTOP TRACKPAD (sütun içinde) -->
-      <div style="position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);width:auto;max-width:200px;height:12px;
+      <!-- LAPTOP TRACKPAD (Proportional) -->
+      <div style="position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);width:80%;max-width:240px;height:12px;
                   background:#2a2a2a;border-radius:3px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);"></div>
 
       <!-- FLOATING CARDS - 44x44 (Responsive, container-bound) -->
@@ -1842,8 +1842,8 @@ body::before {
 
       </div>
 
-      <!-- RIGHT COLUMN: INFO BLOCK (Text-right, aligned to end) -->
-      <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:24px;text-align:right;">
+      <!-- RIGHT COLUMN: 5/12 (42%) - INFO BLOCK (Right-aligned, centered) -->
+      <div style="grid-column:span 5;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:24px;text-align:right;padding-left:20px;">
         <!-- Gradient Heading -->
         <h2 style="background:linear-gradient(135deg,#ec4899 0%,#7c3aed 100%);-webkit-background-clip:text;
                    -webkit-text-fill-color:transparent;background-clip:text;font-size:2.2rem;font-weight:900;
