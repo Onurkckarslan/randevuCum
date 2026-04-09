@@ -92,19 +92,19 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-s
     </div>
   </div>
   <div class="nav-section">MENÜ</div>
-  <a class="nav-item {% if request.path == '/panel' %}active{% endif %}" href="/panel"><span class="ico">📊</span> <span>Dashboard</span></a>
-  <a class="nav-item {% if '/randevular' in request.path %}active{% endif %}" href="/panel/randevular"><span class="ico">📅</span> <span>Randevular</span></a>
-  <a class="nav-item {% if '/randevu-defteri' in request.path %}active{% endif %}" href="/panel/randevu-defteri"><span class="ico">📋</span> <span>Defteri</span></a>
-  <a class="nav-item {% if '/hizmetler' in request.path %}active{% endif %}" href="/panel/hizmetler"><span class="ico">✂️</span> <span>Hizmetler</span></a>
-  <a class="nav-item {% if '/personel' in request.path and '/personel-duzenle' not in request.path %}active{% endif %}" href="/panel/personel"><span class="ico">👥</span> <span>Personel</span></a>
-  <a class="nav-item {% if '/calisma-saatleri' in request.path %}active{% endif %}" href="/panel/calisma-saatleri"><span class="ico">⏰</span> <span>Saatler</span></a>
-  <a class="nav-item {% if '/istatistikler' in request.path %}active{% endif %}" href="/panel/istatistikler"><span class="ico">📈</span> <span>İstatistikler</span></a>
-  <a class="nav-item {% if '/gelir-takibi' in request.path %}active{% endif %}" href="/panel/gelir-takibi"><span class="ico">💰</span> <span>Gelir/Gider</span></a>
-  <a class="nav-item {% if '/urun-stok' in request.path %}active{% endif %}" href="/panel/urun-stok"><span class="ico">📦</span> <span>Ürün/Stok</span></a>
-  <a class="nav-item {% if '/musteri-sadakati' in request.path and '/musteri-detay' not in request.path %}active{% endif %}" href="/panel/musteri-sadakati"><span class="ico">👥</span> <span>Sadakat</span></a>
-  <a class="nav-item {% if '/whatsapp' in request.path %}active{% endif %}" href="/panel/whatsapp"><span class="ico">💬</span> <span>WhatsApp</span></a>
-  <a class="nav-item {% if '/fotolar' in request.path %}active{% endif %}" href="/panel/fotolar"><span class="ico">📷</span> <span>Fotoğraflar</span></a>
-  <a class="nav-item {% if '/profil' in request.path %}active{% endif %}" href="/panel/profil"><span class="ico">⚙️</span> <span>Profil</span></a>
+  <a class="nav-item {% if request.path == '/panel' %}active{% endif %}" href="/panel"><span class="ico">📊</span> <span>Özet Kontrolü</span></a>
+  <a class="nav-item {% if '/randevular' in request.path %}active{% endif %}" href="/panel/randevular"><span class="ico">📅</span> <span>Tüm Randevular</span></a>
+  <a class="nav-item {% if '/randevu-defteri' in request.path %}active{% endif %}" href="/panel/randevu-defteri"><span class="ico">📋</span> <span>Günlük Randevu Defteri</span></a>
+  <a class="nav-item {% if '/hizmetler' in request.path %}active{% endif %}" href="/panel/hizmetler"><span class="ico">✂️</span> <span>Hizmet Yönetimi</span></a>
+  <a class="nav-item {% if '/personel' in request.path and '/personel-duzenle' not in request.path %}active{% endif %}" href="/panel/personel"><span class="ico">👥</span> <span>Personel Performans Yönetimi</span></a>
+  <a class="nav-item {% if '/calisma-saatleri' in request.path %}active{% endif %}" href="/panel/calisma-saatleri"><span class="ico">⏰</span> <span>Çalışma Saatleri Ayarı</span></a>
+  <a class="nav-item {% if '/istatistikler' in request.path %}active{% endif %}" href="/panel/istatistikler"><span class="ico">📈</span> <span>Detaylı İşletme İstatistikleri</span></a>
+  <a class="nav-item {% if '/gelir-takibi' in request.path %}active{% endif %}" href="/panel/gelir-takibi"><span class="ico">💰</span> <span>Gelir ve Gider Takibi</span></a>
+  <a class="nav-item {% if '/urun-stok' in request.path %}active{% endif %}" href="/panel/urun-stok"><span class="ico">📦</span> <span>Ürün ve Stok Yönetimi</span></a>
+  <a class="nav-item {% if '/musteri-sadakati' in request.path and '/musteri-detay' not in request.path %}active{% endif %}" href="/panel/musteri-sadakati"><span class="ico">👥</span> <span>Müşteri Sadakat Programı</span></a>
+  <a class="nav-item {% if '/whatsapp' in request.path %}active{% endif %}" href="/panel/whatsapp"><span class="ico">💬</span> <span>WhatsApp Randevu Botu</span></a>
+  <a class="nav-item {% if '/fotolar' in request.path %}active{% endif %}" href="/panel/fotolar"><span class="ico">📷</span> <span>İşletme Fotoğrafları</span></a>
+  <a class="nav-item {% if '/profil' in request.path %}active{% endif %}" href="/panel/profil"><span class="ico">⚙️</span> <span>Profil ve Ayarlar</span></a>
   <div class="sidebar-bottom">
     <a href="/cikis" class="logout-btn">🚪 <span>Çıkış</span></a>
   </div>

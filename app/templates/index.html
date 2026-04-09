@@ -1687,18 +1687,18 @@ body::before {
     </img>
 
     <!-- ═══ HAREKETLI LAPTOP MOCKUP (MASAÜSTÜ) ═══ -->
-    <div style="width:100%;margin:140px auto 0;padding:0 40px;display:none;" class="d-md-block">
-      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div style="width:100%;margin:140px auto 0;padding:0 40px;display:block !important;opacity:100 !important;" class="d-md-block">
+      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:48px;align-items:center;">
 
-      <!-- LEFT COLUMN: LAPTOP -->
-      <div style="position:relative;width:100%;height:auto;">
+      <!-- LEFT COLUMN: col-span-7 (LAPTOP) -->
+      <div style="grid-column:span 7;position:relative;width:100%;height:auto;display:block !important;opacity:100 !important;">
 
       <!-- LAPTOP FRAME -->
-      <div style="width:100%;max-width:550px;position:relative;height:auto;
+      <div style="width:100% !important;max-width:600px;height:auto;
                   border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
                   box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
-                  overflow:hidden;z-index:50;will-change:transform;
-                  animation:laptopFloat 6s ease-in-out infinite;margin:0 auto;"
+                  overflow:hidden;z-index:50 !important;will-change:transform;
+                  animation:laptopFloat 6s ease-in-out infinite;margin:0 auto;display:block !important;">
 
         <!-- LAPTOP SCREEN — Dashboard UI -->
         <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,15,.97),rgba(15,12,25,.97));
@@ -1773,54 +1773,10 @@ body::before {
                     background:#2a2a2a;border-radius:2px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);
                     transform:translateX(-50%);"></div>
       </div>
-
-      <!-- FLOATING CARDS (Positioned within left column) -->
-      <div style="position:absolute;left:-20px;top:20px;width:40px;height:40px;
-                  background:rgba(37,211,102,.12);backdrop-filter:blur(10px);border:1px solid rgba(37,211,102,.3);
-                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
-                  animation:float1 5s ease-in-out infinite;
-                  box-shadow:0 8px 32px rgba(37,211,102,.2);">💬</div>
-
-      <div style="position:absolute;right:-20px;top:30px;width:40px;height:40px;
-                  background:rgba(6,182,212,.12);backdrop-filter:blur(10px);border:1px solid rgba(6,182,212,.3);
-                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
-                  animation:float2 4s ease-in-out infinite;animation-delay:.5s;
-                  box-shadow:0 8px 32px rgba(6,182,212,.2);">📊</div>
-
-      <div style="position:absolute;left:-20px;top:140px;width:40px;height:40px;
-                  background:rgba(251,191,36,.12);backdrop-filter:blur(10px);border:1px solid rgba(251,191,36,.3);
-                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
-                  animation:float3 6s ease-in-out infinite;animation-delay:1s;
-                  box-shadow:0 8px 32px rgba(251,191,36,.2);">💰</div>
-
-      <div style="position:absolute;right:-20px;bottom:60px;width:40px;height:40px;
-                  background:rgba(168,85,247,.12);backdrop-filter:blur(10px);border:1px solid rgba(168,85,247,.3);
-                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1rem;z-index:60;gap:2px;will-change:transform;
-                  animation:float1 4.5s ease-in-out infinite;animation-delay:.8s;
-                  box-shadow:0 8px 32px rgba(168,85,247,.25);">⭐</div>
-
-      <div style="position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:40px;height:40px;
-                  background:rgba(124,58,237,.12);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.3);
-                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
-                  animation:float2 3.5s ease-in-out infinite;animation-delay:1.2s;
-                  box-shadow:0 8px 32px rgba(124,58,237,.25);">📅</div>
-
-      <div style="position:absolute;right:-20px;bottom:20px;width:40px;height:40px;
-                  background:rgba(14,165,233,.12);backdrop-filter:blur(10px);border:1px solid rgba(14,165,233,.3);
-                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
-                  animation:float3 5.5s ease-in-out infinite;animation-delay:1s;
-                  box-shadow:0 8px 32px rgba(14,165,233,.2);">👥</div>
-
       </div>
 
-      <!-- RIGHT COLUMN: TEXT & FEATURES -->
-      <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:28px;text-align:right;"
+      <!-- RIGHT COLUMN: col-span-5 (TEXT) -->
+      <div style="grid-column:span 5;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:28px;text-align:right;">
         <!-- Gradient Heading -->
         <h2 style="background:linear-gradient(135deg,#ec4899 0%,#7c3aed 100%);-webkit-background-clip:text;
                    -webkit-text-fill-color:transparent;background-clip:text;font-size:2.2rem;font-weight:900;
@@ -1870,7 +1826,7 @@ body::before {
         </a>
       </div>
       </div>
-      </div>
+    </div>
 
     <!-- CSS KEYFRAMES FOR LAPTOP -->
     <style>
@@ -1879,7 +1835,6 @@ body::before {
         50% { transform: translateY(-16px); }
       }
     </style>
-    </div>
 
 
   <!-- MOBILE IMAGES (xs-sm) - Dikey görseller -->
