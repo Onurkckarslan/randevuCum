@@ -1688,17 +1688,17 @@ body::before {
 
     <!-- ═══ HAREKETLI LAPTOP MOCKUP (MASAÜSTÜ) ═══ -->
     <div style="width:100%;margin:140px auto 0;padding:0 40px;display:none;overflow:hidden;" class="d-md-block">
-      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:40px;align-items:center;">
+      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:60px;align-items:center;">
 
-      <!-- LEFT COLUMN: 7/12 (58%) - LAPTOP FRAME & ICONS (No clipping) -->
-      <div style="grid-column:span 7;position:relative;width:100%;height:auto;min-height:420px;overflow:visible;display:flex;justify-content:flex-start;align-items:flex-start;padding-right:20px;">
+      <!-- LEFT COLUMN: 7/12 - LAPTOP AREA (Zero clipping) -->
+      <div style="grid-column:span 7;position:relative;width:100%;height:auto;overflow:visible;">
 
-      <!-- LAPTOP FRAME (100% fit in column, no clipping) -->
-      <div style="position:relative;width:100%;max-width:650px;height:auto;min-height:340px;
+      <!-- LAPTOP FRAME (100% fits column, transform:none) -->
+      <div style="width:100%;max-width:650px;position:relative;height:auto;
                   border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
                   box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
-                  overflow:hidden;z-index:50;will-change:transform;
-                  animation:laptopFloat 6s ease-in-out infinite;">
+                  overflow:visible;z-index:50;will-change:transform;transform:translateX(0);
+                  animation:laptopFloat 6s ease-in-out infinite;margin:0;">
 
         <!-- LAPTOP SCREEN — Dashboard UI -->
         <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,15,.97),rgba(15,12,25,.97));
@@ -1763,15 +1763,16 @@ body::before {
             </div>
           </div>
         </div>
+
+        <!-- LAPTOP BODY (Inside frame) -->
+        <div style="position:absolute;left:0;bottom:-16px;width:100%;height:16px;
+                    background:#1a1a1a;border-radius:0 0 12px 12px;border:2px solid #0f0f0f;z-index:49;"></div>
+
+        <!-- LAPTOP TRACKPAD (Inside frame, centered) -->
+        <div style="position:absolute;left:50%;bottom:-28px;width:80%;max-width:240px;height:12px;
+                    background:#2a2a2a;border-radius:3px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);
+                    transform:translateX(-50%);"></div>
       </div>
-
-      <!-- LAPTOP BODY (Proportional to frame) -->
-      <div style="position:absolute;left:0;top:calc(100% - 8px);width:100%;max-width:650px;height:16px;
-                  background:#1a1a1a;border-radius:0 0 12px 12px;border:2px solid #0f0f0f;z-index:49;"></div>
-
-      <!-- LAPTOP TRACKPAD (Proportional) -->
-      <div style="position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);width:80%;max-width:240px;height:12px;
-                  background:#2a2a2a;border-radius:3px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);"></div>
 
       <!-- FLOATING CARDS - 44x44 (Responsive, container-bound) -->
       <!-- Top-Left: WhatsApp -->
@@ -1898,8 +1899,8 @@ body::before {
     <!-- CSS KEYFRAMES FOR LAPTOP -->
     <style>
       @keyframes laptopFloat {
-        0%, 100% { transform: translateX(-50%) translateY(0); }
-        50% { transform: translateX(-50%) translateY(-16px); }
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-16px); }
       }
     </style>
     </div>
