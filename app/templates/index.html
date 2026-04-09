@@ -1691,19 +1691,20 @@ body::before {
       <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:48px;align-items:stretch;min-height:500px;">
 
       <!-- LEFT COLUMN: col-span-7 (LAPTOP) -->
-      <div style="grid-column:span 7;position:relative;width:100%;display:flex;justify-content:center;align-items:center;min-height:500px;">
+      <div style="grid-column:span 7;position:relative;width:100%;display:flex;justify-content:center;align-items:center;min-height:500px;overflow:visible;">
 
       <!-- LAPTOP FRAME -->
       <div style="width:100%;max-width:600px;aspect-ratio:16/10;
-                  border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
-                  box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
+                  border-radius:18px;background:linear-gradient(135deg,#1a1a2e,#0f0f1a,#1a1a2e);border:1px solid rgba(124,58,237,.2);
+                  box-shadow:0 0 60px rgba(124,58,237,.4),0 40px 100px rgba(124,58,237,.2),inset 0 1px 0 rgba(255,255,255,.15),inset 0 -1px 2px rgba(0,0,0,.5);
                   overflow:hidden;z-index:50;will-change:transform;
-                  animation:laptopFloat 6s ease-in-out infinite;position:relative;">
+                  animation:laptopFloat 6s ease-in-out infinite;position:relative;
+                  backdrop-filter:blur(0.5px);padding:2px;">
 
         <!-- LAPTOP SCREEN — Dashboard UI -->
-        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,10,.98),rgba(10,8,15,.99));
+        <div style="position:absolute;inset:2px;background:linear-gradient(180deg,rgba(5,5,10,.98),rgba(10,8,15,.99));
                     display:flex;flex-direction:column;padding:16px 20px;overflow:hidden;font-size:11px;font-family:inherit;
-                    border-top:1px solid rgba(124,58,237,.2);">
+                    border-top:1px solid rgba(124,58,237,.2);border-radius:14px;">
 
           <!-- Top Bar with Glow -->
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:linear-gradient(90deg,rgba(124,58,237,.08),transparent);border-radius:8px;border:1px solid rgba(124,58,237,.15);margin-bottom:12px;border-bottom:1px solid rgba(124,58,237,.25);">
@@ -1792,14 +1793,22 @@ body::before {
           </div>
         </div>
 
-        <!-- LAPTOP BODY -->
-        <div style="position:absolute;left:0;bottom:-12px;width:100%;height:12px;
-                    background:#1a1a1a;border-radius:0 0 12px 12px;border:2px solid #0f0f0f;z-index:49;"></div>
+        <!-- LAPTOP BODY BOTTOM BEZEL -->
+        <div style="position:absolute;left:-2px;bottom:-14px;width:calc(100% + 4px);height:14px;
+                    background:linear-gradient(180deg,#2a2a3a,#0a0a0a);border-radius:0 0 16px 16px;
+                    border:1px solid rgba(100,80,140,.3);border-top:1px solid rgba(124,58,237,.1);
+                    z-index:49;box-shadow:0 8px 24px rgba(0,0,0,.8);"></div>
 
         <!-- LAPTOP TRACKPAD -->
-        <div style="position:absolute;left:50%;bottom:-22px;width:75%;max-width:200px;height:10px;
-                    background:#2a2a2a;border-radius:2px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);
-                    transform:translateX(-50%);"></div>
+        <div style="position:absolute;left:50%;bottom:-28px;width:65%;max-width:180px;height:12px;
+                    background:linear-gradient(180deg,#3a3a4a,#1a1a2a);border-radius:3px;z-index:50;
+                    box-shadow:inset 0 2px 4px rgba(0,0,0,.8),0 2px 8px rgba(124,58,237,.1);
+                    transform:translateX(-50%);border:1px solid rgba(124,58,237,.15);"></div>
+
+        <!-- LAPTOP FOOT STAND -->
+        <div style="position:absolute;left:50%;bottom:-32px;width:40%;max-width:140px;height:3px;
+                    background:linear-gradient(90deg,transparent,rgba(124,58,237,.2),transparent);
+                    border-radius:50%;transform:translateX(-50%);z-index:48;"></div>
       </div>
 
       <!-- FLOATING ICONS (ETRAFINDA SALLANANLAr) -->
