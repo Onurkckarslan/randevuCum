@@ -1701,65 +1701,93 @@ body::before {
                   animation:laptopFloat 6s ease-in-out infinite;position:relative;">
 
         <!-- LAPTOP SCREEN — Dashboard UI -->
-        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,15,.97),rgba(15,12,25,.97));
-                    display:flex;flex-direction:column;padding:16px 20px;overflow:hidden;font-size:11px;font-family:inherit;">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,10,.98),rgba(10,8,15,.99));
+                    display:flex;flex-direction:column;padding:16px 20px;overflow:hidden;font-size:11px;font-family:inherit;
+                    border-top:1px solid rgba(124,58,237,.2);">
 
-          <!-- Top Bar -->
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:0 8px 12px;border-bottom:1px solid rgba(124,58,237,.2);margin-bottom:12px;">
-            <div style="font-weight:800;color:#c4b5fd;font-size:12px;">RandevuCum 📊</div>
-            <div style="display:flex;gap:8px;">
-              <div style="width:20px;height:20px;background:rgba(124,58,237,.3);border-radius:50%;"></div>
+          <!-- Top Bar with Glow -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:linear-gradient(90deg,rgba(124,58,237,.08),transparent);border-radius:8px;border:1px solid rgba(124,58,237,.15);margin-bottom:12px;border-bottom:1px solid rgba(124,58,237,.25);">
+            <div style="font-weight:900;background:linear-gradient(90deg,#c4b5fd,#e9d5ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:13px;">📊 RandevuCum Pro</div>
+            <div style="display:flex;gap:6px;">
+              <div style="width:18px;height:18px;background:linear-gradient(135deg,#34d399,#10b981);border-radius:50%;box-shadow:0 0 12px rgba(52,211,153,.4);"></div>
             </div>
           </div>
 
-          <!-- Stats Row -->
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px;">
-            <div style="background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);border-radius:10px;padding:8px;text-align:center;">
-              <div style="color:rgba(196,181,253,.6);font-size:9px;">Bugün</div>
-              <div style="color:#c4b5fd;font-weight:800;font-size:14px;margin-top:2px;">12</div>
+          <!-- Stats Row with Gradient Cards -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+            <div style="background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(124,58,237,.05));border:1px solid rgba(124,58,237,.3);border-radius:10px;padding:8px;text-align:center;transition:all .3s;cursor:pointer;position:relative;overflow:hidden;"
+                 onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(124,58,237,.6)';"
+                 onmouseout="this.style.transform='';this.style.borderColor='rgba(124,58,237,.3)';">
+              <div style="position:absolute;top:-20px;right:-20px;width:50px;height:50px;background:rgba(124,58,237,.1);border-radius:50%;"></div>
+              <div style="color:rgba(196,181,253,.5);font-size:8px;font-weight:700;">📅 BUGÜN</div>
+              <div style="color:#e9d5ff;font-weight:900;font-size:14px;margin-top:2px;">12</div>
             </div>
-            <div style="background:rgba(236,72,153,.1);border:1px solid rgba(236,72,153,.2);border-radius:10px;padding:8px;text-align:center;">
-              <div style="color:rgba(196,181,253,.6);font-size:9px;">Puan</div>
-              <div style="color:#f9a8d4;font-weight:800;font-size:14px;margin-top:2px;">4.9⭐</div>
+            <div style="background:linear-gradient(135deg,rgba(236,72,153,.15),rgba(236,72,153,.05));border:1px solid rgba(236,72,153,.3);border-radius:10px;padding:8px;text-align:center;transition:all .3s;cursor:pointer;position:relative;overflow:hidden;"
+                 onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(236,72,153,.6)';"
+                 onmouseout="this.style.transform='';this.style.borderColor='rgba(236,72,153,.3)';">
+              <div style="position:absolute;top:-20px;right:-20px;width:50px;height:50px;background:rgba(236,72,153,.1);border-radius:50%;"></div>
+              <div style="color:rgba(196,181,253,.5);font-size:8px;font-weight:700;">⭐ PUAN</div>
+              <div style="color:#f9a8d4;font-weight:900;font-size:14px;margin-top:2px;">4.9</div>
             </div>
-            <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:8px;text-align:center;">
-              <div style="color:rgba(196,181,253,.6);font-size:9px;">Gelir</div>
-              <div style="color:#6ee7b7;font-weight:800;font-size:14px;margin-top:2px;">₺2,8K</div>
+            <div style="background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.05));border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:8px;text-align:center;transition:all .3s;cursor:pointer;position:relative;overflow:hidden;"
+                 onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(34,197,94,.6)';"
+                 onmouseout="this.style.transform='';this.style.borderColor='rgba(34,197,94,.3)';">
+              <div style="position:absolute;top:-20px;right:-20px;width:50px;height:50px;background:rgba(34,197,94,.1);border-radius:50%;"></div>
+              <div style="color:rgba(196,181,253,.5);font-size:8px;font-weight:700;">💰 GELİR</div>
+              <div style="color:#6ee7b7;font-weight:900;font-size:14px;margin-top:2px;">₺2.8K</div>
             </div>
-            <div style="background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2);border-radius:10px;padding:8px;text-align:center;">
-              <div style="color:rgba(196,181,253,.6);font-size:9px;">Personel</div>
-              <div style="color:#67e8f9;font-weight:800;font-size:14px;margin-top:2px;">3</div>
+            <div style="background:linear-gradient(135deg,rgba(6,182,212,.15),rgba(6,182,212,.05));border:1px solid rgba(6,182,212,.3);border-radius:10px;padding:8px;text-align:center;transition:all .3s;cursor:pointer;position:relative;overflow:hidden;"
+                 onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(6,182,212,.6)';"
+                 onmouseout="this.style.transform='';this.style.borderColor='rgba(6,182,212,.3)';">
+              <div style="position:absolute;top:-20px;right:-20px;width:50px;height:50px;background:rgba(6,182,212,.1);border-radius:50%;"></div>
+              <div style="color:rgba(196,181,253,.5);font-size:8px;font-weight:700;">👥 PERSONEL</div>
+              <div style="color:#67e8f9;font-weight:900;font-size:14px;margin-top:2px;">3</div>
             </div>
           </div>
 
-          <!-- Takvim Header -->
-          <div style="color:rgba(196,181,253,.5);font-size:9px;font-weight:700;margin-bottom:6px;">Haftalık Takvim</div>
-
-          <!-- Mini Takvim Grid -->
-          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px;">
-            <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;font-weight:700;">P</div>
-            <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;font-weight:700;">S</div>
-            <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;font-weight:700;">Ç</div>
-            <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;font-weight:700;">P</div>
-            <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;font-weight:700;">C</div>
-            <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;font-weight:700;">A</div>
-            <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;font-weight:700;">P</div>
-            <div style="text-align:center;background:rgba(124,58,237,.2);color:#c4b5fd;font-size:8px;padding:3px;border-radius:4px;font-weight:700;">7</div>
-            <div style="text-align:center;background:rgba(124,58,237,.35);color:#e9d5ff;font-size:8px;padding:3px;border-radius:4px;font-weight:700;">8</div>
-            <div style="text-align:center;color:rgba(196,181,253,.5);font-size:8px;padding:3px;">9</div>
-            <div style="text-align:center;color:rgba(196,181,253,.5);font-size:8px;padding:3px;">10</div>
-            <div style="text-align:center;color:rgba(196,181,253,.5);font-size:8px;padding:3px;">11</div>
-            <div style="text-align:center;color:rgba(196,181,253,.5);font-size:8px;padding:3px;">12</div>
-            <div style="text-align:center;color:rgba(196,181,253,.5);font-size:8px;padding:3px;">13</div>
+          <!-- Takvim Section -->
+          <div style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(167,139,250,.05));border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:8px;margin-bottom:10px;">
+            <div style="color:rgba(196,181,253,.6);font-size:8px;font-weight:800;letter-spacing:.1em;margin-bottom:5px;text-transform:uppercase;">📅 Haftalık</div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">
+              <div style="text-align:center;color:rgba(196,181,253,.3);font-size:6px;font-weight:700;">P</div>
+              <div style="text-align:center;color:rgba(196,181,253,.3);font-size:6px;font-weight:700;">S</div>
+              <div style="text-align:center;color:rgba(196,181,253,.3);font-size:6px;font-weight:700;">Ç</div>
+              <div style="text-align:center;color:rgba(196,181,253,.3);font-size:6px;font-weight:700;">P</div>
+              <div style="text-align:center;color:rgba(196,181,253,.3);font-size:6px;font-weight:700;">C</div>
+              <div style="text-align:center;color:rgba(196,181,253,.3);font-size:6px;font-weight:700;">A</div>
+              <div style="text-align:center;color:rgba(196,181,253,.3);font-size:6px;font-weight:700;">P</div>
+              <div style="text-align:center;background:linear-gradient(135deg,#7c3aed,#c4b5fd);color:#fff;font-size:7px;padding:2px;border-radius:3px;font-weight:900;box-shadow:0 4px 12px rgba(124,58,237,.4);">7</div>
+              <div style="text-align:center;background:linear-gradient(135deg,#a78bfa,#e9d5ff);color:#0a0a0f;font-size:7px;padding:2px;border-radius:3px;font-weight:900;box-shadow:0 4px 12px rgba(167,139,250,.4);">8</div>
+              <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;padding:2px;">9</div>
+              <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;padding:2px;">10</div>
+              <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;padding:2px;">11</div>
+              <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;padding:2px;">12</div>
+              <div style="text-align:center;color:rgba(196,181,253,.4);font-size:7px;padding:2px;">13</div>
+            </div>
           </div>
 
           <!-- Randevu Listesi -->
-          <div style="flex:1;overflow:hidden;">
-            <div style="font-size:9px;color:rgba(196,181,253,.6);margin-bottom:4px;font-weight:700;">Bugün Randevular</div>
-            <div style="display:flex;flex-direction:column;gap:3px;font-size:8px;">
-              <div style="background:rgba(124,58,237,.08);padding:3px 6px;border-left:2px solid #7c3aed;color:rgba(196,181,253,.8);">09:00 • Ali • Saç Kesimi</div>
-              <div style="background:rgba(124,58,237,.08);padding:3px 6px;border-left:2px solid #7c3aed;color:rgba(196,181,253,.8);">10:30 • Fatma • Fön</div>
-              <div style="background:rgba(124,58,237,.08);padding:3px 6px;border-left:2px solid #7c3aed;color:rgba(196,181,253,.8);">13:00 • Mehmet • Sakal</div>
+          <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+            <div style="font-size:8px;color:rgba(196,181,253,.7);margin-bottom:5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;">🗓️ Bugün</div>
+            <div style="display:flex;flex-direction:column;gap:4px;overflow-y:auto;flex:1;">
+              <div style="background:linear-gradient(90deg,rgba(124,58,237,.15),transparent);border-left:2.5px solid #7c3aed;padding:4px 6px;border-radius:4px;color:#c4b5fd;font-size:7.5px;font-weight:600;transition:all .2s;cursor:pointer;box-shadow:0 2px 8px rgba(124,58,237,.15);"
+                   onmouseover="this.style.transform='translateX(2px)';this.style.boxShadow='0 4px 12px rgba(124,58,237,.3)';"
+                   onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(124,58,237,.15)';">
+                <div style="font-weight:700;color:#e9d5ff;">09:00</div>
+                <div style="color:rgba(196,181,253,.7);font-size:7px;">Ali • Saç Kesimi</div>
+              </div>
+              <div style="background:linear-gradient(90deg,rgba(236,72,153,.15),transparent);border-left:2.5px solid #ec4899;padding:4px 6px;border-radius:4px;color:#f9a8d4;font-size:7.5px;font-weight:600;transition:all .2s;cursor:pointer;box-shadow:0 2px 8px rgba(236,72,153,.15);"
+                   onmouseover="this.style.transform='translateX(2px)';this.style.boxShadow='0 4px 12px rgba(236,72,153,.3)';"
+                   onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(236,72,153,.15)';">
+                <div style="font-weight:700;color:#fda4d4;">10:30</div>
+                <div style="color:rgba(249,168,212,.7);font-size:7px;">Fatma • Fön</div>
+              </div>
+              <div style="background:linear-gradient(90deg,rgba(6,182,212,.15),transparent);border-left:2.5px solid #06b6d4;padding:4px 6px;border-radius:4px;color:#67e8f9;font-size:7.5px;font-weight:600;transition:all .2s;cursor:pointer;box-shadow:0 2px 8px rgba(6,182,212,.15);"
+                   onmouseover="this.style.transform='translateX(2px)';this.style.boxShadow='0 4px 12px rgba(6,182,212,.3)';"
+                   onmouseout="this.style.transform='';this.style.boxShadow='0 2px 8px rgba(6,182,212,.15)';">
+                <div style="font-weight:700;color:#a5f3fc;">13:00</div>
+                <div style="color:rgba(165,243,252,.7);font-size:7px;">Mehmet • Sakal</div>
+              </div>
             </div>
           </div>
         </div>
@@ -1776,44 +1804,54 @@ body::before {
 
       <!-- FLOATING ICONS (ETRAFINDA SALLANANLAr) -->
       <!-- Top-left: WhatsApp -->
-      <div style="position:absolute;left:0;top:30px;width:48px;height:48px;
-                  background:rgba(37,211,102,.15);backdrop-filter:blur(10px);border:1px solid rgba(37,211,102,.3);
-                  border-radius:14px;display:flex;align-items:center;justify-content:center;
-                  font-size:1.4rem;z-index:30;will-change:transform;
-                  animation:float1 5s ease-in-out infinite;
-                  box-shadow:0 8px 32px rgba(37,211,102,.2);">💬</div>
+      <div style="position:absolute;left:-15px;top:30px;width:56px;height:56px;
+                  background:rgba(37,211,102,.2);backdrop-filter:blur(12px);border:1.5px solid rgba(37,211,102,.5);
+                  border-radius:16px;display:flex;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;will-change:transform;cursor:pointer;
+                  animation:float1 5s ease-in-out infinite;transition:all .3s;
+                  box-shadow:0 12px 48px rgba(37,211,102,.35),inset 0 1px 0 rgba(255,255,255,.1);"
+                  onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 16px 64px rgba(37,211,102,.5),inset 0 1px 0 rgba(255,255,255,.1)';"
+                  onmouseout="this.style.transform='';this.style.boxShadow='0 12px 48px rgba(37,211,102,.35),inset 0 1px 0 rgba(255,255,255,.1)';">💬</div>
 
       <!-- Top-right: Analitik -->
-      <div style="position:absolute;right:0;top:40px;width:48px;height:48px;
-                  background:rgba(6,182,212,.15);backdrop-filter:blur(10px);border:1px solid rgba(6,182,212,.3);
-                  border-radius:14px;display:flex;align-items:center;justify-content:center;
-                  font-size:1.4rem;z-index:30;will-change:transform;
-                  animation:float2 4s ease-in-out infinite;animation-delay:.5s;
-                  box-shadow:0 8px 32px rgba(6,182,212,.2);">📊</div>
+      <div style="position:absolute;right:-15px;top:40px;width:56px;height:56px;
+                  background:rgba(6,182,212,.2);backdrop-filter:blur(12px);border:1.5px solid rgba(6,182,212,.5);
+                  border-radius:16px;display:flex;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;will-change:transform;cursor:pointer;
+                  animation:float2 4s ease-in-out infinite;animation-delay:.5s;transition:all .3s;
+                  box-shadow:0 12px 48px rgba(6,182,212,.35),inset 0 1px 0 rgba(255,255,255,.1);"
+                  onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 16px 64px rgba(6,182,212,.5),inset 0 1px 0 rgba(255,255,255,.1)';"
+                  onmouseout="this.style.transform='';this.style.boxShadow='0 12px 48px rgba(6,182,212,.35),inset 0 1px 0 rgba(255,255,255,.1)';">📊</div>
 
       <!-- Mid-left: Gelir -->
-      <div style="position:absolute;left:-10px;top:180px;width:48px;height:48px;
-                  background:rgba(251,191,36,.15);backdrop-filter:blur(10px);border:1px solid rgba(251,191,36,.3);
-                  border-radius:14px;display:flex;align-items:center;justify-content:center;
-                  font-size:1.4rem;z-index:30;will-change:transform;
-                  animation:float3 6s ease-in-out infinite;animation-delay:1s;
-                  box-shadow:0 8px 32px rgba(251,191,36,.2);">💰</div>
+      <div style="position:absolute;left:-20px;top:180px;width:56px;height:56px;
+                  background:rgba(251,191,36,.2);backdrop-filter:blur(12px);border:1.5px solid rgba(251,191,36,.5);
+                  border-radius:16px;display:flex;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;will-change:transform;cursor:pointer;
+                  animation:float3 6s ease-in-out infinite;animation-delay:1s;transition:all .3s;
+                  box-shadow:0 12px 48px rgba(251,191,36,.35),inset 0 1px 0 rgba(255,255,255,.1);"
+                  onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 16px 64px rgba(251,191,36,.5),inset 0 1px 0 rgba(255,255,255,.1)';"
+                  onmouseout="this.style.transform='';this.style.boxShadow='0 12px 48px rgba(251,191,36,.35),inset 0 1px 0 rgba(255,255,255,.1)';">💰</div>
 
       <!-- Bottom-left: Randevu -->
-      <div style="position:absolute;left:-5px;bottom:50px;width:48px;height:48px;
-                  background:rgba(124,58,237,.15);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.3);
-                  border-radius:14px;display:flex;align-items:center;justify-content:center;
-                  font-size:1.4rem;z-index:30;will-change:transform;
-                  animation:float2 3.5s ease-in-out infinite;animation-delay:1.2s;
-                  box-shadow:0 8px 32px rgba(124,58,237,.2);">📅</div>
+      <div style="position:absolute;left:-15px;bottom:50px;width:56px;height:56px;
+                  background:rgba(124,58,237,.2);backdrop-filter:blur(12px);border:1.5px solid rgba(124,58,237,.5);
+                  border-radius:16px;display:flex;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;will-change:transform;cursor:pointer;
+                  animation:float2 3.5s ease-in-out infinite;animation-delay:1.2s;transition:all .3s;
+                  box-shadow:0 12px 48px rgba(124,58,237,.35),inset 0 1px 0 rgba(255,255,255,.1);"
+                  onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 16px 64px rgba(124,58,237,.5),inset 0 1px 0 rgba(255,255,255,.1)';"
+                  onmouseout="this.style.transform='';this.style.boxShadow='0 12px 48px rgba(124,58,237,.35),inset 0 1px 0 rgba(255,255,255,.1)';">📅</div>
 
       <!-- Bottom-right: Personel -->
-      <div style="position:absolute;right:-10px;bottom:40px;width:48px;height:48px;
-                  background:rgba(14,165,233,.15);backdrop-filter:blur(10px);border:1px solid rgba(14,165,233,.3);
-                  border-radius:14px;display:flex;align-items:center;justify-content:center;
-                  font-size:1.4rem;z-index:30;will-change:transform;
-                  animation:float3 5.5s ease-in-out infinite;animation-delay:1s;
-                  box-shadow:0 8px 32px rgba(14,165,233,.2);">👥</div>
+      <div style="position:absolute;right:-20px;bottom:40px;width:56px;height:56px;
+                  background:rgba(14,165,233,.2);backdrop-filter:blur(12px);border:1.5px solid rgba(14,165,233,.5);
+                  border-radius:16px;display:flex;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;will-change:transform;cursor:pointer;
+                  animation:float3 5.5s ease-in-out infinite;animation-delay:1s;transition:all .3s;
+                  box-shadow:0 12px 48px rgba(14,165,233,.35),inset 0 1px 0 rgba(255,255,255,.1);"
+                  onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 16px 64px rgba(14,165,233,.5),inset 0 1px 0 rgba(255,255,255,.1)';"
+                  onmouseout="this.style.transform='';this.style.boxShadow='0 12px 48px rgba(14,165,233,.35),inset 0 1px 0 rgba(255,255,255,.1)';">👥</div>
 
       </div>
 
