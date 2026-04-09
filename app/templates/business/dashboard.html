@@ -168,7 +168,7 @@ body { background: #0d0d16 !important; }
     <!-- URL VE PAYLAŞ -->
     <div style="flex:1;">
       <div style="font-size:.68rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.6);margin-bottom:6px;">MÜŞTERİ RANDEVU LİNKİ</div>
-      <div class="d-flex align-items-center gap-2 flex-wrap mb-3"><a href="/{{ biz.slug }}" target="_blank" class="lqc-url">www.randevucum.com/{{ biz.slug }}</a><button class="lqc-copy-btn" id="copyBtn" onclick="copyLink(this, 'https://www.randevucum.com/{{ biz.slug }}')"><i class="bi bi-copy me-1"></i>Kopyala</button></div>
+      <div class="d-flex align-items-center gap-2 flex-wrap mb-3"><a href="/{{ biz.slug }}" target="_blank" class="lqc-url">randevucum.com/{{ biz.slug }}</a><button class="lqc-copy-btn" id="copyBtn" onclick="copyLink(this, 'https://www.randevucum.com/{{ biz.slug }}')"><i class="bi bi-copy me-1"></i>Kopyala</button></div>
       <div class="d-flex gap-2 flex-wrap mb-3"><button class="lqc-dl-btn" onclick="downloadQR()"><i class="bi bi-download me-1"></i>QR İndir</button></div>
       <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:rgba(196,181,253,.6);margin-bottom:10px;margin-top:14px;">HIZLI PAYLAŞ</div>
       <div class="share-btns">
@@ -178,23 +178,23 @@ body { background: #0d0d16 !important; }
     </div>
 
     <!-- SUBSCRIPTION INFO -->
-    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;min-width:160px;padding:16px;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(236,72,153,.08));border:1px solid rgba(124,58,237,.2);border-radius:14px;text-align:center;">
-      <div style="font-size:2rem;">{% if biz.plan_type == 'premium' %}👑{% elif biz.plan_type == 'standard' %}⭐{% else %}📦{% endif %}</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;min-width:160px;padding:12px;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(236,72,153,.08));border:1px solid rgba(124,58,237,.2);border-radius:14px;text-align:center;">
+      <div style="font-size:1.8rem;">{% if biz.plan_type == 'premium' %}👑{% elif biz.plan_type == 'standard' %}⭐{% else %}📦{% endif %}</div>
       <div>
-        <div style="font-size:.7rem;color:rgba(196,181,253,.5);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">ABONELIK</div>
-        <div style="font-size:.95rem;font-weight:900;color:#e9d5ff;margin-bottom:8px;">
+        <div style="font-size:.65rem;color:rgba(196,181,253,.5);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;">ABONELIK</div>
+        <div style="font-size:.85rem;font-weight:900;color:#e9d5ff;margin-bottom:6px;">
           {% if biz.plan_type == 'premium' %}Premium
           {% elif biz.plan_type == 'standard' %}Standard
           {% else %}Temel{% endif %}
         </div>
       </div>
-      <div style="height:1px;width:100%;background:rgba(255,255,255,.1);"></div>
+      <div style="height:1px;width:100%;background:rgba(255,255,255,.08);margin:2px 0;"></div>
       <div>
-        <div style="font-size:.7rem;color:rgba(196,181,253,.5);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">KALAN</div>
-        <div style="font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,#34d399,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+        <div style="font-size:.65rem;color:rgba(196,181,253,.5);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;">KALAN</div>
+        <div style="font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,#34d399,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
           {% if biz.subscription_end_date %}{{ (biz.subscription_end_date.date() - now().date()).days }}{% else %}∞{% endif %}
         </div>
-        <div style="font-size:.65rem;color:rgba(196,181,253,.5);margin-top:2px;">gün</div>
+        <div style="font-size:.6rem;color:rgba(196,181,253,.5);margin-top:1px;">gün</div>
       </div>
     </div>
   </div>
