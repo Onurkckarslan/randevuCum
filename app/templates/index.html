@@ -1687,14 +1687,14 @@ body::before {
     </img>
 
     <!-- ═══ HAREKETLI LAPTOP MOCKUP (MASAÜSTÜ) ═══ -->
-    <div style="width:100%;margin:140px auto 0;padding:0 32px;display:none;" class="d-md-block">
-      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center;">
+    <div style="width:100%;margin:140px auto 0;padding:0 40px;display:none;overflow:hidden;" class="d-md-block">
+      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:120px;align-items:center;">
 
-      <!-- LEFT COLUMN: LAPTOP FRAME & ICONS (Overflow contained) -->
-      <div style="position:relative;width:100%;height:420px;overflow:hidden;">
+      <!-- LEFT COLUMN: LAPTOP FRAME & ICONS (Overflow contained, max-width bound) -->
+      <div style="position:relative;width:100%;max-width:550px;height:420px;overflow:hidden;margin:0 auto;">
 
       <!-- LAPTOP FRAME -->
-      <div style="position:absolute;left:0;top:0;width:620px;height:360px;
+      <div style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:550px;height:320px;
                   border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
                   box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
                   overflow:hidden;z-index:50;will-change:transform;
@@ -1766,11 +1766,11 @@ body::before {
       </div>
 
       <!-- LAPTOP BODY (Alt kısım) -->
-      <div style="position:absolute;left:0;bottom:-8px;width:620px;height:16px;
+      <div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:550px;height:16px;
                   background:#1a1a1a;border-radius:0 0 12px 12px;border:2px solid #0f0f0f;z-index:49;"></div>
 
       <!-- LAPTOP TRACKPAD -->
-      <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:220px;height:12px;
+      <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:200px;height:12px;
                   background:#2a2a2a;border-radius:3px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);"></div>
 
       <!-- FLOATING CARDS - 48x48 (20% küçültüldü, container içinde) -->
@@ -1842,53 +1842,53 @@ body::before {
 
       </div>
 
-      <!-- RIGHT COLUMN: INFO BLOCK -->
-      <div style="display:flex;flex-direction:column;justify-content:center;gap:24px;">
+      <!-- RIGHT COLUMN: INFO BLOCK (Text-right, aligned to end) -->
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:24px;text-align:right;">
         <!-- Gradient Heading -->
         <h2 style="background:linear-gradient(135deg,#ec4899 0%,#7c3aed 100%);-webkit-background-clip:text;
-                   -webkit-text-fill-color:transparent;background-clip:text;font-size:2.1rem;font-weight:900;
-                   margin:0 0 28px 0;letter-spacing:-.6px;line-height:1.2;">
+                   -webkit-text-fill-color:transparent;background-clip:text;font-size:2.2rem;font-weight:900;
+                   margin:0 0 8px 0;letter-spacing:-.6px;line-height:1.2;">
           İşletmenizi Tek Ekrandan Yönetin
         </h2>
 
-        <!-- Features List -->
+        <!-- Features List (Icon on right) -->
         <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:28px;">
-          <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="display:flex;flex-direction:row-reverse;align-items:flex-start;gap:12px;">
             <div style="flex-shrink:0;width:24px;height:24px;background:linear-gradient(135deg,#34d399,#06b6d4);
                         border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:2px;
                         font-size:14px;font-weight:900;">✓</div>
-            <div>
+            <div style="text-align:right;">
               <div style="font-weight:800;color:#c4b5fd;font-size:15px;margin-bottom:4px;">Canlı Randevu Takibi</div>
               <div style="color:rgba(196,181,253,.65);font-size:13px;line-height:1.5;">Anlık güncellenen takvim arayüzü ile müşteri hareketini takip edin.</div>
             </div>
           </div>
 
-          <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="display:flex;flex-direction:row-reverse;align-items:flex-start;gap:12px;">
             <div style="flex-shrink:0;width:24px;height:24px;background:linear-gradient(135deg,#f59e0b,#ec4899);
                         border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:2px;
                         font-size:14px;font-weight:900;">✓</div>
-            <div>
+            <div style="text-align:right;">
               <div style="font-weight:800;color:#c4b5fd;font-size:15px;margin-bottom:4px;">Gelişmiş Analitik</div>
               <div style="color:rgba(196,181,253,.65);font-size:13px;line-height:1.5;">Gelir-gider ve personel performans raporları görün.</div>
             </div>
           </div>
 
-          <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="display:flex;flex-direction:row-reverse;align-items:flex-start;gap:12px;">
             <div style="flex-shrink:0;width:24px;height:24px;background:linear-gradient(135deg,#06b6d4,#3b82f6);
                         border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:2px;
                         font-size:14px;font-weight:900;">✓</div>
-            <div>
+            <div style="text-align:right;">
               <div style="font-weight:800;color:#c4b5fd;font-size:15px;margin-bottom:4px;">Otomatik Müşteri Bildirimi</div>
               <div style="color:rgba(196,181,253,.65);font-size:13px;line-height:1.5;">Randevu hatırlatıcıları ile kayıpları önleyin.</div>
             </div>
           </div>
         </div>
 
-        <!-- CTA Button -->
+        <!-- CTA Button (Right-aligned) -->
         <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ec4899,#7c3aed);
                           color:#fff;padding:14px 28px;border-radius:12px;font-weight:800;font-size:14px;
                           text-decoration:none;transition:all .3s;box-shadow:0 12px 32px rgba(236,72,153,.35);
-                          border:none;cursor:pointer;">
+                          border:none;cursor:pointer;margin-left:auto;">
           Hemen Dene →
         </a>
       </div>
