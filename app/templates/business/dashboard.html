@@ -277,19 +277,10 @@ function downloadQR() {
       return;
     }
 
-    // Image'ı canvas'a yükle ve blob olarak indir
-    const canvas = document.createElement("canvas");
-    const img = new Image();
-
-    img.crossOrigin = "anonymous";
-    img.onload = function() {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-
-      // Canvas'ı blob'a çevir
-      canvas.toBlob(function(blob) {
+    // QR Server API'den direkt indir
+    fetch(qrImg.src)
+      .then(res => res.blob())
+      .then(blob => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
@@ -297,15 +288,12 @@ function downloadQR() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }, "image/png");
-    };
-
-    img.onerror = function() {
-      alert("QR kodu yüklenirken hata oluştu");
-    };
-
-    img.src = qrImg.src;
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      })
+      .catch(err => {
+        console.error("Download error:", err);
+        alert("İndirme başarısız. Lütfen tekrar deneyin.");
+      });
   } catch(e) {
     console.error("Download error:", e);
     alert("İndirme başarısız");
