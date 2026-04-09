@@ -42,6 +42,38 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-s
 .nav-item.active { background: rgba(124,58,237,.12); color: #c4b5fd; border-left: 3px solid var(--violet); padding-left: 17px; }
 .nav-item .ico { width: 20px; text-align: center; font-size: 1.1rem; }
 .nav-section { font-size: .65rem; font-weight: 800; letter-spacing: .1em; color: rgba(196,181,253,.3); padding: 16px 20px 6px; }
+
+.sidebar-brand {
+  padding: 16px 20px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+}
+.sidebar-brand:hover { opacity: 0.85; transform: translateY(-1px); }
+.brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(124,58,237,.4);
+  font-size: 0.9rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(124,58,237,.3), inset 0 0 12px rgba(124,58,237,.15);
+}
+
 .sidebar-bottom { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); }
 .logout-btn {
   display: flex; align-items: center; gap: 8px; justify-content: center;
@@ -65,6 +97,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-s
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar { width: 70px; padding: 16px 0; }
+  .sidebar-brand { display: none; }
   .sidebar-logo { padding: 0 10px 16px; border-bottom: 1px solid var(--border); }
   .sidebar-logo-text, .nav-item span:not(.ico) { display: none; }
   .nav-item { justify-content: center; padding: 12px 0; }
@@ -80,6 +113,16 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-s
 
 <!-- Sidebar -->
 <nav class="sidebar">
+  <!-- BRAND (Logo & RandevuCum) -->
+  <a href="/" class="sidebar-brand" style="position: relative;">
+    <span class="brand-logo">RC</span>
+    <div style="flex: 1;">
+      <div style="font-size: 1rem; font-weight: 900; background: linear-gradient(135deg, #a78bfa, #ec4899, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px;">RandevuCum</div>
+      <div style="font-size: 0.6rem; color: rgba(196,181,253,.4); font-weight: 700; letter-spacing: 0.05em;">PANEL</div>
+    </div>
+  </a>
+
+  <!-- İşletme Bilgisi -->
   <a href="/panel" class="sidebar-logo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; cursor: pointer;">
     {% if biz.logo_url %}
       <img src="{{ biz.logo_url }}" class="sidebar-logo-img" alt="{{ biz.name }}">
