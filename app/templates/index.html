@@ -174,7 +174,11 @@ body::before {
 }
 @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
 
-.hero-btns { display:flex; gap:12px; flex-wrap:wrap; animation: fadeIn .8s .55s both; }
+.hero-btns { display:flex; gap:12px; flex-wrap:wrap; animation: fadeIn .8s .55s both; max-width: 600px; }
+@media (max-width: 640px) {
+  .hero-btns { flex-direction: column; }
+  .btn-glow, .btn-ghost, .btn-info, .btn-info-outline { display: flex; width: 100%; justify-content: center; }
+}
 .btn-glow {
   display:inline-flex; align-items:center; gap:8px;
   background: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4);
