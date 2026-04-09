@@ -1688,17 +1688,17 @@ body::before {
 
     <!-- ═══ HAREKETLI LAPTOP MOCKUP (MASAÜSTÜ) ═══ -->
     <div style="width:100%;margin:140px auto 0;padding:0 40px;display:block !important;opacity:100 !important;" class="d-md-block">
-      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:48px;align-items:center;">
+      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(12,1fr);gap:48px;align-items:stretch;min-height:500px;">
 
       <!-- LEFT COLUMN: col-span-7 (LAPTOP) -->
-      <div style="grid-column:span 7;position:relative;width:100%;height:auto;display:block !important;opacity:100 !important;">
+      <div style="grid-column:span 7;position:relative;width:100%;display:flex;justify-content:center;align-items:center;min-height:500px;">
 
       <!-- LAPTOP FRAME -->
-      <div style="width:100% !important;max-width:600px;height:auto;
+      <div style="width:100%;max-width:600px;aspect-ratio:16/10;
                   border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
                   box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
-                  overflow:hidden;z-index:50 !important;will-change:transform;
-                  animation:laptopFloat 6s ease-in-out infinite;margin:0 auto;display:block !important;">
+                  overflow:hidden;z-index:50;will-change:transform;
+                  animation:laptopFloat 6s ease-in-out infinite;position:relative;">
 
         <!-- LAPTOP SCREEN — Dashboard UI -->
         <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,15,.97),rgba(15,12,25,.97));
