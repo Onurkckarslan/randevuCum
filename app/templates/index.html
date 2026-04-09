@@ -1688,13 +1688,13 @@ body::before {
 
     <!-- ═══ HAREKETLI LAPTOP MOCKUP (MASAÜSTÜ) ═══ -->
     <div style="width:100%;margin:140px auto 0;padding:0 40px;display:none;overflow:hidden;" class="d-md-block">
-      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:120px;align-items:center;">
+      <div style="max-width:1400px;margin:0 auto;display:grid;grid-template-columns:55fr 45fr;gap:80px;align-items:center;">
 
-      <!-- LEFT COLUMN: LAPTOP FRAME & ICONS (Overflow contained, max-width bound) -->
-      <div style="position:relative;width:100%;max-width:550px;height:420px;overflow:hidden;margin:0 auto;">
+      <!-- LEFT COLUMN: LAPTOP FRAME & ICONS (Flexible sizing, no clipping) -->
+      <div style="position:relative;width:100%;height:420px;overflow:visible;display:flex;justify-content:center;align-items:flex-start;">
 
-      <!-- LAPTOP FRAME -->
-      <div style="position:absolute;left:50%;top:0;transform:translateX(-50%);width:550px;height:320px;
+      <!-- LAPTOP FRAME (Responsive, no clipping) -->
+      <div style="position:relative;width:100%;max-width:520px;height:auto;min-height:320px;
                   border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
                   box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
                   overflow:hidden;z-index:50;will-change:transform;
@@ -1765,79 +1765,79 @@ body::before {
         </div>
       </div>
 
-      <!-- LAPTOP BODY (Alt kısım) -->
-      <div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:550px;height:16px;
+      <!-- LAPTOP BODY (Alt kısım, sütun içinde) -->
+      <div style="position:absolute;left:50%;top:calc(100% - 8px);transform:translateX(-50%);width:100%;max-width:520px;height:16px;
                   background:#1a1a1a;border-radius:0 0 12px 12px;border:2px solid #0f0f0f;z-index:49;"></div>
 
-      <!-- LAPTOP TRACKPAD -->
-      <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:200px;height:12px;
+      <!-- LAPTOP TRACKPAD (sütun içinde) -->
+      <div style="position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);width:auto;max-width:200px;height:12px;
                   background:#2a2a2a;border-radius:3px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);"></div>
 
-      <!-- FLOATING CARDS - 48x48 (20% küçültüldü, container içinde) -->
+      <!-- FLOATING CARDS - 44x44 (Responsive, container-bound) -->
       <!-- Top-Left: WhatsApp -->
-      <div style="position:absolute;left:15px;top:20px;width:48px;height:48px;
+      <div style="position:absolute;left:0;top:10px;width:44px;height:44px;
                   background:rgba(37,211,102,.12);backdrop-filter:blur(10px);border:1px solid rgba(37,211,102,.3);
-                  border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.3rem;z-index:60;gap:3px;will-change:transform;
+                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
                   animation:float1 5s ease-in-out infinite;
                   box-shadow:0 8px 32px rgba(37,211,102,.2);">
         💬
-        <div style="font-size:6px;font-weight:700;color:#34d399;text-align:center;">WhatsApp</div>
+        <div style="font-size:5px;font-weight:700;color:#34d399;text-align:center;">WhatsApp</div>
       </div>
 
       <!-- Right: Analitik -->
-      <div style="position:absolute;right:20px;top:30px;width:48px;height:48px;
+      <div style="position:absolute;right:0;top:20px;width:44px;height:44px;
                   background:rgba(6,182,212,.12);backdrop-filter:blur(10px);border:1px solid rgba(6,182,212,.3);
-                  border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.3rem;z-index:60;gap:3px;will-change:transform;
+                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
                   animation:float2 4s ease-in-out infinite;animation-delay:.5s;
                   box-shadow:0 8px 32px rgba(6,182,212,.2);">
         📊
-        <div style="font-size:6px;font-weight:700;color:#67e8f9;">Analitik</div>
+        <div style="font-size:5px;font-weight:700;color:#67e8f9;">Analitik</div>
       </div>
 
       <!-- Left: Gelir -->
-      <div style="position:absolute;left:15px;top:140px;width:48px;height:48px;
+      <div style="position:absolute;left:0;top:120px;width:44px;height:44px;
                   background:rgba(251,191,36,.12);backdrop-filter:blur(10px);border:1px solid rgba(251,191,36,.3);
-                  border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.3rem;z-index:60;gap:3px;will-change:transform;
+                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
                   animation:float3 6s ease-in-out infinite;animation-delay:1s;
                   box-shadow:0 8px 32px rgba(251,191,36,.2);">
         💰
-        <div style="font-size:6px;font-weight:700;color:#fbbf24;">Gelir</div>
+        <div style="font-size:5px;font-weight:700;color:#fbbf24;">Gelir</div>
       </div>
 
       <!-- Right-Bottom: Rating -->
-      <div style="position:absolute;right:20px;bottom:50px;width:48px;height:48px;
+      <div style="position:absolute;right:0;bottom:40px;width:44px;height:44px;
                   background:rgba(168,85,247,.12);backdrop-filter:blur(10px);border:1px solid rgba(168,85,247,.3);
-                  border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.2rem;z-index:60;gap:3px;will-change:transform;
+                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.1rem;z-index:60;gap:2px;will-change:transform;
                   animation:float1 4.5s ease-in-out infinite;animation-delay:.8s;
                   box-shadow:0 8px 32px rgba(168,85,247,.25);">
         ⭐
-        <div style="font-size:6px;font-weight:700;color:#c4b5fd;">4.9</div>
+        <div style="font-size:5px;font-weight:700;color:#c4b5fd;">4.9</div>
       </div>
 
       <!-- Top-Center: Randevu -->
-      <div style="position:absolute;left:50%;top:10px;transform:translateX(-50%);width:48px;height:48px;
+      <div style="position:absolute;left:50%;top:5px;transform:translateX(-50%);width:44px;height:44px;
                   background:rgba(124,58,237,.12);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.3);
-                  border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.3rem;z-index:60;gap:3px;will-change:transform;
+                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
                   animation:float2 3.5s ease-in-out infinite;animation-delay:1.2s;
                   box-shadow:0 8px 32px rgba(124,58,237,.25);">
         📅
-        <div style="font-size:6px;font-weight:700;color:#c4b5fd;text-align:center;">Randevu</div>
+        <div style="font-size:5px;font-weight:700;color:#c4b5fd;text-align:center;">Randevu</div>
       </div>
 
       <!-- Bottom-Right Corner: Personel -->
-      <div style="position:absolute;right:20px;bottom:15px;width:48px;height:48px;
+      <div style="position:absolute;right:0;bottom:10px;width:44px;height:44px;
                   background:rgba(14,165,233,.12);backdrop-filter:blur(10px);border:1px solid rgba(14,165,233,.3);
-                  border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:1.3rem;z-index:60;gap:3px;will-change:transform;
+                  border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.2rem;z-index:60;gap:2px;will-change:transform;
                   animation:float3 5.5s ease-in-out infinite;animation-delay:1s;
                   box-shadow:0 8px 32px rgba(14,165,233,.2);">
         👥
-        <div style="font-size:6px;font-weight:700;color:#0ea5e9;text-align:center;">Personel</div>
+        <div style="font-size:5px;font-weight:700;color:#0ea5e9;text-align:center;">Personel</div>
       </div>
 
       </div>
