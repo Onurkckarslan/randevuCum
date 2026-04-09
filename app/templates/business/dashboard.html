@@ -160,7 +160,9 @@ body { background: #0d0d16 !important; }
   <div class="qr-wrapper">
     <!-- QR CODE -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
-      <div style="background:#fff;border-radius:16px;padding:10px;display:inline-flex;"><div id="qrCodeContainer" style="width:110px;height:110px;display:flex;align-items:center;justify-content:center;"><div id="qrPlaceholder" style="font-size:.65rem;color:#9ca3af;">Yükleniyor</div></div></div>
+      <div style="background:#fff;border-radius:16px;padding:10px;display:inline-flex;">
+        <img id="qrCodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://www.randevucum.com/{{ biz.slug }}" alt="QR Code" style="width:110px;height:110px;display:block;" />
+      </div>
     </div>
 
     <!-- URL VE PAYLAŞ -->
@@ -247,119 +249,10 @@ body { background: #0d0d16 !important; }
 </div>
 {% endblock %}
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const slug = "{{ biz.slug }}";
   const bizUrl = "https://www.randevucum.com/" + slug;
-  const container = document.getElementById("qrCodeContainer");
-  const placeholder = document.getElementById("qrPlaceholder");
-
-  if (!container) {
-    console.error("QR container not found");
-    return;
-  }
-
-  function addLogoToQR(canvas) {
-    try {
-      if (!canvas) {
-        console.warn("Canvas not provided for logo");
-        return;
-      }
-
-      const ctx = canvas.getContext("2d");
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-
-      img.onload = function() {
-        try {
-          const size = Math.floor(canvas.width * 0.24);
-          const x = (canvas.width - size) / 2;
-          const y = (canvas.height - size) / 2;
-
-          // Draw white square background
-          ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-          ctx.fillRect(x - 3, y - 3, size + 6, size + 6);
-          ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
-          ctx.lineWidth = 1;
-          ctx.strokeRect(x - 3, y - 3, size + 6, size + 6);
-
-          // Draw logo with rotation for effect
-          ctx.save();
-          ctx.translate(x + size / 2, y + size / 2);
-          ctx.drawImage(img, -size / 2, -size / 2, size, size);
-          ctx.restore();
-        } catch(e) {
-          console.warn("Logo drawing error:", e);
-        }
-      };
-
-      img.onerror = function() {
-        console.warn("Logo failed to load");
-      };
-
-      img.src = "/static/qr-logo.png";
-    } catch(e) {
-      console.error("addLogoToQR error:", e);
-    }
-  }
-
-  function generateQR() {
-    try {
-      if (placeholder) placeholder.remove();
-      container.innerHTML = "";
-
-      // Use the modern QRCode.toCanvas method
-      if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
-        QRCode.toCanvas(container, bizUrl, {
-          errorCorrectionLevel: 'H',
-          type: 'image/png',
-          quality: 1,
-          margin: 1,
-          width: 110,
-          color: {
-            dark: '#000000',
-            light: '#ffffff'
-          }
-        }, function(error) {
-          if (error) {
-            console.error("QRCode.toCanvas error:", error);
-            container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">QR kod oluşturulamadı</div>';
-            return;
-          }
-          // Add logo after a brief delay
-          const canvas = container.querySelector('canvas');
-          if (canvas) {
-            setTimeout(() => addLogoToQR(canvas), 100);
-          }
-        });
-      } else {
-        throw new Error("QRCode library not properly loaded");
-      }
-    } catch(e) {
-      console.error("QR generation error:", e);
-      container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">QR kütüphanesi yüklenemedi</div>';
-    }
-  }
-
-  // Wait for library
-  function initQR() {
-    let attempts = 0;
-    const maxAttempts = 20;
-
-    const checkLib = setInterval(() => {
-      if (typeof QRCode !== 'undefined') {
-        clearInterval(checkLib);
-        generateQR();
-      } else if (attempts++ > maxAttempts) {
-        clearInterval(checkLib);
-        console.error("QRCode library failed to load after multiple attempts");
-        container.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;padding:20px;text-align:center;">QR yükleme başarısız</div>';
-      }
-    }, 100);
-  }
-
-  initQR();
 
   // Helper for text copy
   function copyToClipboard(text) {
@@ -380,13 +273,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Global functions
   window.downloadQR = function() {
     try {
-      const canvas = container.querySelector("canvas");
-      if (!canvas) {
-        alert("QR kodu henüz hazır değil, lütfen bekleyin");
+      const qrImg = document.getElementById("qrCodeImg");
+      if (!qrImg || !qrImg.src) {
+        alert("QR kodu yüklenemedi");
         return;
       }
       const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
+      link.href = qrImg.src;
       link.download = slug + "-qr.png";
       link.click();
     } catch(e) {
