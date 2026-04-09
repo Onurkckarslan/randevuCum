@@ -21,6 +21,25 @@ body { background: #0d0d16 !important; }
 .link-qr-card { background: linear-gradient(135deg, #1e0b4b 0%, #2d0a5c 60%, #1a0839 100%); border: 1px solid rgba(167,139,250,.25); border-radius: 24px; padding: 28px 24px; box-shadow: 0 8px 40px rgba(124,58,237,.25); overflow: hidden; }
 @media(max-width: 768px) {
   .link-qr-card { padding: 16px; border-radius: 18px; }
+  /* Mobile: Buttons yan yana */
+  .link-qr-card .qr-wrapper > div:nth-of-type(2) {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 8px;
+  }
+  .link-qr-card .qr-wrapper > div:nth-of-type(2) > div:nth-child(1) {
+    grid-column: 1 / -1;
+  }
+  .link-qr-card .qr-wrapper > div:nth-of-type(2) > div:nth-child(2) {
+    grid-column: 1;
+  }
+  .link-qr-card .qr-wrapper > div:nth-of-type(2) > div:nth-child(3) {
+    grid-column: 2;
+  }
+  .link-qr-card .qr-wrapper > div:nth-of-type(2) > div:nth-child(n+4) {
+    grid-column: 1 / -1;
+  }
 }
 .lqc-url { font-size: .9rem; font-weight: 700; color: #c4b5fd; word-break: break-all; text-decoration: none; }
 .lqc-copy-btn { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: #e9d5ff; border-radius: 10px; padding: 7px 16px; font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; font-family: inherit; }
@@ -139,13 +158,9 @@ body { background: #0d0d16 !important; }
 
 <div class="link-qr-card mb-4">
   <div class="qr-wrapper">
-    <!-- QR CODE + ACTIONS -->
+    <!-- QR CODE -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
       <div style="background:#fff;border-radius:16px;padding:10px;display:inline-flex;"><div id="qrCodeContainer" style="width:110px;height:110px;display:flex;align-items:center;justify-content:center;"><div id="qrPlaceholder" style="font-size:.65rem;color:#9ca3af;">Yükleniyor</div></div></div>
-      <div class="qr-actions">
-        <button class="qr-action-btn" style="background:#25d366;color:white;" onclick="shareWhatsApp()" title="WhatsApp'a paylaş">💬</button>
-        <button class="qr-action-btn" style="background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;" onclick="copyLink(this, 'https://www.randevucum.com/{{ biz.slug }}')" title="Linki kopyala">🔗</button>
-      </div>
     </div>
 
     <!-- URL VE PAYLAŞ -->
