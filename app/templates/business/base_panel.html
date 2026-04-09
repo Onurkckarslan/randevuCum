@@ -80,7 +80,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-s
 
 <!-- Sidebar -->
 <nav class="sidebar">
-  <div class="sidebar-logo">
+  <a href="/panel" class="sidebar-logo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; cursor: pointer;">
     {% if biz.logo_url %}
       <img src="{{ biz.logo_url }}" class="sidebar-logo-img" alt="{{ biz.name }}">
     {% else %}
@@ -90,7 +90,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-s
       <div class="name">{{ biz.name[:16] }}</div>
       <div class="sub">{{ biz.business_code if biz.business_code else '—' }}</div>
     </div>
-  </div>
+  </a>
   <div class="nav-section">MENÜ</div>
   <a class="nav-item {% if request.path == '/panel' %}active{% endif %}" href="/panel"><span class="ico">🏠</span> <span>Anasayfa</span></a>
   <a class="nav-item {% if '/randevular' in request.path %}active{% endif %}" href="/panel/randevular"><span class="ico">📅</span> <span>Tüm Randevular</span></a>
