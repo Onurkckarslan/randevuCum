@@ -7,7 +7,8 @@ import time
 from collections import defaultdict
 from .database import engine, SessionLocal, get_db
 from . import models
-from .routes import auth, panel, booking, categories, staff_portal, admin, whatsapp, leads, subscription
+from .routes import auth, panel, booking, categories, staff_portal, admin, whatsapp, leads
+# from .routes import subscription  # GEÇİCİ DISABLED
 from .scheduler import scheduler_loop
 from .auth import get_current_business_id
 from .models import Business
@@ -135,47 +136,47 @@ async def lifespan(app: FastAPI):
             if "selected_staff_id" not in cols:
                 db.execute(text("ALTER TABLE whatsapp_conversations ADD COLUMN selected_staff_id INTEGER"))
 
-        # ── Add subscription fields to businesses ──
-        if "businesses" in inspector.get_table_names():
-            cols = [col["name"] for col in inspector.get_columns("businesses")]
+        # # ── Add subscription fields to businesses ──  GEÇİCİ DISABLED
+        # if "businesses" in inspector.get_table_names():
+        #     cols = [col["name"] for col in inspector.get_columns("businesses")]
+        #
+        #     subscription_cols = {
+        #         "subscription_status": "VARCHAR(20) DEFAULT 'trial'",
+        #         "paytr_card_token": "VARCHAR(255)",
+        #         "card_last4": "VARCHAR(4)",
+        #         "card_brand": "VARCHAR(20)",
+        #         "next_billing_date": "TIMESTAMP",
+        #         "payment_failed_count": "INTEGER DEFAULT 0"
+        #     }
+        #
+        #     for col_name, col_type in subscription_cols.items():
+        #         if col_name not in cols:
+        #             try:
+        #                 query = f"ALTER TABLE businesses ADD COLUMN {col_name} {col_type}"
+        #                 db.execute(text(query))
+        #                 print(f"[Migration] ✅ Column added: {col_name}")
+        #             except Exception as col_err:
+        #                 print(f"[Migration] Column {col_name} may already exist or error: {str(col_err)}")
 
-            subscription_cols = {
-                "subscription_status": "VARCHAR(20) DEFAULT 'trial'",
-                "paytr_card_token": "VARCHAR(255)",
-                "card_last4": "VARCHAR(4)",
-                "card_brand": "VARCHAR(20)",
-                "next_billing_date": "TIMESTAMP",
-                "payment_failed_count": "INTEGER DEFAULT 0"
-            }
-
-            for col_name, col_type in subscription_cols.items():
-                if col_name not in cols:
-                    try:
-                        query = f"ALTER TABLE businesses ADD COLUMN {col_name} {col_type}"
-                        db.execute(text(query))
-                        print(f"[Migration] ✅ Column added: {col_name}")
-                    except Exception as col_err:
-                        print(f"[Migration] Column {col_name} may already exist or error: {str(col_err)}")
-
-        # ── Create payments table if not exists ──
-        if "payments" not in inspector.get_table_names():
-            try:
-                db.execute(text("""
-                    CREATE TABLE payments (
-                        id SERIAL PRIMARY KEY,
-                        business_id INTEGER NOT NULL,
-                        amount INTEGER NOT NULL,
-                        plan_type VARCHAR(20),
-                        status VARCHAR(20) DEFAULT 'pending',
-                        paytr_ref_no VARCHAR(100),
-                        error_msg VARCHAR(255),
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        paid_at TIMESTAMP
-                    )
-                """))
-                print("[Migration] ✅ Payments table created")
-            except Exception as tbl_err:
-                print(f"[Migration] Payments table creation error: {str(tbl_err)}")
+        # # ── Create payments table if not exists ──  GEÇİCİ DISABLED
+        # if "payments" not in inspector.get_table_names():
+        #     try:
+        #         db.execute(text("""
+        #             CREATE TABLE payments (
+        #                 id SERIAL PRIMARY KEY,
+        #                 business_id INTEGER NOT NULL,
+        #                 amount INTEGER NOT NULL,
+        #                 plan_type VARCHAR(20),
+        #                 status VARCHAR(20) DEFAULT 'pending',
+        #                 paytr_ref_no VARCHAR(100),
+        #                 error_msg VARCHAR(255),
+        #                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        #                 paid_at TIMESTAMP
+        #             )
+        #         """))
+        #         print("[Migration] ✅ Payments table created")
+        #     except Exception as tbl_err:
+        #         print(f"[Migration] Payments table creation error: {str(tbl_err)}")
 
         db.commit()
         print("[Migration] ✅ Tüm migration'lar başarıyla tamamlandı")
@@ -277,7 +278,7 @@ templates.TemplateResponse = _patched_response
 app.include_router(auth.router)         # EN ÖNCE — /giris, /kayit vb.
 app.include_router(admin.router)        # Sonra admin
 app.include_router(leads.router)        # Lead API endpoint
-app.include_router(subscription.router) # Abonelik & Ödeme
+# app.include_router(subscription.router) # Abonelik & Ödeme — GEÇİCİ DISABLED
 app.include_router(panel.router)
 app.include_router(categories.router)
 app.include_router(whatsapp.router)     # WhatsApp webhook

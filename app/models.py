@@ -249,19 +249,19 @@ class Lead(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
 
 
-class Payment(Base):
-    """Ödeme İşlemleri - PayTR Entegrasyonu"""
-    __tablename__ = "payments"
-
-    id              = Column(Integer, primary_key=True, index=True)
-    business_id     = Column(Integer, ForeignKey("businesses.id"), nullable=False)
-    amount          = Column(Integer, nullable=False)                 # Kuruş cinsinden (99900 = 999 TL)
-    plan_type       = Column(String(20))                              # Hangi plan için ödeme
-    status          = Column(String(20), default="pending")           # pending|completed|failed
-    paytr_ref_no    = Column(String(100), nullable=True)              # PayTR işlem referans no
-    error_msg       = Column(String(255), nullable=True)              # Hata mesajı
-    created_at      = Column(DateTime, default=datetime.utcnow)
-    paid_at         = Column(DateTime, nullable=True)
-
-    business        = relationship("Business", back_populates="payments")
+# class Payment(Base):  # GEÇİCİ DISABLED
+#     """Ödeme İşlemleri - PayTR Entegrasyonu"""
+#     __tablename__ = "payments"
+#
+#     id              = Column(Integer, primary_key=True, index=True)
+#     business_id     = Column(Integer, ForeignKey("businesses.id"), nullable=False)
+#     amount          = Column(Integer, nullable=False)                 # Kuruş cinsinden (99900 = 999 TL)
+#     plan_type       = Column(String(20))                              # Hangi plan için ödeme
+#     status          = Column(String(20), default="pending")           # pending|completed|failed
+#     paytr_ref_no    = Column(String(100), nullable=True)              # PayTR işlem referans no
+#     error_msg       = Column(String(255), nullable=True)              # Hata mesajı
+#     created_at      = Column(DateTime, default=datetime.utcnow)
+#     paid_at         = Column(DateTime, nullable=True)
+#
+#     business        = relationship("Business", back_populates="payments")
 
