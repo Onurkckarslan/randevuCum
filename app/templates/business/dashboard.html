@@ -126,8 +126,149 @@ body { background: #0d0d16 !important; }
 </div>
 {% endblock %}
 {% block extra_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-(function(){const slug="{{ biz.slug }}",bizUrl="https://www.randevucum.com/"+slug,c=document.getElementById("qrCodeContainer"),p=document.getElementById("qrPlaceholder");function addLogoToQR(){const canvas=c.querySelector("canvas");if(!canvas){console.log("Canvas bulunamadı");return}const ctx=canvas.getContext("2d"),img=new Image();img.crossOrigin="anonymous";img.onload=function(){try{console.log("Logo yüklendi, canvas:",canvas.width+"x"+canvas.height);const size=canvas.width*0.25,x=canvas.width/2-size/2,y=canvas.height/2-size/2;ctx.clearRect(x-2,y-2,size+4,size+4);ctx.drawImage(img,x,y,size,size);console.log("Logo çizildi")}catch(e){console.log("Logo çizme hatası:",e)}};img.onerror=function(){console.log("Logo yükleme hatası")};img.src="/static/qr-logo.png";console.log("Logo yükleniyor...")}function b(){if(p)p.remove();c.innerHTML="";new QRCode(c,{text:bizUrl,width:110,height:110,colorDark:"#000",colorLight:"#fff",correctLevel:QRCode.CorrectLevel.M});setTimeout(addLogoToQR,500)}if(typeof QRCode!=="undefined")b();else{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js";s.onload=b;document.head.appendChild(s)}function ct(t){if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(t);const a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;left:-9999px";document.body.appendChild(a);a.focus();a.select();document.execCommand("copy");document.body.removeChild(a);return Promise.resolve()}window.downloadQR=function(){const v=c.querySelector("canvas");if(v){const o=document.createElement("canvas");o.width=o.height=512;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,512,512);x.drawImage(v,0,0,512,512);const a=document.createElement("a");a.href=o.toDataURL("image/png");a.download=slug+"-qr.png";a.click()}};window.copyLink=function(btn,url){ct(url).then(()=>{btn.innerHTML='<i class="bi bi-check2 me-1"></i>Kopyalandı!';btn.classList.add("copied");setTimeout(()=>{btn.innerHTML='<i class="bi bi-copy me-1"></i>Kopyala';btn.classList.remove("copied")},2500)})};window.shareWhatsApp=function(){window.location.href="https://wa.me/?text="+encodeURIComponent("Randevu linkim: "+bizUrl)};window.shareNative=function(){if(navigator.share)navigator.share({title:"Randevu",text:"Online randevu: "+bizUrl,url:bizUrl}).catch(()=>ct(bizUrl));else ct(bizUrl)}})();
+document.addEventListener('DOMContentLoaded', function() {
+  const slug = "{{ biz.slug }}";
+  const bizUrl = "https://www.randevucum.com/" + slug;
+  const container = document.getElementById("qrCodeContainer");
+  const placeholder = document.getElementById("qrPlaceholder");
+
+  if (!container) {
+    console.error("QR container not found");
+    return;
+  }
+
+  function addLogoToQR() {
+    const canvas = container.querySelector("canvas");
+    if (!canvas) {
+      console.error("Canvas not found after QR generation");
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+
+    img.onload = function() {
+      try {
+        const size = canvas.width * 0.25;
+        const x = canvas.width / 2 - size / 2;
+        const y = canvas.height / 2 - size / 2;
+        ctx.clearRect(x - 2, y - 2, size + 4, size + 4);
+        ctx.drawImage(img, x, y, size, size);
+      } catch(e) {
+        console.error("Error drawing logo:", e);
+      }
+    };
+
+    img.onerror = function() {
+      console.warn("Logo image failed to load");
+    };
+
+    img.src = "/static/qr-logo.png";
+  }
+
+  function generateQR() {
+    if (placeholder) placeholder.remove();
+    container.innerHTML = "";
+
+    if (typeof QRCode === 'undefined') {
+      console.error("QRCode library not loaded");
+      container.innerHTML = '<div style="color:#ef4444;font-size:0.7rem;">QR kütüphanesi yüklenemedi</div>';
+      return;
+    }
+
+    try {
+      new QRCode(container, {
+        text: bizUrl,
+        width: 110,
+        height: 110,
+        colorDark: "#000",
+        colorLight: "#fff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      setTimeout(addLogoToQR, 300);
+    } catch(e) {
+      console.error("QR generation error:", e);
+      container.innerHTML = '<div style="color:#ef4444;font-size:0.7rem;">QR oluşturulamadı</div>';
+    }
+  }
+
+  // Wait for QRCode library to load
+  if (typeof QRCode !== 'undefined') {
+    generateQR();
+  } else {
+    // Fallback: load from alternative CDN
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@latest/qrcode.min.js';
+    script.onload = generateQR;
+    script.onerror = function() {
+      console.error("Failed to load QRCode library");
+      container.innerHTML = '<div style="color:#ef4444;font-size:0.7rem;">Kütüphane yüklenemedi</div>';
+    };
+    document.head.appendChild(script);
+  }
+
+  // Helper for text copy
+  function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.cssText = "position:fixed;left:-9999px";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return Promise.resolve();
+  }
+
+  // Global functions
+  window.downloadQR = function() {
+    const sourceCanvas = container.querySelector("canvas");
+    if (sourceCanvas) {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 512;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.drawImage(sourceCanvas, 0, 0, 512, 512);
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = slug + "-qr.png";
+      link.click();
+    }
+  };
+
+  window.copyLink = function(btn, url) {
+    copyToClipboard(url).then(() => {
+      btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Kopyalandı!';
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.innerHTML = '<i class="bi bi-copy me-1"></i>Kopyala';
+        btn.classList.remove("copied");
+      }, 2500);
+    });
+  };
+
+  window.shareWhatsApp = function() {
+    window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + bizUrl);
+  };
+
+  window.shareNative = function() {
+    if (navigator.share) {
+      navigator.share({
+        title: "Randevu",
+        text: "Online randevu: " + bizUrl,
+        url: bizUrl
+      }).catch(() => copyToClipboard(bizUrl));
+    } else {
+      copyToClipboard(bizUrl);
+    }
+  };
+});
 </script>
 {% endblock %}
