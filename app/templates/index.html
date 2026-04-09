@@ -1687,10 +1687,13 @@ body::before {
     </img>
 
     <!-- ═══ HAREKETLI LAPTOP MOCKUP (MASAÜSTÜ) ═══ -->
-    <div style="position:relative;width:100%;max-width:900px;height:500px;margin:80px auto 0;overflow:visible;">
+    <div style="position:relative;width:100%;max-width:1200px;height:500px;margin:80px auto 0;overflow:visible;display:flex;align-items:center;gap:60px;padding:0 32px;">
+
+      <!-- LEFT: LAPTOP FRAME & ICONS -->
+      <div style="flex:0 0 auto;position:relative;width:600px;height:450px;">
 
       <!-- LAPTOP FRAME -->
-      <div style="position:absolute;left:50%;top:40px;transform:translateX(-50%);width:780px;height:440px;
+      <div style="position:absolute;left:0;top:40px;width:600px;height:340px;
                   border-radius:16px;background:#1a1a2e;border:12px solid #0f0f1a;
                   box-shadow:0 30px 80px rgba(124,58,237,.25),inset 0 1px 0 rgba(255,255,255,.1);
                   overflow:hidden;z-index:50;will-change:transform;
@@ -1762,102 +1765,88 @@ body::before {
       </div>
 
       <!-- LAPTOP BODY (Alt kısım) -->
-      <div style="position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:820px;height:16px;
+      <div style="position:absolute;left:0;bottom:-8px;width:630px;height:16px;
                   background:#1a1a1a;border-radius:0 0 12px 12px;border:2px solid #0f0f0f;z-index:49;"></div>
 
       <!-- LAPTOP TRACKPAD -->
-      <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:320px;height:12px;
+      <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:240px;height:12px;
                   background:#2a2a2a;border-radius:3px;z-index:50;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);"></div>
 
-      <!-- FLOATING CARDS - Masaüstü Versiyonu (6 adet, Asimetrik Dağılım) -->
+      <!-- FLOATING CARDS - Küçük boyut (60x60, asimetrik) -->
       <!-- Top-Left: WhatsApp -->
-      <div style="position:absolute;left:-60px;top:-40px;width:80px;height:80px;
+      <div style="position:absolute;left:-50px;top:-30px;width:60px;height:60px;
                   background:rgba(37,211,102,.12);backdrop-filter:blur(10px);border:1px solid rgba(37,211,102,.3);
-                  border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:2.2rem;z-index:60;gap:6px;will-change:transform;
+                  border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;gap:4px;will-change:transform;
                   animation:float1 5s ease-in-out infinite;
                   box-shadow:0 8px 32px rgba(37,211,102,.2);">
         💬
-        <div style="font-size:8px;font-weight:700;color:#34d399;text-align:center;">WhatsApp</div>
+        <div style="font-size:7px;font-weight:700;color:#34d399;text-align:center;">WhatsApp</div>
       </div>
 
-      <!-- Top-Right: Analitik -->
-      <div style="position:absolute;right:-70px;top:10px;width:80px;height:80px;
+      <!-- Right: Analitik -->
+      <div style="position:absolute;right:-50px;top:20px;width:60px;height:60px;
                   background:rgba(6,182,212,.12);backdrop-filter:blur(10px);border:1px solid rgba(6,182,212,.3);
-                  border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:2.2rem;z-index:60;gap:6px;will-change:transform;
+                  border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;gap:4px;will-change:transform;
                   animation:float2 4s ease-in-out infinite;animation-delay:.5s;
                   box-shadow:0 8px 32px rgba(6,182,212,.2);">
         📊
-        <div style="font-size:8px;font-weight:700;color:#67e8f9;">Analitik</div>
+        <div style="font-size:7px;font-weight:700;color:#67e8f9;">Analitik</div>
       </div>
 
-      <!-- Left-Middle: Gelir -->
-      <div style="position:absolute;left:-70px;top:140px;width:80px;height:80px;
+      <!-- Left: Gelir -->
+      <div style="position:absolute;left:-50px;top:120px;width:60px;height:60px;
                   background:rgba(251,191,36,.12);backdrop-filter:blur(10px);border:1px solid rgba(251,191,36,.3);
-                  border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:2.2rem;z-index:60;gap:6px;will-change:transform;
+                  border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;gap:4px;will-change:transform;
                   animation:float3 6s ease-in-out infinite;animation-delay:1s;
                   box-shadow:0 8px 32px rgba(251,191,36,.2);">
         💰
-        <div style="font-size:8px;font-weight:700;color:#fbbf24;">Gelir</div>
+        <div style="font-size:7px;font-weight:700;color:#fbbf24;">Gelir</div>
       </div>
 
-      <!-- Bottom-Right: Rating -->
-      <div style="position:absolute;right:-50px;bottom:-50px;width:80px;height:80px;
+      <!-- Right-Bottom: Rating -->
+      <div style="position:absolute;right:-50px;bottom:30px;width:60px;height:60px;
                   background:rgba(168,85,247,.12);backdrop-filter:blur(10px);border:1px solid rgba(168,85,247,.3);
-                  border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:2rem;z-index:60;gap:6px;will-change:transform;
+                  border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.4rem;z-index:60;gap:4px;will-change:transform;
                   animation:float1 4.5s ease-in-out infinite;animation-delay:.8s;
                   box-shadow:0 8px 32px rgba(168,85,247,.25);">
         ⭐
-        <div style="font-size:8px;font-weight:700;color:#c4b5fd;">4.9</div>
+        <div style="font-size:7px;font-weight:700;color:#c4b5fd;">4.9</div>
       </div>
 
       <!-- Top-Center: Randevu -->
-      <div style="position:absolute;left:50%;top:-70px;transform:translateX(-50%);width:80px;height:80px;
+      <div style="position:absolute;left:50%;top:-50px;transform:translateX(-50%);width:60px;height:60px;
                   background:rgba(124,58,237,.12);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.3);
-                  border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:2.2rem;z-index:60;gap:6px;will-change:transform;
+                  border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;gap:4px;will-change:transform;
                   animation:float2 3.5s ease-in-out infinite;animation-delay:1.2s;
                   box-shadow:0 8px 32px rgba(124,58,237,.25);">
         📅
-        <div style="font-size:8px;font-weight:700;color:#c4b5fd;text-align:center;">Randevu</div>
+        <div style="font-size:7px;font-weight:700;color:#c4b5fd;text-align:center;">Randevu</div>
       </div>
 
       <!-- Bottom-Right Corner: Personel -->
-      <div style="position:absolute;right:-60px;bottom:80px;width:80px;height:80px;
+      <div style="position:absolute;right:-50px;bottom:-30px;width:60px;height:60px;
                   background:rgba(14,165,233,.12);backdrop-filter:blur(10px);border:1px solid rgba(14,165,233,.3);
-                  border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                  font-size:2.2rem;z-index:60;gap:6px;will-change:transform;
+                  border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  font-size:1.6rem;z-index:60;gap:4px;will-change:transform;
                   animation:float3 5.5s ease-in-out infinite;animation-delay:1s;
                   box-shadow:0 8px 32px rgba(14,165,233,.2);">
         👥
-        <div style="font-size:8px;font-weight:700;color:#0ea5e9;text-align:center;">Personel</div>
+        <div style="font-size:7px;font-weight:700;color:#0ea5e9;text-align:center;">Personel</div>
       </div>
-    </div>
 
-    <!-- CSS KEYFRAMES FOR LAPTOP -->
-    <style>
-      @keyframes laptopFloat {
-        0%, 100% { transform: translateX(-50%) translateY(0); }
-        50% { transform: translateX(-50%) translateY(-16px); }
-      }
-    </style>
-  </div>
+      </div>
 
-  <!-- DESKTOP: Info Content Next to Laptop (d-md-block) -->
-  <div style="display:none;padding:60px 32px;position:relative;z-index:5;" class="d-md-block">
-    <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:60px;">
-      <!-- Spacer for laptop visual -->
-      <div style="flex:1;"></div>
-
-      <!-- Info Block -->
-      <div style="flex:1;max-width:400px;">
+      <!-- RIGHT: INFO BLOCK -->
+      <div style="flex:1;min-width:300px;">
         <!-- Gradient Heading -->
         <h2 style="background:linear-gradient(135deg,#ec4899 0%,#7c3aed 100%);-webkit-background-clip:text;
                    -webkit-text-fill-color:transparent;background-clip:text;font-size:2rem;font-weight:900;
-                   margin-bottom:20px;letter-spacing:-.5px;">
+                   margin:0 0 24px 0;letter-spacing:-.5px;">
           İşletmenizi Tek Ekrandan Yönetin
         </h2>
 
@@ -1903,12 +1892,20 @@ body::before {
         </a>
       </div>
     </div>
+
+    <!-- CSS KEYFRAMES FOR LAPTOP -->
+    <style>
+      @keyframes laptopFloat {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-16px); }
+      }
+    </style>
   </div>
 
 
   <!-- MOBILE IMAGES (xs-sm) - Dikey görseller -->
   <div style="display:block;margin:40px auto;padding:0 16px;max-width:100%;text-align:center;" class="d-md-none">
-    <div style="display:flex;flex-direction:column;gap:24px;align-items:center;">
+    <div style="display:flex;flex-direction:column;gap:40px;align-items:center;">
       <img src="/static/images/c5.png"
            alt="RandevuCum Mobil Özellikleri"
            style="width:100%;height:auto;border-radius:20px;
@@ -1999,37 +1996,37 @@ body::before {
           <div style="font-size:.65rem;font-weight:700;color:#34d399;">WhatsApp</div>
         </div>
 
-        <!-- FLOATING CARD 2: Randevu Takvim (sağ üst) -->
-        <div style="position:absolute;right:12px;top:20px;width:72px;height:72px;
+        <!-- FLOATING CARD 2: Randevu (sağ üst) -->
+        <div style="position:absolute;right:8px;top:20px;width:50px;height:50px;
                     background:rgba(124,58,237,.12);backdrop-filter:blur(10px);border:1px solid rgba(124,58,237,.3);
-                    border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                    font-size:2rem;z-index:25;gap:4px;will-change:transform;
+                    border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                    font-size:1.4rem;z-index:25;gap:3px;will-change:transform;
                     animation:float2 4s ease-in-out infinite;animation-delay:.5s;
                     box-shadow:0 8px 32px rgba(124,58,237,.25);">
           📅
-          <div style="font-size:.65rem;font-weight:700;color:#c4b5fd;">Randevu</div>
+          <div style="font-size:6px;font-weight:700;color:#c4b5fd;">Randevu</div>
         </div>
 
-        <!-- FLOATING CARD 3: İstatistik (sol alt) -->
-        <div style="position:absolute;left:20px;bottom:30px;width:72px;height:72px;
+        <!-- FLOATING CARD 3: Analitik (sol alt) -->
+        <div style="position:absolute;left:8px;bottom:30px;width:50px;height:50px;
                     background:rgba(6,182,212,.12);backdrop-filter:blur(10px);border:1px solid rgba(6,182,212,.3);
-                    border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                    font-size:2rem;z-index:22;gap:4px;will-change:transform;
+                    border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                    font-size:1.4rem;z-index:22;gap:3px;will-change:transform;
                     animation:float3 6s ease-in-out infinite;animation-delay:1s;
                     box-shadow:0 8px 32px rgba(6,182,212,.2);">
           📊
-          <div style="font-size:.65rem;font-weight:700;color:#67e8f9;">Analitik</div>
+          <div style="font-size:6px;font-weight:700;color:#67e8f9;">Analitik</div>
         </div>
 
         <!-- FLOATING CARD 4: Puan (sağ orta) -->
-        <div style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:72px;height:72px;
+        <div style="position:absolute;right:8px;bottom:60px;width:50px;height:50px;
                     background:rgba(236,72,153,.12);backdrop-filter:blur(10px);border:1px solid rgba(236,72,153,.3);
-                    border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                    font-size:1.8rem;z-index:24;gap:2px;will-change:transform;
+                    border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                    font-size:1.3rem;z-index:24;gap:2px;will-change:transform;
                     animation:float1 4.5s ease-in-out infinite;animation-delay:.8s;
                     box-shadow:0 8px 32px rgba(236,72,153,.25);">
           ⭐
-          <div style="font-size:.7rem;font-weight:800;color:#f9a8d4;">4.9</div>
+          <div style="font-size:6px;font-weight:800;color:#f9a8d4;">4.9</div>
         </div>
       </div>
 
@@ -2053,16 +2050,55 @@ body::before {
         }
       </style>
 
-      <!-- Mobile Info Block (Below Phone) -->
-      <div style="margin-top:32px;padding:20px;background:rgba(124,58,237,.08);backdrop-filter:blur(16px);
-                  border:1px solid rgba(124,58,237,.25);border-radius:20px;box-shadow:0 12px 40px rgba(124,58,237,.15);
-                  text-align:center;">
-        <h3 style="color:#c4b5fd;font-size:16px;font-weight:900;margin-bottom:8px;letter-spacing:-.3px;">
+      <!-- Mobile Info Block (Masaüstü Checklist Tasarımı) -->
+      <div style="width:100%;max-width:380px;text-align:center;">
+        <!-- Gradient Heading -->
+        <h3 style="background:linear-gradient(135deg,#ec4899 0%,#7c3aed 100%);-webkit-background-clip:text;
+                   -webkit-text-fill-color:transparent;background-clip:text;font-size:1.4rem;font-weight:900;
+                   margin:0 0 24px 0;letter-spacing:-.3px;">
           Müşterileriniz için en hızlı randevu deneyimi
         </h3>
-        <p style="color:rgba(196,181,253,.75);font-size:13px;line-height:1.6;margin:0;">
-          Saniyeler içinde randevu almalarını sağlayın, WhatsApp botu ile süreci otomatiğe bağlayın.
-        </p>
+
+        <!-- Features List -->
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;text-align:left;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="flex-shrink:0;width:24px;height:24px;background:linear-gradient(135deg,#34d399,#06b6d4);
+                        border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:2px;
+                        font-size:14px;font-weight:900;">✓</div>
+            <div>
+              <div style="font-weight:800;color:#c4b5fd;font-size:14px;margin-bottom:3px;">Saniyeler içinde randevu</div>
+              <div style="color:rgba(196,181,253,.65);font-size:12px;line-height:1.4;">Müşteriler mobil uygulamada hızla slot seçip yapabilirler.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="flex-shrink:0;width:24px;height:24px;background:linear-gradient(135deg,#f59e0b,#ec4899);
+                        border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:2px;
+                        font-size:14px;font-weight:900;">✓</div>
+            <div>
+              <div style="font-weight:800;color:#c4b5fd;font-size:14px;margin-bottom:3px;">WhatsApp Otomasyonu</div>
+              <div style="color:rgba(196,181,253,.65);font-size:12px;line-height:1.4;">Chatbot süreci hızlandırır, randevu taşıyıcılığını önler.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="flex-shrink:0;width:24px;height:24px;background:linear-gradient(135deg,#06b6d4,#3b82f6);
+                        border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:2px;
+                        font-size:14px;font-weight:900;">✓</div>
+            <div>
+              <div style="font-weight:800;color:#c4b5fd;font-size:14px;margin-bottom:3px;">Hazır, kullanıma açık</div>
+              <div style="color:rgba(196,181,253,.65);font-size:12px;line-height:1.4;">Ek kurulum, ek insan kaynağı gerekmez.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Button -->
+        <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#ec4899,#7c3aed);
+                          color:#fff;padding:12px 24px;border-radius:12px;font-weight:800;font-size:13px;
+                          text-decoration:none;transition:all .3s;box-shadow:0 12px 32px rgba(236,72,153,.35);
+                          border:none;cursor:pointer;">
+          Hemen Dene →
+        </a>
       </div>
     </div>
 
