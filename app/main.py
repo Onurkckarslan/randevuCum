@@ -168,9 +168,12 @@ async def lifespan(app: FastAPI):
             """))
 
         db.commit()
+        print("[Migration] ✅ Tüm migration'lar başarıyla tamamlandı")
     except Exception as e:
         db.rollback()
-        print(f"Migration warning: {e}")
+        print(f"[Migration] ❌ HATA: {str(e)}")
+        import traceback
+        traceback.print_exc()
     finally:
         db.close()
 
