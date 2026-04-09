@@ -313,20 +313,20 @@ function copyLink(btn, url) {
 }
 
 function shareWhatsApp() {
-  const urlWithoutWWW = "https://randevucum.com/" + slug;
-  window.location.href = "https://wa.me/?text=" + encodeURIComponent(urlWithoutWWW);
+  const url = "randevucum.com/" + slug;
+  window.location.href = "https://wa.me/?text=" + encodeURIComponent(url);
 }
 
 function shareNative() {
-  const urlWithoutWWW = "https://randevucum.com/" + slug;
+  const url = "randevucum.com/" + slug;
   if (navigator.share) {
     navigator.share({
       title: "Randevu",
-      text: urlWithoutWWW,
-      url: urlWithoutWWW
-    }).catch(() => copyToClipboard(urlWithoutWWW));
+      text: url,
+      url: url
+    }).catch(() => copyToClipboard(url));
   } else {
-    copyToClipboard(urlWithoutWWW);
+    copyToClipboard(url);
   }
 }
 </script>
