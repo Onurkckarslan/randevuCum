@@ -313,7 +313,8 @@ function copyLink(btn, url) {
 }
 
 function shareWhatsApp() {
-  window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + bizUrl);
+  const urlWithoutWWW = "https://randevucum.com/" + slug;
+  window.location.href = "https://wa.me/?text=" + encodeURIComponent("Randevu linkim: " + urlWithoutWWW);
 }
 
 function shareNative() {
